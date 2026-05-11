@@ -561,8 +561,11 @@ section {
 }
 
 @keyframes blink {
-    50% { opacity: 0; }
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }  
+    100% { opacity: 1; }
 }
+
 
 /* --- ABOUT SECTION STYLES --- */
 .about-section {
