@@ -1,6 +1,6 @@
-
-import { defineConfig } from 'astro/config';
+import { defineConfig } from 'astro/config'
 
 export default defineConfig({
-  base: '/loverachel/',
-});
+  site: 'https://rc072406.github.io/loverachel/',
+  base: '/loverachel',
+})
