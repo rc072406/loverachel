@@ -1,0 +1,77 @@
+---
+// src/layouts/BaseLayout.astro
+import '../styles/global.css';
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | love, RACHEL | FASHION AND STEM MAGAZINE </title>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,900&family=Fira+Code:wght@300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body>
+
+<nav class="side-navigation" id="sideNav">
+    <div class="nav-header">
+        <div class="logo"><a href="/">love, RACHEL</a></div>
+        <button class="menu-close" onclick="toggleMenu()">✕</button>
+    </div>
+    <section class="toc-section">
+        <nav class="toc-nav">
+            <a href="/about" class="toc-item">
+                <div class="toc-content">
+                    <span class="toc-link">About</span>
+                    <p>Architecting a new visual language for women in STEM.</p>
+                </div>
+            </a>
+            <a href="/issues" class="toc-item">
+                <div class="toc-content">
+                    <span class="toc-link">Issues</span>
+                    <p>From the best pointe shoes to bio-tech. Explore our latest features.</p>
+                </div>
+            </a>
+            <a href="/contact" class="toc-item">
+                <div class="toc-content">
+                    <span class="toc-link">Contact</span>
+                    <p>Join the collective. How to contribute your voice.</p>
+                </div>
+            </a>
+        </nav>
+    </section>
+</nav>
+
+<header class="mobile-header">
+    <div class="logo"><a href="/">love, RACHEL</a></div>
+    <button class="hamburger" onclick="toggleMenu()">
+        <span></span><span></span>
+    </button>
+</header>
+
+<main>
+    <slot /> </main>
+
+<section class="chaos-footer">
+    <div class="stack-container">
+        <h2 class="stack-text outline slide-left">ISSUE NO.01 COMING SOON</h2>
+        <h2 class="stack-text solid">// ISSUE NO.01 COMING</h2>
+        <h2 class="stack-text outline-faded slide-right">SOON // ISSUE NO.01 //</h2>
+        <h2 class="stack-text solid-overlap">COMING SOON // ISSUE //</h2>
+        <h2 class="stack-text outline-bold">NO.01 COMING SOON // //</h2>
+    </div>
+</section>
+
+<div class="ticker-wrap">
+    <div class="ticker-content">
+        <span>© love, RACHEL 2026.——EMAIL:N/A——@loverachel——7-24-06——DESIGN BY: RACHEL C</span>
+    </div>
+</div>
+
+<div class="side-date">ISSUE NO. 01<br><strong>RECODING FEMININITY</strong><br>COMING SOON</div>
+
+<script src="/src/scripts/script.js"></script>
+</body>
+</html>
