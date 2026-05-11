@@ -72,6 +72,11 @@ const { title } = Astro.props;
 
 <div class="side-date">ISSUE NO. 01<br><strong>RECODING FEMININITY</strong><br>COMING SOON</div>
 
-<script src="/src/scripts/script.js"></script>
+<script>
+function toggleMenu() {
+    const nav = document.getElementById('sideNav');
+    nav.classList.toggle('active');
+}
+</script>
 </body>
 </html>
