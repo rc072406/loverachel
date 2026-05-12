@@ -239,10 +239,6 @@ section {
     z-index: 500;
 }
 
-@keyframes scroll-left {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
 
 
 @media (max-width: 1024px) {
@@ -290,11 +286,22 @@ section {
     display: flex;
     overflow: hidden;
     white-space: nowrap;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+
 }
 
 .track {
     display: flex;
     animation: scroll-left 20s linear infinite;
+    width: max-content; 
+   -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    will-change: transform;
 }
 
 .hero-row span {
@@ -305,6 +312,8 @@ section {
     color: #fff;
     padding-right: 20px;
     transition: all 0.4s ease;
+    flex-shrink: 0;
+    -webkit-transform: translateZ(0);
 }
 
 
