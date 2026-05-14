@@ -435,12 +435,14 @@ section {
     display: block;
 }
 .hollow-heart {
-   width: 1.5em; 
-    height: 1.5em;
-    fill: none;
+   width: 0.8em; 
+   height: 0.8em;
+   fill: none;
     stroke: currentColor;
-    stroke-width: 1.2px; 
-    transform: rotate(12deg) translateY(-2px); 
+    stroke-width: 1.5px; 
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: rotate(-8deg) translateY(2px);
     display: inline-block;
 }
 
