@@ -1,10 +1,17 @@
 ---
 // src/components/TypeWriter.astro
-const { phrases = ["Hello World"], waitTime = 2000 } = Astro.props;
+const { phrases = ["Falling in love."], waitTime = 2000 } = Astro.props;
 ---
 
 <type-writer data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
-  <span class="typewriter-text"></span>
+  <section class="typing-box-container">
+    <div class="typing-box">
+      <div class="box-content">
+        <span class="typewriter-text"></span>
+        <span class="cursor">|</span>
+      </div>
+    </div>
+  </section>
 </type-writer>
 
 <script>
@@ -15,7 +22,7 @@ const { phrases = ["Hello World"], waitTime = 2000 } = Astro.props;
       const waitTime = parseInt(this.dataset.wait || "2000");
       const target = this.querySelector('.typewriter-text');
       
-      if (target) {
+      if (target && phrases.length > 0) {
         this.initTypewriter(target, phrases, waitTime);
       }
     }
@@ -53,8 +60,9 @@ const { phrases = ["Hello World"], waitTime = 2000 } = Astro.props;
     }
   }
 
-  // 
-  customElements.define('type-writer', TypeWriterElement);
+  if (!customElements.get('type-writer')) {
+    customElements.define('type-writer', TypeWriterElement);
+  }
 </script>
 
 <style>
@@ -68,6 +76,8 @@ const { phrases = ["Hello World"], waitTime = 2000 } = Astro.props;
     width: 100%;
     max-width: 900px;
     border: 1px solid #333;
+    display: flex;
+   align-items: center;
 }
 
 .box-content {
