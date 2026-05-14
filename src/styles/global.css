@@ -472,7 +472,6 @@ section {
     position: relative; 
     transform: rotate(0) translateX(0) translateY(-20px);
     margin: 0 15px;
-    filter: grayscale(0);
     box-shadow: 0 20px 40px rgba(0,0,0,0.8);
 }
 
