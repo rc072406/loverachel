@@ -1,15 +1,8 @@
 ---
 // src/layouts/BaseLayout.astro
 import '../styles/global.css';
+import Navigation from '../components/Navigation.astro'; // <--- ADD THIS IMPORT
 const { title } = Astro.props;
-
-
-const pathname = new URL(Astro.request.url).pathname;
-
-// This logic works for /loverachel/about AND /about
-const isAbout = pathname.endsWith('/about') || pathname.endsWith('/about/');
-const isIssues = pathname.endsWith('/issues') || pathname.endsWith('/issues/');
-const isContact = pathname.endsWith('/contact') || pathname.endsWith('/contact/');
 
 ---
 <!DOCTYPE html>
@@ -24,37 +17,7 @@ const isContact = pathname.endsWith('/contact') || pathname.endsWith('/contact/'
 </head>
 <body>
 
-<nav class="side-navigation" id="sideNav">
-    <div class="nav-header">
-        <div class="logo"><a href="/loverachel/index">love, RACHEL</a></div>
-        <button class="menu-close" id="menuClose">✕</button>
-    </div>
-    <section class="toc-section">
-        <nav class="toc-nav">
-            <a href="/loverachel/about" class="toc-item">
-                <div class="toc-content">
-                    <span class="toc-link">About</span>
-                    <p>Architecting a new visual language for women in STEM.</p>
-                    {isAbout && <p class="nav-alert">Where are you?</p>}
-                </div>
-            </a>
-            <a href="/loverachel/issues" class="toc-item">
-                <div class="toc-content">
-                    <span class="toc-link">Issues</span>
-                    <p>From the best pointe shoes to bio-tech. Explore our latest features.</p>
-                    {isIssues && <p class="nav-alert">Where are you?</p>}
-                </div>
-            </a>
-            <a href="/loverachel/contact" class="toc-item">
-                <div class="toc-content">
-                    <span class="toc-link">Contact</span>
-                    <p>Join the collective. How to contribute your voice.</p>
-                    {isContact && <p class="nav-alert">Where are you?</p>}
-                </div>
-            </a>
-        </nav>
-    </section>
-</nav>
+<Navigation />
 
 <header class="mobile-header">
     <div class="logo"><a href="/loverachel/index">love, RACHEL</a></div>
@@ -85,15 +48,5 @@ const isContact = pathname.endsWith('/contact') || pathname.endsWith('/contact/'
 
 <div class="side-date">ISSUE NO. 01<br><strong>RECODING FEMININITY</strong><br>COMING SOON</div>
 
-<script>
-
-const nav = document.getElementById('sideNav');
-const openBtn = document.getElementById('menuOpen');
-const closeBtn = document.getElementById('menuClose');
-
-openBtn?.addEventListener('click', () => nav?.classList.add('active'));
-closeBtn?.addEventListener('click', () => nav?.classList.remove('active'));
-
-</script>
 </body>
 </html>
