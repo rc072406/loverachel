@@ -1,11 +1,15 @@
 ---
 // src/components/TypeWriter.astro
-const { phrases = ["Falling in love."], waitTime = 2000 } = Astro.props;
+const { 
+  phrases = ["Falling in love."], 
+  waitTime = 2000, 
+  align = "center" // Default to center
+} = Astro.props;
 ---
 
 <type-writer data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
   <section class="typing-box-container">
-    <div class="typing-box">
+    <div class="typing-box" style={`align-items: ${align};`}>
       <div class="box-content">
         <span class="typewriter-text"></span>
         <span class="cursor">|</span>
