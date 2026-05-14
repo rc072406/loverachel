@@ -441,16 +441,13 @@ section {
     left: 20px;   
     right: 20px;
     text-align: center;
-    
-   
     font-family: 'Reenie Beanie', cursive;
     font-size: clamp(1.4rem, 2.5vw, 1.8rem); 
     line-height: 1;
-    
-    
     color: #222;       
     letter-spacing: 0; 
     opacity: 0.9;
+    transform: rotate(-1.5deg);
 }
 
 
