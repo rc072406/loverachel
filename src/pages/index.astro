@@ -27,16 +27,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <section class="typing-box-container">
-    <div class="typing-box">
-      <div class="box-content">
-        <span class="typewriter" 
-              data-phrases='["Falling in love.", "One story at a time.", "One picture at a time.", "One page at a time."]'>
-        </span>
-        <span class="cursor">|</span>
-      </div>
-    </div>
-  </section>
+ <TypeWriter 
+  phrases={["Falling in love.", "One story at a time.", "One page at a time."]} 
+  waitTime={3000} 
+/>
 
   <section class="database-section">
     <div class="database-intro">
