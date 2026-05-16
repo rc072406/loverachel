@@ -1,31 +1,10 @@
 ---
 // src/components/Database.astro
-// 1. Define  models here
 const models = [
-  {
-    id: 1,
-    name: "filler",
-    image: "/images/filler.jpg", 
-    link: "/profiles/filler"
-  },
-  {
-    id: 2,
-    name: "filler",
-    image: "/images/filler.jpg",
-    link: "/profiles/filler"
-  },
-  {
-    id: 3,
-    name: "filler",
-    image: "/images/filler.jpg",
-    link: "/profiles/filler"
-  },
-  {
-    id: 4,
-    name: "JORDAN",
-    image: "/images/filler.jpg",
-    link: "/profiles/filler"
-  }
+  { id: 1, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 2, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 3, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 4, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" }
 ];
 ---
 
@@ -36,12 +15,11 @@ const models = [
   </div>
 
   <div class="model-pile-container">
-    {}
-    {[1, 2, 3, 4].map((id) => (
-      <a href={`/profiles/model-${id}`} class={`model-card card-${id}`}>
-        <img src={`/api/placeholder/400/400`} alt={`Model ${id}`} />
+    {models.map((model) => (
+      <a href={model.link} class={`model-card card-${model.id}`}>
+        <img src={model.image} alt={model.name} />
         <div class="polaroid-caption">
-          <span>name</span>
+          <span>{model.name}</span>
           <svg class="hollow-heart" viewBox="0 0 24 24">
             <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
           </svg>
@@ -61,37 +39,34 @@ const models = [
     const cards = gsap.utils.toArray(".model-card");
     const section = document.querySelector(".database-section");
     
-   
+    if (!section || cards.length === 0) return;
+
+    // Total scroll distance (1 viewport height per card)
     const scrollTriggerEndValue = cards.length * window.innerHeight;
 
-    
-    const tl = gsap.timeline({
+    gsap.to(cards, {
       scrollTrigger: {
         trigger: section,
         start: "top top",
         end: `+=${scrollTriggerEndValue}`,
-        pin: true,
         scrub: 1,
+        pin: true,
         anticipatePin: 1,
-      }
-    });
-
-    tl.to(cards, {
-      
-      x: (i) => (i % 2 === 0 ? -window.innerWidth * 2 : window.innerWidth * 2),
-      y: -window.innerHeight * 1.2,
-      rotation: (i) => (i % 2 === 0 ? -60 : 60),
-      scale: 2,
-      stagger: {
-        each: 1,
-        from: "end" // Top card flies first
       },
-      ease: "none"
+      // Random Flight Logic
+      x: () => (Math.random() > 0.5 ? window.innerWidth * 1.5 : -window.innerWidth * 1.5),
+      y: () => -window.innerHeight * (1.2 + Math.random()), 
+      rotation: () => Math.random() * 90 - 45,
+      scale: 2,
+      ease: "none",
+      stagger: {
+        each: 1, 
+        from: "end" // CRITICAL: This picks the top card (last in the list) first
+      }
     });
   };
 
   runAnimation();
-  // Standard Astro event for view transitions
   document.addEventListener("astro:after-swap", runAnimation);
 </script>
 
@@ -106,7 +81,7 @@ const models = [
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    touch-action: none; 
+    touch-action: pan-y;
   }
 
   .database-intro {
@@ -140,10 +115,10 @@ const models = [
 
   .model-card {
     position: absolute;
-    width: 300px;
+    width: 300px; 
     height: 365px;
     background: #fdfdfd;
-    padding: 12px 12px 60px 12px;
+    padding: 15px 15px 75px 15px;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -151,31 +126,29 @@ const models = [
     border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
     cursor: pointer;
-    will-change: transform;
   }
-
- 
-  .card-1 { transform: translate(-55%, -50%) rotate(-5deg); z-index: 4; }
-  .card-2 { transform: translate(-48%, -52%) rotate(3deg); z-index: 3; }
-  .card-3 { transform: translate(-52%, -48%) rotate(-2deg); z-index: 2; }
-  .card-4 { transform: translate(-45%, -50%) rotate(6deg); z-index: 1; }
 
   .model-card img {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
-    border: 1px solid rgba(0,0,0,0.1);
   }
+
+  /* Z-INDEX STACKING: Higher number = Higher in the pile */
+  .card-1 { transform: translate(-55%, -50%) rotate(-5deg); z-index: 1; }
+  .card-2 { transform: translate(-48%, -52%) rotate(3deg); z-index: 2; }
+  .card-3 { transform: translate(-52%, -48%) rotate(-2deg); z-index: 3; }
+  .card-4 { transform: translate(-45%, -50%) rotate(6deg); z-index: 4; } /* This is the top card */
 
   .polaroid-caption {
     position: absolute;
-    bottom: 20px;
+    bottom: 28px;
     left: 0;
     right: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0px;
+    gap: -2px;
     font-family: 'Reenie Beanie', cursive;
     font-size: 1.8rem;
     color: #1a1a1a;
@@ -195,17 +168,10 @@ const models = [
     50% { opacity: 0.3; }
   }
 
-  /* --- MOBILE FIX --- */
-  @media (max-width: 1024px) {
+  @media (max-width: 600px) {
     .model-card {
-      width: 220px; /* Shrunk for mobile screens */
-      height: 280px;
-      padding-bottom: 50px;
-    }
-    
-    /* Keep them absolute so GSAP can fly them away! */
-    .model-pile-container {
-      height: 300px;
+      width: 260px;
+      height: 315px;
     }
   }
 </style>
