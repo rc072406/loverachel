@@ -121,18 +121,9 @@ section {
 
     
 
-    .model-pile-container {
-        flex-direction: column;
-        height: auto;
-    }
+  
 
-    .model-card {
-        position: relative; /* Stacks them vertically on phone */
-        transform: none !important;
-        margin: 20px 0;
-        width: 100%;
-        max-width: 300px;
-    }
+   
 
     .side-date { display: none; }
     
@@ -313,78 +304,94 @@ section {
     opacity: 0.9;
     transform: rotate(-1.5deg);
 }
-/* 1. Container Setup for 3D Depth */
+/* --- DATABASE SECTION --- */
+
 .model-pile-container {
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    min-height: 500px;
-    perspective: 1200px; 
+    min-height: 600px;
+    width: 100%;
+    perspective: 2000px; 
 }
 
-/* 2. Optimized Card Base */
 .model-card {
     position: absolute;
     width: 280px; 
-    height: 350px;
+    height: 380px;
     background: #fdfdfd; 
-    border: none;
     padding: 15px 15px 60px 15px; 
-    
-    
-    transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), 
-                box-shadow 0.7s ease, 
-                opacity 0.5s ease;
-    
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    display: flex;
-    flex-direction: column;
     left: 50%;
     top: 50%;
     
-    
-    will-change: transform; 
+    /* Hardware Acceleration */
+    will-change: transform;
     backface-visibility: hidden;
+    
+    /* Smooth 'Snap' transition */
+    transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), 
+                box-shadow 0.5s ease;
+    
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
-/* Resting Pile Positions - Subtle Offsets */
-.card-1 { transform: translate(-55%, -50%) rotate(-5deg); z-index: 4; }
-.card-2 { transform: translate(-48%, -52%) rotate(3deg); z-index: 3; }
-.card-3 { transform: translate(-52%, -48%) rotate(-2deg); z-index: 2; }
-.card-4 { transform: translate(-45%, -50%) rotate(6deg); z-index: 1; }
+/* --- 1. THE SCATTERED START (Default State) --- */
 
-/* 3. The 'Fan Out' with 3D Tilt (Desktop) */
+.card-1 { transform: translate3d(-55%, -50%, 0) rotate(-5deg); z-index: 4; }
+.card-2 { transform: translate3d(-48%, -52%, 0) rotate(3deg); z-index: 3; }
+.card-3 { transform: translate3d(-52%, -48%, 0) rotate(-2deg); z-index: 2; }
+.card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 1; }
+
+/* --- 2. THE 3D LINEAR DEAL (Desktop Hover) --- */
 @media (min-width: 1025px) {
-    /* Adding RotateY(10deg) makes the cards lean toward the viewer */
     .model-pile-container:hover .card-1 { 
-        transition-delay: 0.05s; 
-        transform: translate(-190%, -60%) rotate(-12deg) rotateY(10deg); 
-    }
-    .model-pile-container:hover .card-2 { 
-        transition-delay: 0.1s; 
-        transform: translate(-110%, -70%) rotate(-4deg) rotateY(5deg); 
-    }
-    .model-pile-container:hover .card-3 { 
-        transition-delay: 0.15s; 
-        transform: translate(-10%, -70%) rotate(4deg) rotateY(-5deg); 
-    }
-    .model-pile-container:hover .card-4 { 
-        transition-delay: 0.2s; 
-        transform: translate(70%, -60%) rotate(12deg) rotateY(-10deg); 
-    }
-
-    
-    .model-pile-container .model-card {
+        transform: translate3d(-200%, -50%, -100px) rotateY(20deg) rotate(0deg); 
         transition-delay: 0s;
     }
+    .model-pile-container:hover .card-2 { 
+        transform: translate3d(-105%, -50%, 0) rotateY(10deg) rotate(0deg); 
+        transition-delay: 0.05s;
+    }
+    .model-pile-container:hover .card-3 { 
+        transform: translate3d(5%, -50%, 0) rotateY(-10deg) rotate(0deg); 
+        transition-delay: 0.1s;
+    }
+    .model-pile-container:hover .card-4 { 
+        transform: translate3d(100%, -50%, -100px) rotateY(-20deg) rotate(0deg); 
+        transition-delay: 0.15s;
+    }
+
+    /* Individual Card Focus: Bring it to the front */
+    .model-card:hover {
+        z-index: 100 !important;
+        
+        transform: translate3d(-50%, -60%, 150px) rotateY(0deg) rotate(0deg) scale(1.05) !important;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+        transition-delay: 0s !important; /* Immediate response on direct hover */
+    }
 }
 
+/* --- 3. CLEAN MOBILE RESPONSIVENESS --- */
+@media (max-width: 1024px) {
+    .model-pile-container {
+        flex-direction: column;
+        min-height: auto;
+        padding: 100px 5%;
+        perspective: none;
+        gap: 40px;
+    }
 
-.model-card:hover {
-    z-index: 100 !important;
-    transform: translate(-50%, -85%) scale(1.1) translateZ(50px) rotate(0deg) !important;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+    .model-card {
+        position: relative;
+        left: 0;
+        top: 0;
+        transform: none !important; /* Stack them flat and clean */
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
 }
 
 
