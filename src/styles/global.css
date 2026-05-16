@@ -325,15 +325,16 @@ section {
     left: 50%;
     top: 50%;
     
-    /* Hardware Acceleration */
+    /* ADDED: Subtle card edge border */
+    border: 1px solid rgba(0,0,0,0.05); 
+    
     will-change: transform;
     backface-visibility: hidden;
-    
-    /* Smooth 'Snap' transition */
     transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), 
                 box-shadow 0.5s ease;
     
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    /* Enhanced shadow for depth */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 /* --- 1. THE SCATTERED START (Default State) --- */
@@ -343,35 +344,29 @@ section {
 .card-3 { transform: translate3d(-52%, -48%, 0) rotate(-2deg); z-index: 2; }
 .card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 1; }
 
-/* --- 2. THE 3D LINEAR DEAL (Desktop Hover) --- */
+* --- THE WIDE 3D DEAL (No Overlap) --- */
 @media (min-width: 1025px) {
+    /* container hover: cards spread out wide */
     .model-pile-container:hover .card-1 { 
-        transform: translate3d(-200%, -50%, -100px) rotateY(20deg) rotate(0deg); 
-        transition-delay: 0s;
+        transform: translate3d(-230%, -50%, -100px) rotateY(15deg); 
     }
     .model-pile-container:hover .card-2 { 
-        transform: translate3d(-105%, -50%, 0) rotateY(10deg) rotate(0deg); 
-        transition-delay: 0.05s;
+        transform: translate3d(-115%, -50%, -50px) rotateY(5deg); 
     }
     .model-pile-container:hover .card-3 { 
-        transform: translate3d(5%, -50%, 0) rotateY(-10deg) rotate(0deg); 
-        transition-delay: 0.1s;
+        transform: translate3d(15%, -50%, -50px) rotateY(-5deg); 
     }
     .model-pile-container:hover .card-4 { 
-        transform: translate3d(100%, -50%, -100px) rotateY(-20deg) rotate(0deg); 
-        transition-delay: 0.15s;
+        transform: translate3d(130%, -50%, -100px) rotateY(-15deg); 
     }
 
-    /* Individual Card Focus: Bring it to the front */
+    /* Individual Card Focus: Bring to front and flatten */
     .model-card:hover {
         z-index: 100 !important;
-        
-        transform: translate3d(-50%, -60%, 150px) rotateY(0deg) rotate(0deg) scale(1.05) !important;
-        box-shadow: 0 50px 100px rgba(0,0,0,0.8);
-        transition-delay: 0s !important; /* Immediate response on direct hover */
+        transform: translate3d(-50%, -60%, 200px) rotateY(0deg) scale(1.05) !important;
+        box-shadow: 0 60px 120px rgba(0,0,0,0.9);
     }
 }
-
 /* --- 3. CLEAN MOBILE RESPONSIVENESS --- */
 @media (max-width: 1024px) {
     .model-pile-container {
@@ -386,7 +381,7 @@ section {
         position: relative;
         left: 0;
         top: 0;
-        transform: none !important; /* Stack them flat and clean */
+        transform: none !important; 
         width: 100%;
         max-width: 320px;
         margin: 0 auto;
@@ -394,15 +389,27 @@ section {
     }
 }
 
-
+* --- IMAGE & PRINT EFFECTS --- */
 .model-card img {
-   aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 1;
     width: 100%;
     height: auto;
     object-fit: cover;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    display: block;
+    
+    
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2); 
 }
 
+/*   slight paper texture or subtle gradient to the card */
+.model-card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.02) 100%);
+}
 
 
 
