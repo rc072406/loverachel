@@ -9,30 +9,37 @@
   </div>
 
   <div class="model-pile-container">
-    <div class="model-card card-1">
+    <a href="/profiles/model-1" class="model-card card-1">
       <img src="/api/placeholder/400/400" alt="Model 1" />
-      <div class="polaroid-caption">name 
+      <div class="polaroid-caption">
+        <span>name</span>
         <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
       </div>
-    </div>
-    <div class="model-card card-2">
+    </a>
+
+    <a href="/profiles/model-2" class="model-card card-2">
       <img src="/api/placeholder/400/400" alt="Model 2" />
-      <div class="polaroid-caption">name 
+      <div class="polaroid-caption">
+        <span>name</span>
         <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
       </div>
-    </div>
-    <div class="model-card card-3">
+    </a>
+
+    <a href="/profiles/model-3" class="model-card card-3">
       <img src="/api/placeholder/400/400" alt="Model 3" />
-      <div class="polaroid-caption">name 
+      <div class="polaroid-caption">
+        <span>name</span>
         <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
       </div>
-    </div>
-    <div class="model-card card-4">
+    </a>
+
+    <a href="/profiles/model-4" class="model-card card-4">
       <img src="/api/placeholder/400/400" alt="Model 4" />
-      <div class="polaroid-caption">name 
+      <div class="polaroid-caption">
+        <span>name</span>
         <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
       </div>
-    </div>
+    </a>
   </div>
 </section>
 
@@ -46,12 +53,11 @@
     const cards = gsap.utils.toArray(".model-card");
     const section = document.querySelector(".database-section");
 
-    // Setting up the timeline
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: "top top",
-        end: "+=3000", // Length of the scroll
+        end: "+=3000",
         pin: true,
         scrub: 1,
         anticipatePin: 1,
@@ -64,12 +70,11 @@
       rotation: (i) => (i % 2 === 0 ? -40 : 40),
       scale: 1.8,
       opacity: 0,
-      stagger: 0.2, // Cards fly off one after another
+      stagger: 0.2,
       ease: "power2.inOut"
     });
   };
 
-  // Astro-specific lifecycle: ensures it works after page transitions
   runAnimation();
   document.addEventListener("astro:after-swap", runAnimation);
 </script>
@@ -91,13 +96,12 @@
     text-align: center;
     z-index: 10;
     margin-bottom: 40px;
-    pointer-events: none; /* Allows scrolling through text */
+    pointer-events: none;
   }
 
   .database-title {
     font-family: 'Inter', sans-serif;
     font-size: clamp(2rem, 5vw, 4rem);
-    text-transform: uppercase;
     color: #fff;
   }
 
@@ -124,10 +128,12 @@
     padding: 15px 15px 75px 15px;
     left: 50%;
     top: 50%;
-    /* Start centered and messy */
     transform: translate(-50%, -50%);
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     border: 1px solid rgba(0,0,0,0.05);
+    /* Link styling */
+    text-decoration: none;
+    cursor: pointer;
   }
 
   .model-card img {
@@ -137,7 +143,6 @@
     border: 1px solid rgba(0,0,0,0.1);
   }
 
-  /* Initial Scatter positions */
   .card-1 { transform: translate(-55%, -50%) rotate(-5deg); z-index: 4; }
   .card-2 { transform: translate(-48%, -52%) rotate(3deg); z-index: 3; }
   .card-3 { transform: translate(-52%, -48%) rotate(-2deg); z-index: 2; }
@@ -148,7 +153,12 @@
     bottom: 28px;
     left: 15px;
     right: 15px;
-    text-align: center;
+    /* Flex alignment for heart */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; 
+    
     font-family: 'Reenie Beanie', cursive;
     font-size: 1.8rem;
     color: #1a1a1a;
@@ -161,7 +171,6 @@
     fill: none;
     stroke: currentColor;
     stroke-width: 1.5px;
-    vertical-align: middle;
   }
 
   @keyframes blink {
@@ -169,7 +178,6 @@
     50% { opacity: 0.3; }
   }
 
-  /* Responsive: Stack vertically on small screens */
   @media (max-width: 1024px) {
     .database-section { height: auto; padding: 80px 0; }
     .model-pile-container { 
@@ -184,6 +192,7 @@
       transform: none !important; 
       margin: 0 auto;
       opacity: 1 !important;
+      display: block;
     }
   }
 </style>
