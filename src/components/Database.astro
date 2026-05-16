@@ -84,7 +84,7 @@ const models = [
     touch-action: pan-y;
   }
 
-  .database-intro {
+ .database-intro {
   position: absolute;
   left: 3vw;
   top: 50%;
@@ -92,29 +92,27 @@ const models = [
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  z-index: 10;
+  z-index: 100; 
   pointer-events: none;
+  max-height: 90vh;
 }
 
 .database-title {
-  /* Vertical Orientation */
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-family: 'Inter', sans-serif;
   font-weight: 900;
-  font-size: clamp(4rem, 10vw, 8rem);
+  font-size: clamp(3rem, 8vw, 6rem); 
   text-transform: uppercase;
   letter-spacing: -0.02em;
   line-height: 0.8;
   color: transparent;
   -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
-  
   margin: 0;
   padding-bottom: 20px;
 }
 
 .press-alert {
- 
   background: #ff0033;
   color: #fff;
   font-family: 'Fira Code', monospace;
@@ -122,12 +120,10 @@ const models = [
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  
   padding: 8px 12px;
-  margin-top: 10px;
-  margin-left: -5px; 
-  
-  
+  margin-top: 20px; 
+  position: relative;
+  display: inline-block;
   animation: blink 2s infinite ease-in-out;
 }
 
