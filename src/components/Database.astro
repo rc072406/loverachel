@@ -85,26 +85,65 @@ const models = [
   }
 
   .database-intro {
-    text-align: center;
-    z-index: 10;
-    margin-bottom: 40px;
-    pointer-events: none;
-  }
+  position: absolute;
+  left: 3vw;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 10;
+  pointer-events: none;
+}
 
+.database-title {
+  /* Vertical Orientation */
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: clamp(4rem, 10vw, 8rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
+  
+  margin: 0;
+  padding-bottom: 20px;
+}
+
+.press-alert {
+ 
+  background: #ff0033;
+  color: #fff;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  
+  padding: 8px 12px;
+  margin-top: 10px;
+  margin-left: -5px; 
+  
+  
+  animation: blink 2s infinite ease-in-out;
+}
+
+
+@media (max-width: 768px) {
+  .database-intro {
+    left: 10px;
+    top: 20px;
+    transform: none;
+  }
+  
   .database-title {
-    font-family: 'Inter', sans-serif;
-    font-size: clamp(2rem, 5vw, 4rem);
-    color: #fff;
-    text-transform: uppercase;
+    font-size: 3.5rem;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
   }
-
-  .press-alert {
-    font-family: 'Fira Code', monospace;
-    color: #ff0033;
-    font-size: 14px;
-    text-transform: uppercase;
-    animation: blink 1.5s infinite;
-  }
+}
 
   .model-pile-container {
     position: relative;
