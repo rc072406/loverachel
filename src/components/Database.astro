@@ -1,0 +1,189 @@
+---
+// Database.astro
+---
+
+<section class="database-section">
+  <div class="database-intro">
+    <h2 class="database-title">model database</h2>
+    <p class="press-alert">scroll to explore</p>
+  </div>
+
+  <div class="model-pile-container">
+    <div class="model-card card-1">
+      <img src="/api/placeholder/400/400" alt="Model 1" />
+      <div class="polaroid-caption">name 
+        <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
+      </div>
+    </div>
+    <div class="model-card card-2">
+      <img src="/api/placeholder/400/400" alt="Model 2" />
+      <div class="polaroid-caption">name 
+        <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
+      </div>
+    </div>
+    <div class="model-card card-3">
+      <img src="/api/placeholder/400/400" alt="Model 3" />
+      <div class="polaroid-caption">name 
+        <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
+      </div>
+    </div>
+    <div class="model-card card-4">
+      <img src="/api/placeholder/400/400" alt="Model 4" />
+      <div class="polaroid-caption">name 
+        <svg class="hollow-heart" viewBox="0 0 24 24"><path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" /></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const runAnimation = () => {
+    const cards = gsap.utils.toArray(".model-card");
+    const section = document.querySelector(".database-section");
+
+    // Setting up the timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "+=3000", // Length of the scroll
+        pin: true,
+        scrub: 1,
+        anticipatePin: 1,
+      }
+    });
+
+    tl.to(cards, {
+      x: (i) => (i % 2 === 0 ? -window.innerWidth * 1.2 : window.innerWidth * 1.2),
+      y: (i) => -window.innerHeight * 0.8,
+      rotation: (i) => (i % 2 === 0 ? -40 : 40),
+      scale: 1.8,
+      opacity: 0,
+      stagger: 0.2, // Cards fly off one after another
+      ease: "power2.inOut"
+    });
+  };
+
+  // Astro-specific lifecycle: ensures it works after page transitions
+  runAnimation();
+  document.addEventListener("astro:after-swap", runAnimation);
+</script>
+
+<style>
+  .database-section {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .database-intro {
+    text-align: center;
+    z-index: 10;
+    margin-bottom: 40px;
+    pointer-events: none; /* Allows scrolling through text */
+  }
+
+  .database-title {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .press-alert {
+    font-family: 'Fira Code', monospace;
+    color: var(--accent, #ff0033);
+    font-size: 14px;
+    text-transform: uppercase;
+    animation: blink 1.5s infinite;
+  }
+
+  .model-pile-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    perspective: 2000px;
+  }
+
+  .model-card {
+    position: absolute;
+    width: 300px;
+    height: 365px;
+    background: #fdfdfd;
+    padding: 15px 15px 75px 15px;
+    left: 50%;
+    top: 50%;
+    /* Start centered and messy */
+    transform: translate(-50%, -50%);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .model-card img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  /* Initial Scatter positions */
+  .card-1 { transform: translate(-55%, -50%) rotate(-5deg); z-index: 4; }
+  .card-2 { transform: translate(-48%, -52%) rotate(3deg); z-index: 3; }
+  .card-3 { transform: translate(-52%, -48%) rotate(-2deg); z-index: 2; }
+  .card-4 { transform: translate(-45%, -50%) rotate(6deg); z-index: 1; }
+
+  .polaroid-caption {
+    position: absolute;
+    bottom: 28px;
+    left: 15px;
+    right: 15px;
+    text-align: center;
+    font-family: 'Reenie Beanie', cursive;
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    transform: rotate(-2.5deg);
+  }
+
+  .hollow-heart {
+    width: 0.8em;
+    height: 0.8em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5px;
+    vertical-align: middle;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Responsive: Stack vertically on small screens */
+  @media (max-width: 1024px) {
+    .database-section { height: auto; padding: 80px 0; }
+    .model-pile-container { 
+      display: flex; 
+      flex-direction: column; 
+      height: auto; 
+      gap: 30px; 
+    }
+    .model-card { 
+      position: relative; 
+      left: 0; top: 0; 
+      transform: none !important; 
+      margin: 0 auto;
+      opacity: 1 !important;
+    }
+  }
+</style>
