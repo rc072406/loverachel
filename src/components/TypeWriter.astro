@@ -3,35 +3,38 @@
 const { 
   phrases = ["FALLING IN LOVE."], 
   waitTime = 3000,
-  label = "ISSUE NO.01 // 2026" 
+  label = "KERNEL_PANIC // 0x000000" 
 } = Astro.props;
 ---
 
-<div class="luxury-frame anarchy-mode">
+<div class="luxury-frame terminal-meltdown">
   <div class="frame-meta">
     <div class="meta-left">
-        <span class="dot"></span>
+        <span class="dot-matrix"></span>
         <span class="label-text">{label}</span>
     </div>
-    <span class="tech-id" id="status-code">STATUS: STABLE</span>
+    <div class="bit-rate" id="bit-rate">0kb/s</div>
   </div>
 
   <type-writer-chaotic data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="box-content">
+        <div class="logic-gate-bg" aria-hidden="true"></div>
+        
         <div class="glitch-canvas">
-            <h2 class="typewriter-display main-layer"></h2>
-            <h2 class="typewriter-display ghost-red" aria-hidden="true"></h2>
-            <h2 class="typewriter-display ghost-blue" aria-hidden="true"></h2>
+            <h2 class="typewriter-display layer-main"></h2>
+            <h2 class="typewriter-display layer-ghost"></h2>
+            <h2 class="typewriter-display layer-wire"></h2>
         </div>
         
-        <div class="v-line l-1"></div>
-        <div class="v-line l-2"></div>
-        <div class="glitch-line"></div>
-        <div class="scanline"></div>
+        <div class="distortion-line"></div>
+        <div class="vignette"></div>
     </div>
   </type-writer-chaotic>
 
-  <div class="frame-corner"></div>
+  <div class="footer-meta">
+    <span>CPU_LOAD: 99%</span>
+    <span>MEM_DUMP: TRUE</span>
+  </div>
 </div>
 
 <script>
@@ -43,13 +46,13 @@ const {
       const phrases = JSON.parse(this.dataset.phrases || "[]");
       const waitTime = parseInt(this.dataset.wait || "3000");
       const layers = this.querySelectorAll('.typewriter-display');
-      const line = this.querySelector('.glitch-line');
-      const status = this.querySelector('#status-code');
+      const bitRate = this.querySelector('#bit-rate');
       
       if (layers.length === 0 || phrases.length === 0) return;
 
       let index = 0;
-      const charsList = "@#$%&X01<>?/[]{}—+*";
+      
+      const techChars = "01<>[]{}_-+=|\\/!?:;*&$#%^~";
 
       const animateSequence = () => {
         const word = phrases[index];
@@ -60,80 +63,86 @@ const {
         ).join('<span class="space">&nbsp;</span>');
 
         layers.forEach(l => l.innerHTML = markup);
-
         const allChars = this.querySelectorAll('.char');
-        const mainChars = this.querySelector('.main-layer').querySelectorAll('.char');
         
         const tl = gsap.timeline({
           onComplete: () => setTimeout(exitSequence, waitTime)
         });
 
-        // 1. Initial Glitch / Scramble Phase
-        tl.to(status, { textContent: "STATUS: OVERRIDE", duration: 0.1 });
-        
+        // 1. DATA BURST
+        tl.to(this, { 
+          filter: "contrast(200%) brightness(150%)", 
+          duration: 0.05, 
+          repeat: 10, 
+          yoyo: true 
+        });
+
         tl.fromTo(allChars, 
           { 
             opacity: 0, 
-            x: () => Math.random() * 100 - 50, 
-            y: () => Math.random() * 100 - 50,
-            scale: 2,
-            skewX: 45
+            y: () => (Math.random() - 0.5) * 300, 
+            x: () => (Math.random() - 0.5) * 300,
+            rotationX: 90,
+            scale: 0.5
           },
           { 
             opacity: 1, 
-            x: 0, 
             y: 0, 
+            x: 0, 
+            rotationX: 0,
             scale: 1,
-            skewX: 0,
-            duration: 0.1, 
-            stagger: { each: 0.02, from: "random" },
+            duration: 0.3, 
+            stagger: { each: 0.01, from: "random" },
+            ease: "expo.out",
             onUpdate: function() {
-              // The "Crazy" Part: Randomize characters and fonts during reveal
               this.targets().forEach(t => {
-                if (Math.random() > 0.6) {
-                  t.textContent = charsList[Math.floor(Math.random() * charsList.length)];
+                
+                if (Math.random() > 0.85) {
+                  t.textContent = techChars[Math.floor(Math.random() * techChars.length)];
                   t.style.fontFamily = "'Fira Code', monospace";
                   t.style.color = "#ff0033";
                 } else {
                   t.textContent = t.getAttribute('data-char');
                   t.style.fontFamily = "'Inter', sans-serif";
-                  t.style.color = "";
+                  t.style.color = "white";
                 }
               });
+              if(bitRate) bitRate.textContent = `${Math.floor(Math.random() * 999)}kb/s`;
             }
-          }
+          }, 0
         )
-        // 2. Settle into layers
-        .to(".ghost-red", { x: 3, opacity: 0.5, duration: 0.1 }, "-=0.1")
-        .to(".ghost-blue", { x: -3, opacity: 0.5, duration: 0.1 }, "-=0.1")
-        .to(line, { 
-            scaleX: 2, 
-            opacity: 1, 
-            y: () => Math.random() * 200 - 100,
-            duration: 0.05, 
-            repeat: 10, 
-            yoyo: true 
+       
+        .to(".layer-ghost", { 
+          duration: 0.02, 
+          x: "random(-10, 10)", 
+          y: "random(-5, 5)", 
+          repeat: -1, 
+          repeatRefresh: true,
+          opacity: 0.4
+        }, 0)
+        .to(".layer-wire", { 
+          duration: 0.03, 
+          skewX: "random(-20, 20)", 
+          repeat: -1, 
+          repeatRefresh: true,
+          opacity: 0.3
         }, 0);
 
         const exitSequence = () => {
-          gsap.to(status, { textContent: "STATUS: PURGING", duration: 0.1 });
-          
           gsap.to(allChars, {
-            x: () => (Math.random() - 0.5) * 600,
-            y: () => (Math.random() - 0.5) * 600,
-            rotation: () => (Math.random() - 0.5) * 180,
+            x: () => (Math.random() - 0.5) * 800,
+            y: () => (Math.random() - 0.5) * 800,
+            rotation: () => (Math.random() - 0.5) * 120,
             opacity: 0,
-            scale: 0,
-            filter: "blur(30px)",
-            duration: 0.6,
-            stagger: { each: 0.01, from: "center" },
-            ease: "power4.in",
+            scale: 2,
+            duration: 0.4,
+            stagger: 0.005,
+            ease: "power2.in",
             onComplete: () => {
               index = (index + 1) % phrases.length;
               animateSequence();
             }
           });
-          gsap.to(".typewriter-display", { skewY: 20, duration: 0.5 });
         };
       };
 
@@ -149,33 +158,40 @@ const {
 
   .luxury-frame {
     background: #000;
-    border: 1px solid #222;
+    border: 1px solid #333;
     position: relative;
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
-    cursor: crosshair;
+    color: white;
   }
 
   .frame-meta {
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-bottom: 1px solid #222;
     display: flex;
     justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: #444;
+    font-size: 10px;
+    color: #666;
+  }
+
+  .dot-matrix {
+    width: 10px;
+    height: 10px;
+    background: #ff0033;
+    display: inline-block;
+    margin-right: 10px;
+    box-shadow: 0 0 10px #ff0033;
+    clip-path: polygon(0% 15%, 15% 15%, 15% 0%, 85% 0%, 85% 15%, 100% 15%, 100% 85%, 85% 85%, 85% 100%, 15% 100%, 15% 85%, 0% 85%);
   }
 
   .box-content {
-    min-height: 550px; 
-    padding: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-height: 550px;
+    display: grid;
+    place-items: center;
     position: relative;
-    background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+    padding: 40px;
   }
 
   .glitch-canvas {
@@ -183,81 +199,61 @@ const {
     width: 100%;
     display: grid;
     place-items: center;
+    z-index: 5;
   }
 
   .typewriter-display {
     grid-area: 1/1;
-    margin: 0;
-    font-size: clamp(3rem, 14vw, 9rem);
+    font-size: clamp(3rem, 16vw, 11rem);
     text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     line-height: 0.75;
-    word-break: break-word;
+    word-break: break-all;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0 15px;
     pointer-events: none;
   }
 
-  .main-layer {
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-weight: 900;
-    z-index: 3;
-    mix-blend-mode: difference;
+  .layer-ghost { color: #ff0033; opacity: 0; mix-blend-mode: hard-light; }
+  .layer-wire { -webkit-text-stroke: 1px rgba(255,255,255,0.5); color: transparent; opacity: 0; }
+
+  .word-wrap { display: inline-block; padding: 0 10px; }
+
+  /* Background Chaos */
+  .logic-gate-bg {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at center, rgba(255,0,51,0.05) 0%, transparent 70%);
+    opacity: 0.5;
   }
 
-  .ghost-red { color: #ff0033; z-index: 2; opacity: 0; font-family: 'Fira Code', monospace; }
-  .ghost-blue { color: #00f0ff; z-index: 1; opacity: 0; font-family: 'Fira Code', monospace; }
-
-  .word-wrap { display: inline-block; }
-
-  .v-line {
+  .distortion-line {
     position: absolute;
-    width: 1px;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent, #222, transparent);
-    top: 0;
-  }
-  .l-1 { left: 15%; }
-  .l-2 { right: 15%; }
-
-  .glitch-line {
-    position: absolute;
-    height: 2px;
-    width: 120%;
-    background: #fff;
-    left: -10%;
-    mix-blend-mode: overlay;
-    transform: scaleX(0);
-    z-index: 10;
-  }
-
-  .scanline {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to bottom, transparent 50%, rgba(255, 0, 51, 0.05) 50%);
-    background-size: 100% 4px;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateY(-50%) skewY(-5deg);
     pointer-events: none;
   }
 
-  .frame-corner {
+  .vignette {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    border-right: 1px solid #ff0033;
-    border-bottom: 1px solid #ff0033;
+    inset: 0;
+    background: radial-gradient(circle, transparent 40%, black 120%);
+    pointer-events: none;
   }
 
-  .dot {
-    width: 6px;
-    height: 6px;
-    background: #ff0033;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 10px;
-    box-shadow: 0 0 8px #ff0033;
+  .footer-meta {
+    padding: 5px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Fira Code', monospace;
+    font-size: 8px;
+    background: #0a0a0a;
+    color: #333;
   }
 </style>
