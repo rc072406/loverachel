@@ -1,156 +1,161 @@
 ---
 // src/components/TypeWriter.astro
 const { 
-  phrases = ["FALLING IN LOVE."], 
-  waitTime = 3000,
-  label = "KERNEL_PANIC // 0x000000" 
+  phrases = ["FALLING IN LOVE.", "ONE STORY.", "AT A TIME."], 
+  waitTime = 2500,
+  label = "SYSTEM_MELTDOWN // VOL_01" 
 } = Astro.props;
 ---
 
-<div class="luxury-frame terminal-meltdown">
+<div class="luxury-frame total-anarchy">
   <div class="frame-meta">
     <div class="meta-left">
-        <span class="dot-matrix"></span>
+        <div class="glitch-square"></div>
         <span class="label-text">{label}</span>
     </div>
-    <div class="bit-rate" id="bit-rate">0kb/s</div>
+    <div class="cypher-text" id="cypher">INIT_BOOT...</div>
   </div>
 
-  <type-writer-chaotic data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
+  <type-writer-anarchy data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="box-content">
-        <div class="logic-gate-bg" aria-hidden="true"></div>
+        <div class="noise-floor"></div>
+        <div class="static-stripes"></div>
         
         <div class="glitch-canvas">
-            <h2 class="typewriter-display layer-main"></h2>
-            <h2 class="typewriter-display layer-ghost"></h2>
-            <h2 class="typewriter-display layer-wire"></h2>
+            <div class="layer main-text"></div>
+            <div class="layer ghost-red"></div>
+            <div class="layer ghost-blue"></div>
+            <div class="layer wireframe"></div>
         </div>
         
-        <div class="distortion-line"></div>
-        <div class="vignette"></div>
+        <div class="trash-container"></div>
     </div>
-  </type-writer-chaotic>
+  </type-writer-anarchy>
 
-  <div class="footer-meta">
-    <span>CPU_LOAD: 99%</span>
-    <span>MEM_DUMP: TRUE</span>
+  <div class="frame-footer">
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <span class="coord">40.7128° N, 74.0060° W</span>
   </div>
 </div>
 
 <script>
   import { gsap } from "gsap";
 
-  class TypeWriterChaotic extends HTMLElement {
+  class TypeWriterAnarchy extends HTMLElement {
     constructor() {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
-      const waitTime = parseInt(this.dataset.wait || "3000");
-      const layers = this.querySelectorAll('.typewriter-display');
-      const bitRate = this.querySelector('#bit-rate');
+      const waitTime = parseInt(this.dataset.wait || "2500");
+      const layers = this.querySelectorAll('.layer');
+      const trashContainer = this.querySelector('.trash-container');
+      const cypher = document.getElementById('cypher');
       
-      if (layers.length === 0 || phrases.length === 0) return;
-
       let index = 0;
-      
-      const techChars = "01<>[]{}_-+=|\\/!?:;*&$#%^~";
+      const symbols = "01<>[]{}/\\|=+*!#%&?";
 
-      const animateSequence = () => {
+      const animate = () => {
         const word = phrases[index];
-        const markup = word.split(' ').map(wordStr => 
-          `<span class="word-wrap">${wordStr.split('').map(char => 
-            `<span class="char" data-char="${char}">${char}</span>`
-          ).join('')}</span>`
-        ).join('<span class="space">&nbsp;</span>');
-
-        layers.forEach(l => l.innerHTML = markup);
-        const allChars = this.querySelectorAll('.char');
         
+        // 1. Generate Complex Markup
+        const markup = word.split(' ').map(w => `
+          <span class="word">
+            ${w.split('').map(c => `<span class="char" data-c="${c}">${c}</span>`).join('')}
+          </span>
+        `).join('<span class="space">&nbsp;</span>');
+
+        // 2. Clean and Inject
+        layers.forEach(l => {
+            l.innerHTML = markup;
+            l.style.clipPath = "none"; // Reset slices
+        });
+
+        const allChars = this.querySelectorAll('.char');
+        const mainChars = this.querySelector('.main-text').querySelectorAll('.char');
+        
+        // 3. The Master Timeline
         const tl = gsap.timeline({
-          onComplete: () => setTimeout(exitSequence, waitTime)
+          onComplete: () => {
+            gsap.delayedCall(waitTime / 1000, exit);
+          }
         });
 
-        // 1. DATA BURST
-        tl.to(this, { 
-          filter: "contrast(200%) brightness(150%)", 
-          duration: 0.05, 
-          repeat: 10, 
-          yoyo: true 
-        });
-
+        // Entrance: Explosive and Fragmented
         tl.fromTo(allChars, 
           { 
             opacity: 0, 
-            y: () => (Math.random() - 0.5) * 300, 
-            x: () => (Math.random() - 0.5) * 300,
-            rotationX: 90,
-            scale: 0.5
+            z: () => Math.random() * 500 - 250,
+            filter: "blur(20px) brightness(200%)",
+            scale: 0
           },
           { 
             opacity: 1, 
-            y: 0, 
-            x: 0, 
-            rotationX: 0,
+            z: 0, 
+            filter: "blur(0px) brightness(100%)",
             scale: 1,
-            duration: 0.3, 
-            stagger: { each: 0.01, from: "random" },
-            ease: "expo.out",
+            duration: 0.4,
+            stagger: { each: 0.02, from: "random" },
+            ease: "back.out(2)",
             onUpdate: function() {
               this.targets().forEach(t => {
-                
-                if (Math.random() > 0.85) {
-                  t.textContent = techChars[Math.floor(Math.random() * techChars.length)];
-                  t.style.fontFamily = "'Fira Code', monospace";
-                  t.style.color = "#ff0033";
+                if (Math.random() > 0.92) {
+                   t.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                   t.style.fontFamily = "'Fira Code', monospace";
+                   t.style.color = "#ff0033";
                 } else {
-                  t.textContent = t.getAttribute('data-char');
-                  t.style.fontFamily = "'Inter', sans-serif";
-                  t.style.color = "white";
+                   t.textContent = t.getAttribute('data-c');
+                   t.style.fontFamily = "'Inter', sans-serif";
+                   t.style.color = "";
                 }
               });
-              if(bitRate) bitRate.textContent = `${Math.floor(Math.random() * 999)}kb/s`;
+              if(cypher) cypher.textContent = `ERR: ${Math.random().toString(16).slice(2,8)}`;
             }
-          }, 0
-        )
-       
-        .to(".layer-ghost", { 
-          duration: 0.02, 
-          x: "random(-10, 10)", 
-          y: "random(-5, 5)", 
-          repeat: -1, 
-          repeatRefresh: true,
-          opacity: 0.4
-        }, 0)
-        .to(".layer-wire", { 
-          duration: 0.03, 
-          skewX: "random(-20, 20)", 
-          repeat: -1, 
-          repeatRefresh: true,
-          opacity: 0.3
-        }, 0);
+          }
+        );
 
-        const exitSequence = () => {
+        // Continuous Jitter (Independent of timeline flow)
+        const jitter = gsap.to(layers, {
+            x: "random(-15, 15)",
+            y: "random(-10, 10)",
+            duration: 0.05,
+            repeat: -1,
+            repeatRefresh: true,
+            ease: "none"
+        });
+
+        // Horizontal "Slicing" Glitch
+        const slicer = setInterval(() => {
+            layers.forEach(l => {
+                const y1 = Math.random() * 80;
+                const y2 = y1 + Math.random() * 20;
+                l.style.clipPath = `inset(${y1}% 0 ${100 - y2}% 0)`;
+            });
+        }, 100);
+
+        const exit = () => {
+          clearInterval(slicer);
+          jitter.kill();
+
           gsap.to(allChars, {
-            x: () => (Math.random() - 0.5) * 800,
+            x: () => (Math.random() - 0.5) * 1500,
             y: () => (Math.random() - 0.5) * 800,
-            rotation: () => (Math.random() - 0.5) * 120,
+            rotation: () => Math.random() * 360,
             opacity: 0,
-            scale: 2,
-            duration: 0.4,
+            duration: 0.5,
             stagger: 0.005,
-            ease: "power2.in",
+            ease: "power4.in",
             onComplete: () => {
               index = (index + 1) % phrases.length;
-              animateSequence();
+              animate();
             }
           });
         };
       };
 
-      animateSequence();
+      animate();
     }
   }
 
-  customElements.define('type-writer-chaotic', TypeWriterChaotic);
+  customElements.define('type-writer-anarchy', TypeWriterAnarchy);
 </script>
 
 <style>
@@ -161,99 +166,100 @@ const {
     border: 1px solid #333;
     position: relative;
     width: 100%;
-    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    color: white;
   }
 
   .frame-meta {
-    padding: 10px 20px;
-    border-bottom: 1px solid #222;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    color: #666;
+    font-size: 11px;
+    color: #444;
+    border-bottom: 1px solid #111;
   }
 
-  .dot-matrix {
-    width: 10px;
-    height: 10px;
+  .glitch-square {
+    width: 12px;
+    height: 12px;
     background: #ff0033;
     display: inline-block;
-    margin-right: 10px;
-    box-shadow: 0 0 10px #ff0033;
-    clip-path: polygon(0% 15%, 15% 15%, 15% 0%, 85% 0%, 85% 15%, 100% 15%, 100% 85%, 85% 85%, 85% 100%, 15% 100%, 15% 85%, 0% 85%);
+    margin-right: 15px;
+    animation: sq-glitch 0.2s infinite;
+  }
+
+  @keyframes sq-glitch {
+    0% { transform: skew(0deg); }
+    50% { transform: skew(20deg) scaleY(0.5); }
+    100% { transform: skew(-20deg); }
   }
 
   .box-content {
-    min-height: 550px;
+    flex-grow: 1;
+    position: relative;
     display: grid;
     place-items: center;
-    position: relative;
-    padding: 40px;
+    background: 
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
   }
 
   .glitch-canvas {
     position: relative;
-    width: 100%;
+    width: 90%;
+    max-width: 1000px;
+    height: 400px;
     display: grid;
     place-items: center;
-    z-index: 5;
+    perspective: 1000px;
   }
 
-  .typewriter-display {
+  .layer {
     grid-area: 1/1;
-    font-size: clamp(3rem, 16vw, 11rem);
-    text-transform: uppercase;
+    font-size: clamp(3rem, 18vw, 12rem);
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    line-height: 0.75;
-    word-break: break-all;
+    line-height: 0.8;
+    text-transform: uppercase;
+    text-align: center;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    pointer-events: none;
-  }
-
-  .layer-ghost { color: #ff0033; opacity: 0; mix-blend-mode: hard-light; }
-  .layer-wire { -webkit-text-stroke: 1px rgba(255,255,255,0.5); color: transparent; opacity: 0; }
-
-  .word-wrap { display: inline-block; padding: 0 10px; }
-
-  /* Background Chaos */
-  .logic-gate-bg {
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at center, rgba(255,0,51,0.05) 0%, transparent 70%);
-    opacity: 0.5;
-  }
-
-  .distortion-line {
-    position: absolute;
-    top: 50%;
-    left: 0;
     width: 100%;
-    height: 100px;
-    background: rgba(255, 255, 255, 0.03);
-    transform: translateY(-50%) skewY(-5deg);
-    pointer-events: none;
   }
 
-  .vignette {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, transparent 40%, black 120%);
-    pointer-events: none;
+  .main-text { color: #fff; z-index: 4; }
+  .ghost-red { color: #ff0033; z-index: 3; mix-blend-mode: screen; }
+  .ghost-blue { color: #00f0ff; z-index: 2; mix-blend-mode: screen; }
+  .wireframe { 
+    color: transparent; 
+    -webkit-text-stroke: 1px rgba(255,255,255,0.2); 
+    z-index: 1; 
   }
 
-  .footer-meta {
-    padding: 5px 20px;
+  .char { display: inline-block; position: relative; }
+
+  .frame-footer {
+    padding: 20px;
+    border-top: 1px solid #111;
     display: flex;
     justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 8px;
-    background: #0a0a0a;
+    font-size: 9px;
     color: #333;
   }
+
+  .progress-bar { width: 100px; height: 2px; background: #111; position: relative; }
+  .progress-fill { 
+    width: 40%; height: 100%; background: #ff0033; 
+    animation: prog 2s infinite linear;
+  }
+
+  @keyframes prog { 0% { left: -100%; } 100% { left: 100%; } }
+
+  .word { white-space: nowrap; padding: 0 10px; }
 </style>
