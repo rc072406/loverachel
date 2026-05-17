@@ -41,7 +41,6 @@ const models = [
     
     if (!section || cards.length === 0) return;
 
-    // Total scroll distance (1 viewport height per card)
     const scrollTriggerEndValue = cards.length * window.innerHeight;
 
     gsap.to(cards, {
@@ -53,7 +52,6 @@ const models = [
         pin: true,
         anticipatePin: 1,
       },
-      // Random Flight Logic
       x: () => (Math.random() > 0.5 ? window.innerWidth * 1.5 : -window.innerWidth * 1.5),
       y: () => -window.innerHeight * (1.2 + Math.random()), 
       rotation: () => Math.random() * 90 - 45,
@@ -61,7 +59,7 @@ const models = [
       ease: "none",
       stagger: {
         each: 1, 
-        from: "end" // CRITICAL: This picks the top card (last in the list) first
+        from: "end"
       }
     });
   };
@@ -123,7 +121,6 @@ const models = [
   animation: blink 2s infinite ease-in-out;
 }
 
-
 @media (max-width: 768px) {
   .database-intro {
     left: 10px;
@@ -144,12 +141,13 @@ const models = [
     perspective: 2000px;
   }
 
+  /* BASE STYLES (Mobile Sizing) */
   .model-card {
     position: absolute;
-    width: 300px; 
-    height: 365px;
+    width: 260px; /* Kept mobile size exactly as requested */
+    height: 315px;
     background: #fdfdfd;
-    padding: 15px 15px 75px 15px;
+    padding: 12px 12px 65px 12px;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -159,17 +157,30 @@ const models = [
     cursor: pointer;
   }
 
+  /* DESKTOP STYLES (Larger Polaroid) */
+  @media (min-width: 769px) {
+    .model-card {
+      width: 400px; /* Increased for desktop */
+      height: 485px; /* Scaled proportionally */
+      padding: 18px 18px 90px 18px;
+    }
+    
+    .polaroid-caption {
+      font-size: 2.4rem !important; /* Larger text for larger card */
+      bottom: 35px !important;
+    }
+  }
+
   .model-card img {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
   }
 
-  /* Z-INDEX STACKING: Higher number = Higher in the pile */
   .card-1 { transform: translate(-55%, -50%) rotate(-5deg); z-index: 1; }
   .card-2 { transform: translate(-48%, -52%) rotate(3deg); z-index: 2; }
   .card-3 { transform: translate(-52%, -48%) rotate(-2deg); z-index: 3; }
-  .card-4 { transform: translate(-45%, -50%) rotate(6deg); z-index: 4; } /* This is the top card */
+  .card-4 { transform: translate(-45%, -50%) rotate(6deg); z-index: 4; }
 
   .polaroid-caption {
     position: absolute;
@@ -197,12 +208,5 @@ const models = [
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
-  }
-
-  @media (max-width: 600px) {
-    .model-card {
-      width: 260px;
-      height: 315px;
-    }
   }
 </style>
