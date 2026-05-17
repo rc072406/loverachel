@@ -3,21 +3,23 @@
 ---
 
 <div class="shatter-container">
-  <div class="camera-ui">
-    <div class="corner top-left"></div>
-    <div class="corner top-right"></div>
-    <div class="corner bottom-left"></div>
-    <div class="corner bottom-right"></div>
-    
-    <div class="camera-meta top-meta">
-      <span class="rec-dot"></span> 00:00:12:04
+  <div class="camera-overlay">
+    <div class="camera-ui">
+      <div class="corner top-left"></div>
+      <div class="corner top-right"></div>
+      <div class="corner bottom-left"></div>
+      <div class="corner bottom-right"></div>
+      
+      <div class="camera-meta top-meta">
+        <span class="rec-dot"></span> 00:00:12:04
+      </div>
+      <div class="camera-meta bottom-meta">
+        <span>ISO 400</span>
+        <span>F/2.8</span>
+        <span>1/125</span>
+      </div>
+      <div class="center-cross"></div>
     </div>
-    <div class="camera-meta bottom-meta">
-      <span>ISO 400</span>
-      <span>F/2.8</span>
-      <span>1/125</span>
-    </div>
-    <div class="center-cross"></div>
   </div>
 
   <div class="text-layer main-text">FASHION, ART AND STEM</div>
@@ -39,7 +41,7 @@
   const shards = document.querySelectorAll('.shard');
   const flash = document.querySelector('.flash-overlay');
   const mainText = document.querySelector('.main-text');
-  const cameraUI = document.querySelectorAll('.camera-ui, .camera-meta');
+  const cameraUI = document.querySelector('.camera-ui');
 
   function shatterSequence() {
     const tl = gsap.timeline({ 
@@ -48,32 +50,37 @@
       defaults: { ease: "expo.out" } 
     });
 
-    tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0 });
-    tl.set(mainText, { opacity: 1, filter: 'blur(0px)' });
-    tl.set(cameraUI, { opacity: 1 });
+    // Reset loop state
+    tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0, filter: 'blur(0px)' });
+    tl.set(mainText, { opacity: 1, filter: 'blur(0px)', letterSpacing: "-0.02em" });
 
+    // 1. Tension Build
     tl.to(mainText, { 
       letterSpacing: "2vw", 
       duration: 1.5, 
       ease: "power4.inOut" 
     });
 
-    // The Flash & UI Glitch
+    // 2. The Impact (Flash + Camera UI Glitch)
     tl.to(flash, { 
       opacity: 1, 
       duration: 0.04, 
       onStart: () => {
         gsap.set(mainText, { opacity: 0 });
-        // Slight shake on the camera UI when the shutter fires
-        gsap.to('.camera-ui', { x: "random(-10, 10)", y: "random(-10, 10)", duration: 0.05, repeat: 3 });
+        // The camera "shakes" but stays visible
+        gsap.fromTo(cameraUI, 
+          { x: -10, y: -10 }, 
+          { x: 0, y: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" }
+        );
       }
     })
     .to(flash, { opacity: 0, duration: 0.2 });
 
+    // 3. Shard Explosion
     shards.forEach((shard) => {
-      const randomX = (Math.random() - 0.5) * 600;
-      const randomY = (Math.random() - 0.5) * 600;
-      const randomZ = Math.random() * 500;
+      const randomX = (Math.random() - 0.5) * 800;
+      const randomY = (Math.random() - 0.5) * 800;
+      const randomZ = Math.random() * 600;
       const rotX = (Math.random() - 0.5) * 360;
       const rotY = (Math.random() - 0.5) * 360;
 
@@ -85,26 +92,27 @@
         rotationX: rotX,
         rotationY: rotY,
         scale: 0.5 + Math.random(),
-        duration: 1.2,
-      }, 0.04);
+        duration: 1.5,
+      }, 1.54); // Triggers immediately with the flash
     });
 
+    // 4. Chaotic Vibration
     tl.to('.shard-content', {
-      x: "random(-5, 5)",
-      y: "random(-5, 5)",
+      x: "random(-10, 10)",
       duration: 0.05,
-      repeat: 10,
+      repeat: 12,
       yoyo: true,
       ease: "none"
-    }, 0.1);
+    }, 1.6);
 
-    // Fade UI out with the shards
-    tl.to([shards, cameraUI], { 
+    // 5. Dissolve (SHARDS ONLY)
+    // We do NOT include cameraUI here so it remains on screen
+    tl.to(shards, { 
       opacity: 0, 
-      filter: 'blur(20px)', 
-      duration: 1.5,
-      stagger: 0.03
-    }, "+=0.5");
+      filter: 'blur(30px)', 
+      duration: 1.2,
+      stagger: 0.02
+    }, "+=1");
   }
 
   window.addEventListener('load', shatterSequence);
@@ -120,23 +128,32 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    perspective: 1200px;
+    perspective: 1500px;
     font-family: 'Inter', sans-serif;
   }
 
-  /* --- PROFESSIONAL CAMERA UI --- */
-  .camera-ui {
+  /* --- CAMERA OVERLAY (Stays constant) --- */
+  .camera-overlay {
     position: absolute;
-    inset: 40px; /* Padding for the viewfinder */
-    z-index: 20;
+    inset: 0;
+    z-index: 100; /* Above shards, below flash if you want the flash to affect UI */
     pointer-events: none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .camera-ui {
+    position: relative;
+    width: calc(100% - 80px);
+    height: calc(100% - 80px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .corner {
     position: absolute;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border: 2px solid #fff;
   }
   .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
@@ -147,50 +164,52 @@
   .camera-meta {
     position: absolute;
     color: #fff;
-    font-family: monospace;
-    font-size: 12px;
+    font-family: 'Inter', monospace;
+    font-weight: 500;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 0.15em;
   }
 
-  .top-meta { top: 20px; left: 20px; display: flex; align-items: center; gap: 8px; }
-  .bottom-meta { bottom: 20px; width: calc(100% - 40px); display: flex; justify-content: space-between; padding: 0 20px; }
+  .top-meta { top: 25px; left: 25px; display: flex; align-items: center; gap: 10px; }
+  .bottom-meta { bottom: 25px; width: calc(100% - 50px); display: flex; justify-content: space-between; padding: 0 25px; }
 
   .rec-dot {
-    width: 8px;
-    height: 8px;
-    background: red;
+    width: 10px;
+    height: 10px;
+    background: #ff0000;
     border-radius: 50%;
-    animation: blink 1s infinite;
+    box-shadow: 0 0 10px #ff0000;
+    animation: blink 1s steps(2) infinite;
   }
 
   .center-cross {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     transform: translate(-50%, -50%);
+    opacity: 0.4;
   }
   .center-cross::before, .center-cross::after {
     content: '';
     position: absolute;
-    background: rgba(255, 255, 255, 0.5);
+    background: #fff;
   }
   .center-cross::before { top: 50%; left: 0; width: 100%; height: 1px; }
   .center-cross::after { left: 50%; top: 0; width: 1px; height: 100%; }
 
   @keyframes blink { 50% { opacity: 0; } }
 
-  /* --- TEXT & SHARDS --- */
+  /* --- ELEMENTS THAT SHATTER --- */
   .text-layer {
     color: #fff;
-    font-weight: 900;
-    font-size: clamp(2rem, 8vw, 12rem);
+    font-weight: 950;
+    font-size: clamp(2rem, 8.5vw, 14rem);
     text-transform: uppercase;
     text-align: center;
     pointer-events: none;
-    letter-spacing: -0.02em;
     white-space: nowrap;
   }
 
@@ -201,42 +220,45 @@
     justify-content: center;
     align-items: center;
     transform-style: preserve-3d;
+    z-index: 10;
   }
 
   .shard {
     position: absolute;
     opacity: 0;
     will-change: transform;
-    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.1));
   }
 
   .shard-content {
     color: #fff;
-    font-weight: 900;
-    font-size: clamp(2rem, 8vw, 12rem);
+    font-weight: 950;
+    font-size: clamp(2rem, 8.5vw, 14rem);
     text-transform: uppercase;
     white-space: nowrap;
-    text-shadow: -2px -1px 0px rgba(255, 0, 80, 0.7), 2px 1px 0px rgba(0, 255, 255, 0.7);
+    text-shadow: 
+      -3px -1px 0px rgba(255, 0, 80, 0.8), 
+      3px 1px 0px rgba(0, 255, 255, 0.8);
   }
 
-
-  .shard-0 { clip-path: polygon(10% 10%, 45% 15%, 40% 45%, 5% 35%); }
-  .shard-1 { clip-path: polygon(50% 5%, 90% 10%, 85% 40%, 55% 45%); }
-  .shard-2 { clip-path: polygon(15% 55%, 45% 50%, 40% 90%, 10% 85%); }
-  .shard-3 { clip-path: polygon(55% 55%, 95% 50%, 90% 95%, 60% 85%); }
-  .shard-4 { clip-path: polygon(30% 30%, 70% 30%, 70% 70%, 30% 70%); }
-  .shard-5 { clip-path: polygon(0% 0%, 20% 0%, 10% 20%); }
-  .shard-6 { clip-path: polygon(80% 0%, 100% 0%, 90% 20%); }
-  .shard-7 { clip-path: polygon(0% 100%, 20% 100%, 10% 80%); }
-  .shard-8 { clip-path: polygon(80% 100%, 100% 100%, 90% 80%); }
-  .shard:nth-child(n+9) { clip-path: polygon(40% 10%, 60% 10%, 50% 90%); opacity: 0.5; }
+  /* Clip Paths */
+  .shard-0 { clip-path: polygon(5% 5%, 48% 10%, 42% 48%, 2% 40%); }
+  .shard-1 { clip-path: polygon(52% 2%, 98% 8%, 92% 45%, 55% 48%); }
+  .shard-2 { clip-path: polygon(5% 55%, 48% 52%, 45% 98%, 2% 92%); }
+  .shard-3 { clip-path: polygon(55% 52%, 98% 55%, 95% 95%, 52% 98%); }
+  .shard-4 { clip-path: polygon(25% 25%, 75% 25%, 75% 75%, 25% 75%); }
+  .shard-5 { clip-path: polygon(0% 0%, 30% 0%, 15% 15%); }
+  .shard-6 { clip-path: polygon(70% 0%, 100% 0%, 85% 15%); }
+  .shard-7 { clip-path: polygon(0% 100%, 30% 100%, 15% 85%); }
+  .shard-8 { clip-path: polygon(70% 100%, 100% 100%, 85% 85%); }
+  .shard:nth-child(n+9) { clip-path: polygon(45% 45%, 55% 45%, 50% 55%); opacity: 0.3; }
 
   .flash-overlay {
     position: absolute;
     inset: 0;
     background: #fff;
     opacity: 0;
-    z-index: 100;
+    z-index: 200; 
     pointer-events: none;
   }
 </style>
