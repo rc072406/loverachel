@@ -23,7 +23,7 @@ const {
     constructor() {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
-      const waitTime = parseInt(this.dataset.wait || "2000");
+      const waitTime = parseInt(this.dataset.wait || "4000");
       const target = this.querySelector('.typewriter-text');
       
       if (target && phrases.length > 0) {
