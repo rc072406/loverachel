@@ -11,7 +11,7 @@
       <div class="corner bottom-right"></div>
       
       <div class="camera-meta top-meta">
-        <span class="rec-dot"></span> 00:00:12:04
+        <span class="rec-dot"></span> <span id="timer">00:00:12:04</span>
       </div>
       <div class="camera-meta bottom-meta">
         <span>love, RACHEL 400</span>
@@ -46,43 +46,44 @@
   function shatterSequence() {
     const tl = gsap.timeline({ 
       repeat: -1, 
-      repeatDelay: 3,
+      repeatDelay: 2.5,
       defaults: { ease: "expo.out" } 
     });
 
     // Reset loop state
     tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0, filter: 'blur(0px)' });
-    tl.set(mainText, { opacity: 1, filter: 'blur(0px)', letterSpacing: "-0.02em" });
+    tl.set(mainText, { opacity: 1, filter: 'blur(0px)', letterSpacing: "-0.05em", scale: 1 });
 
-    // 1. Tension Build (Letter spacing expansion)
+    // 1. Tension Build (Keeping it inside the UI)
     tl.to(mainText, { 
-      letterSpacing: "2vw", 
-      duration: 1.5, 
-      ease: "power4.inOut" 
+      letterSpacing: "0.8vw", // Reduced from 2vw to keep letters inside brackets
+      scale: 1.05,
+      duration: 2, 
+      ease: "power2.inOut" 
     });
 
-    // 2. The Impact (Flash + Camera UI Shudder)
+    
     tl.to(flash, { 
       opacity: 1, 
-      duration: 0.04, 
+      duration: 0.05, 
       onStart: () => {
         gsap.set(mainText, { opacity: 0 });
-        // Camera UI reacts to the "explosion"
         gsap.fromTo(cameraUI, 
-          { x: -10, y: -10 }, 
-          { x: 0, y: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" }
+          { x: -8, y: -8 }, 
+          { x: 0, y: 0, duration: 0.3, ease: "elastic.out(1, 0.3)" }
         );
       }
     })
-    .to(flash, { opacity: 0, duration: 0.2 });
+    .to(flash, { opacity: 0, duration: 0.15 });
 
-    // 3. Shard Explosion
+   
     shards.forEach((shard) => {
-      const randomX = (Math.random() - 0.5) * 800;
-      const randomY = (Math.random() - 0.5) * 800;
-      const randomZ = Math.random() * 600;
-      const rotX = (Math.random() - 0.5) * 360;
-      const rotY = (Math.random() - 0.5) * 360;
+      // Randomize direction but keep them somewhat centered initially
+      const randomX = (Math.random() - 0.5) * 500;
+      const randomY = (Math.random() - 0.5) * 500;
+      const randomZ = 400 + Math.random() * 500; // Fly TOWARDS camera
+      const rotX = (Math.random() - 0.5) * 450;
+      const rotY = (Math.random() - 0.5) * 450;
 
       tl.to(shard, {
         opacity: 1,
@@ -91,27 +92,27 @@
         z: randomZ,
         rotationX: rotX,
         rotationY: rotY,
-        scale: 0.5 + Math.random(),
-        duration: 1.5,
-      }, 1.54); // Synchronized with flash end
+        scale: 1.2,
+        duration: 1.8,
+      }, 2.05); 
     });
 
-    // 4. Chaotic Vibration
+    // 4. Chaotic Vibration (Post-shatter energy)
     tl.to('.shard-content', {
-      x: "random(-10, 10)",
-      duration: 0.05,
-      repeat: 12,
+      x: "random(-8, 8)",
+      duration: 0.04,
+      repeat: 8,
       yoyo: true,
       ease: "none"
-    }, 1.6);
+    }, 2.1);
 
     // 5. Dissolve
     tl.to(shards, { 
       opacity: 0, 
-      filter: 'blur(30px)', 
-      duration: 1.2,
-      stagger: 0.02
-    }, "+=1");
+      filter: 'blur(20px)', 
+      duration: 1,
+      stagger: 0.01
+    }, "+=0.8");
   }
 
   window.addEventListener('load', shatterSequence);
@@ -127,11 +128,11 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    perspective: 1500px;
+    perspective: 1200px; /* Stronger depth for shards flying at screen */
     font-family: 'Inter', sans-serif;
   }
 
-  /* --- CAMERA OVERLAY (Persistent) --- */
+  /* --- CAMERA OVERLAY (Fixed Frame) --- */
   .camera-overlay {
     position: absolute;
     inset: 0;
@@ -140,19 +141,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 40px; /* Global margin for the UI */
   }
 
   .camera-ui {
     position: relative;
-    width: calc(100% - 80px);
-    height: calc(100% - 80px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .corner {
     position: absolute;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border: 2px solid #fff;
   }
   .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
@@ -163,22 +165,21 @@
   .camera-meta {
     position: absolute;
     color: #fff;
-    font-family: 'Inter', monospace;
-    font-weight: 500;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.2em;
   }
 
-  .top-meta { top: 25px; left: 25px; display: flex; align-items: center; gap: 10px; }
-  .bottom-meta { bottom: 25px; width: calc(100% - 50px); display: flex; justify-content: space-between; padding: 0 25px; }
+  .top-meta { top: 20px; left: 20px; display: flex; align-items: center; gap: 8px; }
+  .bottom-meta { bottom: 20px; width: calc(100% - 40px); display: flex; justify-content: space-between; padding: 0 20px; }
 
   .rec-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background: #ff0000;
     border-radius: 50%;
-    box-shadow: 0 0 10px #ff0000;
+    box-shadow: 0 0 8px #ff0000;
     animation: blink 1s steps(2) infinite;
   }
 
@@ -188,10 +189,10 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     transform: translate(-50%, -50%);
-    opacity: 0.4;
+    opacity: 0.3;
   }
   .center-cross::before, .center-cross::after {
     content: '';
@@ -201,11 +202,13 @@
   .center-cross::before { top: 50%; left: 0; width: 100%; height: 1px; }
   .center-cross::after { left: 50%; top: 0; width: 1px; height: 100%; }
 
-  /* --- TYPOGRAPHY (The High-Fashion Look) --- */
+  /* --- TYPOGRAPHY (Contained) --- */
   .text-layer {
+    position: absolute;
+    width: 80%; /* Keeps text away from camera edges */
     color: #fff;
     font-weight: 950;
-    font-size: clamp(2rem, 8.5vw, 14rem);
+    font-size: clamp(1.5rem, 7.5vw, 9rem); /* Scaled down to fit better */
     text-transform: uppercase;
     text-align: center;
     pointer-events: none;
@@ -227,32 +230,31 @@
     position: absolute;
     opacity: 0;
     will-change: transform;
-    filter: drop-shadow(0 0 15px rgba(255,255,255,0.1));
   }
 
   .shard-content {
     color: #fff;
     font-weight: 950;
-    font-size: clamp(2rem, 8.5vw, 14rem);
+    font-size: clamp(1.5rem, 7.5vw, 9rem);
     text-transform: uppercase;
     white-space: nowrap;
-    /* Chromatic Aberration Effect */
+    /* Chromatic Aberration */
     text-shadow: 
       -3px -1px 0px rgba(255, 0, 80, 0.8), 
       3px 1px 0px rgba(0, 255, 255, 0.8);
   }
 
-  /* Clip Paths */
-  .shard-0 { clip-path: polygon(5% 5%, 48% 10%, 42% 48%, 2% 40%); }
-  .shard-1 { clip-path: polygon(52% 2%, 98% 8%, 92% 45%, 55% 48%); }
-  .shard-2 { clip-path: polygon(5% 55%, 48% 52%, 45% 98%, 2% 92%); }
-  .shard-3 { clip-path: polygon(55% 52%, 98% 55%, 95% 95%, 52% 98%); }
-  .shard-4 { clip-path: polygon(25% 25%, 75% 25%, 75% 75%, 25% 75%); }
-  .shard-5 { clip-path: polygon(0% 0%, 30% 0%, 15% 15%); }
-  .shard-6 { clip-path: polygon(70% 0%, 100% 0%, 85% 15%); }
-  .shard-7 { clip-path: polygon(0% 100%, 30% 100%, 15% 85%); }
-  .shard-8 { clip-path: polygon(70% 100%, 100% 100%, 85% 85%); }
-  .shard:nth-child(n+9) { clip-path: polygon(45% 45%, 55% 45%, 50% 55%); opacity: 0.3; }
+  
+  .shard-0 { clip-path: polygon(0 0, 45% 0, 35% 45%, 0 40%); }
+  .shard-1 { clip-path: polygon(50% 0, 100% 0, 100% 40%, 55% 45%); }
+  .shard-2 { clip-path: polygon(0 55%, 40% 50%, 45% 100%, 0 100%); }
+  .shard-3 { clip-path: polygon(60% 50%, 100% 55%, 100% 100%, 55% 100%); }
+  .shard-4 { clip-path: polygon(30% 30%, 70% 30%, 70% 70%, 30% 70%); }
+  .shard-5 { clip-path: polygon(10% 10%, 40% 10%, 25% 35%); }
+  .shard-6 { clip-path: polygon(60% 10%, 90% 10%, 75% 35%); }
+  .shard-7 { clip-path: polygon(10% 90%, 40% 90%, 25% 65%); }
+  .shard-8 { clip-path: polygon(60% 90%, 90% 90%, 75% 65%); }
+  .shard:nth-child(n+9) { clip-path: polygon(48% 40%, 52% 40%, 50% 60%); opacity: 0.4; }
 
   .flash-overlay {
     position: absolute;
