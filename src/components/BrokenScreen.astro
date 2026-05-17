@@ -54,20 +54,20 @@
     tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0, filter: 'blur(0px)' });
     tl.set(mainText, { opacity: 1, filter: 'blur(0px)', letterSpacing: "-0.02em" });
 
-    // 1. Tension Build
+    // 1. Tension Build (Letter spacing expansion)
     tl.to(mainText, { 
       letterSpacing: "2vw", 
       duration: 1.5, 
       ease: "power4.inOut" 
     });
 
-    // 2. The Impact (Flash + Camera UI Glitch)
+    // 2. The Impact (Flash + Camera UI Shudder)
     tl.to(flash, { 
       opacity: 1, 
       duration: 0.04, 
       onStart: () => {
         gsap.set(mainText, { opacity: 0 });
-        // The camera "shakes" but stays visible
+        // Camera UI reacts to the "explosion"
         gsap.fromTo(cameraUI, 
           { x: -10, y: -10 }, 
           { x: 0, y: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" }
@@ -93,7 +93,7 @@
         rotationY: rotY,
         scale: 0.5 + Math.random(),
         duration: 1.5,
-      }, 1.54); // Triggers immediately with the flash
+      }, 1.54); // Synchronized with flash end
     });
 
     // 4. Chaotic Vibration
@@ -105,8 +105,7 @@
       ease: "none"
     }, 1.6);
 
-    // 5. Dissolve (SHARDS ONLY)
-    // We do NOT include cameraUI here so it remains on screen
+    // 5. Dissolve
     tl.to(shards, { 
       opacity: 0, 
       filter: 'blur(30px)', 
@@ -132,11 +131,11 @@
     font-family: 'Inter', sans-serif;
   }
 
-  /* --- CAMERA OVERLAY (Stays constant) --- */
+  /* --- CAMERA OVERLAY (Persistent) --- */
   .camera-overlay {
     position: absolute;
     inset: 0;
-    z-index: 100; /* Above shards, below flash if you want the flash to affect UI */
+    z-index: 100;
     pointer-events: none;
     display: flex;
     justify-content: center;
@@ -183,6 +182,8 @@
     animation: blink 1s steps(2) infinite;
   }
 
+  @keyframes blink { 50% { opacity: 0; } }
+
   .center-cross {
     position: absolute;
     top: 50%;
@@ -200,9 +201,7 @@
   .center-cross::before { top: 50%; left: 0; width: 100%; height: 1px; }
   .center-cross::after { left: 50%; top: 0; width: 1px; height: 100%; }
 
-  @keyframes blink { 50% { opacity: 0; } }
-
-  /* --- ELEMENTS THAT SHATTER --- */
+  /* --- TYPOGRAPHY (The High-Fashion Look) --- */
   .text-layer {
     color: #fff;
     font-weight: 950;
@@ -211,6 +210,7 @@
     text-align: center;
     pointer-events: none;
     white-space: nowrap;
+    z-index: 5;
   }
 
   .shard-wrapper {
@@ -236,6 +236,7 @@
     font-size: clamp(2rem, 8.5vw, 14rem);
     text-transform: uppercase;
     white-space: nowrap;
+    /* Chromatic Aberration Effect */
     text-shadow: 
       -3px -1px 0px rgba(255, 0, 80, 0.8), 
       3px 1px 0px rgba(0, 255, 255, 0.8);
