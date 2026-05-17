@@ -3,37 +3,36 @@
 const { 
   phrases = ["FALLING IN LOVE.", "ONE STORY.", "AT A TIME."], 
   waitTime = 2500,
-  label = "FATAL_ERROR // SHATTER_MODE" 
+  label = "FATAL_ERROR // GLASS_S_01" 
 } = Astro.props;
 ---
 
-<div class="luxury-frame shatter-anarchy">
+<div class="luxury-frame blackout-shatter">
   <div class="frame-meta">
     <div class="meta-left">
-        <div class="shatter-icon"></div>
+        <div class="shatter-dot"></div>
         <span class="label-text">{label}</span>
     </div>
-    <div class="status-alert" id="cypher">SYSTEM_FRACTURE</div>
+    <div class="status-alert" id="cypher">FRACTURE_READY</div>
   </div>
 
   <type-writer-shatter data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="box-content">
-        <div class="glass-overlay"></div>
+        <div class="blood-vignette"></div>
         
         <div class="glitch-canvas">
             <div class="layer main-text"></div>
-            <div class="layer ghost-red"></div>
-            <div class="layer blood-depth"></div>
-            <div class="layer wireframe"></div>
+            <div class="layer crimson-depth"></div>
+            <div class="layer outline-layer"></div>
         </div>
         
-        <div id="shard-container"></div>
+        <div class="screen-cracks"></div>
     </div>
   </type-writer-shatter>
 
   <div class="frame-footer">
-    <span class="warning">CAUTION: DATA LOSS IMMINENT</span>
-    <span class="coord">FRAGMENT_ID: 0x88912</span>
+    <div class="shard-count" id="shard-status">SHARDS: 0</div>
+    <span class="coord">FRAGMENT_OS_09</span>
   </div>
 </div>
 
@@ -46,114 +45,100 @@ const {
       const phrases = JSON.parse(this.dataset.phrases || "[]");
       const waitTime = parseInt(this.dataset.wait || "2500");
       const layers = this.querySelectorAll('.layer');
-      const shardContainer = document.getElementById('shard-container');
-      const cypher = document.getElementById('cypher');
+      const shardStatus = this.querySelector('#shard-status');
       
       let index = 0;
-      const techChars = "01<>[]{}+=-_#&%";
+
+     
+      const getShatterPath = () => {
+        const p1 = `${Math.random() * 100}% ${Math.random() * 100}%`;
+        const p2 = `${Math.random() * 100}% ${Math.random() * 100}%`;
+        const p3 = `${Math.random() * 100}% ${Math.random() * 100}%`;
+        return `polygon(${p1}, ${p2}, ${p3})`;
+      };
 
       const animate = () => {
         const word = phrases[index];
+        
+        
         const markup = word.split(' ').map(w => `
           <span class="word">
-            ${w.split('').map(c => `<span class="char" data-c="${c}">${c}</span>`).join('')}
+            ${w.split('').map(c => `
+              <span class="char-container">
+                <span class="char main" data-c="${c}">${c}</span>
+                <span class="char ghost" data-c="${c}">${c}</span>
+              </span>`).join('')}
           </span>
         `).join('<span class="space">&nbsp;</span>');
 
-        layers.forEach(l => {
-            l.innerHTML = markup;
-            l.style.clipPath = "none";
-        });
+        layers.forEach(l => l.innerHTML = markup);
 
-        const allChars = this.querySelectorAll('.char');
+        const charContainers = this.querySelectorAll('.char-container');
+        const ghosts = this.querySelectorAll('.ghost');
         
         const tl = gsap.timeline({
-          onComplete: () => gsap.delayedCall(waitTime / 1000, shatterExit)
+          onComplete: () => gsap.delayedCall(waitTime / 1000, shatterAction)
         });
 
-       
-        tl.fromTo(allChars, 
+        
+        tl.fromTo(charContainers, 
+          { opacity: 0, scale: 3, z: 500, filter: "blur(15px)" },
           { 
-            opacity: 0, 
-            scale: 2, 
-            z: 200, 
-            filter: "brightness(500%) blur(10px)" 
-          },
-          { 
-            opacity: 1, 
-            scale: 1, 
-            z: 0, 
-            filter: "brightness(100%) blur(0px)",
-            duration: 0.3,
-            stagger: { each: 0.01, from: "center" },
-            ease: "expo.out",
-            onUpdate: function() {
-              this.targets().forEach(t => {
-                if (Math.random() > 0.8) {
-                   t.textContent = techChars[Math.floor(Math.random() * techChars.length)];
-                   t.style.fontFamily = "'Fira Code', monospace";
-                } else {
-                   t.textContent = t.getAttribute('data-c');
-                   t.style.fontFamily = "'Inter', sans-serif";
-                }
-              });
-              if(cypher && Math.random() > 0.8) cypher.textContent = `SHATTER_VAL: ${Math.random().toFixed(4)}`;
-            }
+            opacity: 1, scale: 1, z: 0, filter: "blur(0px)",
+            duration: 0.4, 
+            stagger: { each: 0.03, from: "random" },
+            ease: "expo.out" 
           }
         );
 
         
-        const jitter = gsap.to(".blood-depth", {
-            x: "random(-20, 20)",
-            y: "random(-10, 10)",
-            scale: 1.05,
-            duration: 0.04,
-            repeat: -1,
-            repeatRefresh: true,
-            opacity: 0.8
+        gsap.to(ghosts, {
+          x: "random(-10, 10)",
+          y: "random(-5, 5)",
+          opacity: 0.7,
+          duration: 0.03,
+          repeat: -1,
+          repeatRefresh: true,
+          ease: "none"
         });
 
-        
-        const sliceInterval = setInterval(() => {
-            layers.forEach(l => {
-                const p1 = Math.random() * 100;
-                const p2 = p1 + 10;
-                l.style.clipPath = `polygon(0% ${p1}%, 100% ${p1 - 10}%, 100% ${p2}%, 0% ${p2 + 10}%)`;
-            });
-        }, 80);
+        const shatterAction = () => {
+          gsap.killTweensOf(ghosts);
+          if(shardStatus) shardStatus.textContent = `SHARDS: ${charContainers.length * 2}`;
 
-        const shatterExit = () => {
-          clearInterval(sliceInterval);
-          jitter.kill();
-
-         
-          allChars.forEach((char, i) => {
-            const rect = char.getBoundingClientRect();
+          charContainers.forEach((container, i) => {
+            // Apply randomized glass shards
+            const charElements = container.querySelectorAll('.char');
             
-            gsap.to(char, {
-              x: (Math.random() - 0.5) * 1200,
-              y: (Math.random() - 0.5) * 1200,
-              z: Math.random() * 1000,
-              rotationX: Math.random() * 720,
-              rotationY: Math.random() * 720,
-              rotationZ: Math.random() * 720,
-              opacity: 0,
-              scale: 0,
-              duration: 0.8,
-              ease: "power4.out",
-              onComplete: () => {
-                if (i === allChars.length - 1) {
-                   index = (index + 1) % phrases.length;
-                   animate();
+            charElements.forEach(el => {
+              el.style.clipPath = getShatterPath();
+              
+              
+              gsap.to(el, {
+                x: (Math.random() - 0.5) * 1500,
+                y: (Math.random() - 0.5) * 1000,
+                z: Math.random() * 800,
+                rotationX: "random(-720, 720)",
+                rotationY: "random(-720, 720)",
+                rotationZ: "random(-720, 720)",
+                opacity: 0,
+                scale: 0.2,
+                duration: 1,
+                ease: "power3.out",
+                onComplete: () => {
+                  if (i === charContainers.length - 1) {
+                    index = (index + 1) % phrases.length;
+                    animate();
+                  }
                 }
-              }
+              });
             });
           });
 
-          // Screen Flash
-          gsap.fromTo(".glass-overlay", 
-            { opacity: 1, backgroundColor: "#330000" }, 
-            { opacity: 0, duration: 0.5 }
+          
+          gsap.fromTo(".screen-cracks", 
+            { opacity: 1, filter: "invert(1) contrast(2)" }, 
+            { opacity: 0, duration: 0.6 }
           );
         };
       };
@@ -166,10 +151,11 @@ const {
 </script>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Inter:wght@900&display=swap');
 
   .luxury-frame {
     background: #000;
-    border: 2px solid #200;
+    border: 2px solid #1a0000;
     position: relative;
     width: 100%;
     height: 100vh;
@@ -183,40 +169,31 @@ const {
     display: flex;
     justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
+    font-size: 11px;
     color: #400;
-    background: #050000;
-    border-bottom: 1px solid #100;
+    border-bottom: 1px solid #1a0000;
   }
 
-  .shatter-icon {
-    width: 15px;
-    height: 15px;
-    background: #ff0033;
-    display: inline-block;
-    margin-right: 15px;
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%, 20% 20%, 80% 80%);
-    animation: pulse 0.1s infinite alternate;
+  .shatter-dot {
+    width: 8px; height: 8px; background: #ff0000;
+    display: inline-block; margin-right: 12px;
+    box-shadow: 0 0 15px #ff0000;
+    animation: twitch 0.1s infinite;
   }
 
-  @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; transform: scale(1.2); } }
+  @keyframes twitch {
+    0% { transform: translate(0); }
+    50% { transform: translate(2px, -1px); opacity: 0.5; }
+    100% { transform: translate(-1px, 1px); }
+  }
 
   .box-content {
     flex-grow: 1;
     position: relative;
     display: grid;
     place-items: center;
-    perspective: 1500px;
-    background: radial-gradient(circle at center, #100 0%, #000 80%);
-  }
-
-  .glass-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 10;
-    pointer-events: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0 0 L100 100 M100 0 L0 100" stroke="rgba(255,0,0,0.05)" stroke-width="0.5"/></svg>');
+    perspective: 2000px;
+    background: radial-gradient(circle at 50% 50%, #0d0000 0%, #000 100%);
   }
 
   .glitch-canvas {
@@ -229,10 +206,10 @@ const {
 
   .layer {
     grid-area: 1/1;
-    font-size: clamp(2rem, 20vw, 14rem);
+    font-size: clamp(2rem, 22vw, 15rem);
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    line-height: 0.75;
+    line-height: 0.7;
     text-transform: uppercase;
     text-align: center;
     display: flex;
@@ -242,30 +219,37 @@ const {
     transform-style: preserve-3d;
   }
 
-  /* Color Palette: High Contrast Reds & Whites */
-  .main-text { color: #fff; z-index: 5; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-  .ghost-red { color: #ff0033; z-index: 4; opacity: 0.6; mix-blend-mode: screen; }
-  .blood-depth { color: #660000; z-index: 3; mix-blend-mode: multiply; }
-  .wireframe { 
+  /* Palette: Dark Grays and Intense Crimsons */
+  .main-text { color: #fff; z-index: 10; mix-blend-mode: overlay; }
+  .crimson-depth { color: #8b0000; z-index: 5; }
+  .outline-layer { 
     color: transparent; 
-    -webkit-text-stroke: 1px rgba(102, 0, 0, 0.5); 
-    z-index: 2; 
+    -webkit-text-stroke: 1px rgba(255,0,0,0.3); 
+    z-index: 1; 
   }
 
-  .char { display: inline-block; transition: color 0.1s; transform-style: preserve-3d; }
+  .char-container { display: inline-block; position: relative; transform-style: preserve-3d; }
+  .char { display: inline-block; transform-style: preserve-3d; }
+  .ghost { position: absolute; left: 0; top: 0; color: #ff0000; opacity: 0; z-index: -1; }
+
+  .screen-cracks {
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M0,0 L50,50 L100,20 M20,80 L50,50 L80,100' stroke='red' stroke-width='1' opacity='0.2' fill='none'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+  }
 
   .frame-footer {
     padding: 15px 30px;
-    border-top: 1px solid #100;
     display: flex;
     justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 8px;
-    color: #300;
+    font-size: 10px;
+    color: #200;
+    border-top: 1px solid #1a0000;
   }
 
-  .warning { color: #ff0033; animation: flicker 0.5s infinite; }
-  @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-  .word { white-space: nowrap; padding: 0 15px; }
+  .word { white-space: nowrap; padding: 0 10px; }
 </style>
