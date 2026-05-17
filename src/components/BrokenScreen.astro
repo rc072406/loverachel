@@ -1,33 +1,19 @@
 ---
 // src/components/BrokenScreen.astro
 const { 
-  phrases = ["SYSTEM FAILURE.", "REALITY BREACH.", "STAY CALM."], 
-  waitTime = 3000,
-  label = "FRACTURE_OS // VER_0.4.2" 
+  phrases = ["FASHION, ART AND STEM.", "FASHION, ART AND STEM.", "FASHION, ART AND STEM."], 
+  waitTime = 3500,
+  label = "WELCOME // 01" 
 } = Astro.props;
 ---
 
 <div class="screen-container">
-  <type-writer-obsidian data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
+  <type-writer-razor data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="viewport" id="viewport">
         
-        <svg class="filter-svg" style="position: absolute; width: 0; height: 0;">
-          <filter id="razor-tear">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.4" numOctaves="2" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" id="tear-map" xChannelSelector="R" />
-          </filter>
-        </svg>
-
         <div class="glass-layer">
             <svg id="glass-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="needle-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="rgba(255,255,255,0.0)" />
-                        <stop offset="50%" stop-color="rgba(255,255,255,0.6)" />
-                        <stop offset="100%" stop-color="rgba(255,255,255,0.0)" />
-                    </linearGradient>
-                </defs>
-                <path class="crack-static" d="M0,300 L400,450 L350,500 L650,650 M500,0 L400,450 L1000,350 M400,450 L100,1000" fill="none" stroke="white" stroke-width="0.3" opacity="0.8" />
+                <path class="crack-static" d="M0,450 L450,450 L400,500 L1000,500 M450,450 L500,0 M450,450 L300,1000" fill="none" stroke="white" stroke-width="0.5" />
                 <g id="needle-group"></g>
             </svg>
         </div>
@@ -41,17 +27,17 @@ const {
 
         <div class="vignette"></div>
     </div>
-  </type-writer-obsidian>
+  </type-writer-razor>
 </div>
 
 <script>
   import { gsap } from "gsap";
 
-  class TypeWriterObsidian extends HTMLElement {
+  class TypeWriterRazor extends HTMLElement {
     constructor() {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
-      const waitTime = parseInt(this.dataset.wait || "3000");
+      const waitTime = parseInt(this.dataset.wait || "3500");
       const viewport = this.querySelector('#viewport');
       const needleGroup = this.querySelector('#needle-group');
       const crackStatic = this.querySelector('.crack-static');
@@ -60,19 +46,14 @@ const {
 
       const createNeedles = () => {
         needleGroup.innerHTML = '';
-        // 150+ ultra-thin daggers
-        for (let i = 0; i < 150; i++) {
+        for (let i = 0; i < 180; i++) {
           const shard = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          const len = Math.random() * 300 + 100;
-          const width = 0.5 + Math.random() * 1.5;
-          // Asymmetrical needle shape
-          shard.setAttribute("d", `M0,0 L${width},${len} L-${width/2},${len*0.9} Z`);
-          shard.setAttribute("fill", "url(#needle-grad)");
-          shard.setAttribute("stroke", "white");
-          shard.setAttribute("stroke-width", "0.1");
-          shard.setAttribute("class", "needle-shard");
+          const len = Math.random() * 400 + 50;
+          shard.setAttribute("d", `M0,0 L1,${len} L-0.5,${len*0.95} Z`); // Needle geometry
+          shard.setAttribute("fill", "white");
+          shard.setAttribute("class", "needle");
           
-          gsap.set(shard, { x: 400, y: 450, opacity: 0, scale: 0, z: 0 });
+          gsap.set(shard, { x: 450, y: 450, opacity: 0, scale: 0 });
           needleGroup.appendChild(shard);
         }
       };
@@ -84,78 +65,70 @@ const {
         const chars = this.querySelectorAll('.char');
         
         createNeedles();
-        const needles = this.querySelectorAll('.needle-shard');
+        const needles = this.querySelectorAll('.needle');
         const tl = gsap.timeline();
 
-        // 1. THE COLD OPEN (Total silence)
-        tl.set(crackStatic, { opacity: 0.8 });
-        tl.set(display, { opacity: 0, filter: "url(#razor-tear)" });
+        // 1. THE TRICK (Dead Still)
+        tl.set(crackStatic, { opacity: 0.7 });
 
-        // 2. THE AWAKENING (Precision Glitch)
-        tl.to(viewport, { duration: 4.5 }); // The trick delay
+        // 2. THE STUTTER (High-speed horizontal pixel shifting)
+        tl.to(viewport, { duration: 4.0 }); // Long bait
 
-        tl.to(display, { opacity: 1, duration: 0.05 });
+        tl.to(display, { opacity: 1, duration: 0.01 });
         tl.fromTo(chars, 
-          { opacity: 0, y: 5 }, 
+          { opacity: 0 }, 
           { 
-            opacity: 1, y: 0, stagger: 0.01, duration: 0.2, 
-            ease: "power4.out",
+            opacity: 1, stagger: 0.005, 
             onUpdate: function() {
               this.targets().forEach(t => {
-                if(Math.random() > 0.97) {
-                    t.style.opacity = "0.2";
-                    t.style.transform = `translateX(${Math.random() * 4}px)`;
+                // Precision "Micro-Stab" glitch
+                if(Math.random() > 0.98) {
+                    t.style.transform = `skewX(${Math.random() * 60 - 30}deg) translateX(${Math.random() * 20}px)`;
+                    t.style.color = "#ff0000";
                 } else {
-                    t.style.opacity = "1";
-                    t.style.transform = `translateX(0)`;
+                    t.style.transform = "none";
+                    t.style.color = "white";
                 }
               });
             }
           }
         );
 
-        // 3. THE RAZOR IMPACT (Extreme speed)
+        // 3. THE SHATTER (Instantaneous)
         tl.add(() => {
-          // Micro-shake (High frequency)
-          gsap.to(viewport, { x: "random(-3, 3)", y: "random(-3, 3)", duration: 0.02, repeat: 10 });
-          
-          // Pixel Tear
-          gsap.to("#tear-map", { attr: { scale: 120 }, duration: 0.3, ease: "expo.out" });
+          // Snap Shake
+          gsap.fromTo(viewport, { x: -10 }, { x: 0, duration: 0.05, ease: "elastic.out(1, 0.1)" });
 
           needles.forEach((n) => {
             const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 2500 + 1500;
+            const velocity = 2000 + Math.random() * 1000;
             
             gsap.to(n, {
               opacity: 1,
-              x: 400 + Math.cos(angle) * velocity,
+              x: 450 + Math.cos(angle) * velocity,
               y: 450 + Math.sin(angle) * velocity,
-              z: 2500, // Blow past camera
-              scale: 12,
-              rotationZ: "random(-720, 720)",
-              duration: 0.5,
+              z: 3000,
+              scale: 15,
+              rotationZ: "random(-360, 360)",
+              duration: 0.4,
               ease: "expo.out"
             });
           });
 
-          // Text "Vaporizes"
           gsap.to(chars, {
             opacity: 0,
-            z: 1000,
-            x: "random(-200, 200)",
-            rotationX: "random(-90, 90)",
-            duration: 0.3,
-            stagger: 0.002
+            scale: 2,
+            z: 500,
+            x: "random(-100, 100)",
+            duration: 0.2,
           });
 
-          gsap.to(crackStatic, { opacity: 0, duration: 0.1 });
-        }, "+=1.8");
+          gsap.to(crackStatic, { opacity: 0, duration: 0.05 });
+        }, "+=1.5");
 
         // 4. RESET
         tl.to(viewport, { 
-            opacity: 0, 
-            duration: 1.2, 
-            delay: 0.5,
+            opacity: 0, duration: 0.5, delay: 1.5,
             onComplete: () => {
                 gsap.set(viewport, { opacity: 1 });
                 index = (index + 1) % phrases.length;
@@ -168,57 +141,41 @@ const {
     }
   }
 
-  customElements.define('type-writer-obsidian', TypeWriterObsidian);
+  customElements.define('type-writer-razor', TypeWriterRazor);
 </script>
 
 <style>
-  .screen-container {
-    background: #000;
-    width: 100%; height: 100vh;
-    overflow: hidden;
-  }
-
+  .screen-container { background: #000; width: 100%; height: 100vh; overflow: hidden; }
+  
   .viewport {
-    position: relative;
-    width: 100%; height: 100%;
+    position: relative; width: 100%; height: 100%;
     display: grid; place-items: center;
-    background: #000;
-    perspective: 2000px; /* Deep perspective for "stab" effect */
-    transform-style: preserve-3d;
+    perspective: 2500px; transform-style: preserve-3d;
   }
 
-  .glass-layer {
-    position: absolute; inset: 0;
-    z-index: 100; pointer-events: none;
-    transform-style: preserve-3d;
-  }
-
+  .glass-layer { position: absolute; inset: 0; z-index: 100; transform-style: preserve-3d; }
+  
   svg { width: 100%; height: 100%; overflow: visible; }
 
   .display-text {
     font-family: 'Fira Code', monospace;
-    font-size: clamp(2rem, 10vw, 7rem);
-    font-weight: 300;
-    letter-spacing: -0.02em;
-    color: #fff;
+    font-size: clamp(2rem, 10vw, 8rem);
+    font-weight: 300; color: #fff;
     text-transform: uppercase;
     transform-style: preserve-3d;
-    filter: drop-shadow(0 0 1px rgba(255,255,255,0.5));
   }
 
-  .char { display: inline-block; will-change: transform, opacity; }
+  .char { display: inline-block; will-change: transform; }
 
   .meta-label {
-    position: absolute; top: 30px; left: 30px;
-    font-family: 'Fira Code', monospace; font-size: 9px;
-    color: #1a1a1a; letter-spacing: 0.3em;
+    position: absolute; top: 40px; left: 40px;
+    font-family: 'Fira Code', monospace; font-size: 10px;
+    color: #111; letter-spacing: 0.5em;
   }
 
   .vignette {
     position: absolute; inset: 0;
-    background: radial-gradient(circle, transparent 40%, black 140%);
-    z-index: 50; pointer-events: none;
+    background: radial-gradient(circle, transparent 50%, black 150%);
+    pointer-events: none;
   }
-
-  .needle-shard { pointer-events: none; }
 </style>
