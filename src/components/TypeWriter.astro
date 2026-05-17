@@ -1,103 +1,170 @@
 ---
-// src/components/TypeWriter.astro
+// src/components/ModernBox.astro
 const { 
-  phrases = ["Falling in love."], 
-  waitTime = 4000, 
-  align = "center" // Default to center
+  phrases = ["FALLING IN LOVE."], 
+  waitTime = 3000,
+  label = "ISSUE NO.01 // 2026" 
 } = Astro.props;
 ---
 
-<type-writer data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
-  <section class="typing-box-container">
-    <div class="typing-box" style={`align-items: ${align};`}>
-      <div class="box-content">
-        <span class="typewriter-text"></span>
-        <span class="cursor">|</span>
-      </div>
+<div class="luxury-frame">
+  <div class="frame-meta">
+    <span class="dot"></span>
+    <span class="label-text">{label}</span>
+  </div>
+
+  <type-writer-modern data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
+    <div class="box-content">
+        <slot>
+            <h2 class="typewriter-display"></h2>
+        </slot>
+        <div class="glitch-line"></div>
     </div>
-  </section>
-</type-writer>
+  </type-writer-modern>
+
+  <div class="frame-corner"></div>
+</div>
 
 <script>
-  class TypeWriterElement extends HTMLElement {
+  import { gsap } from "gsap";
+
+  class TypeWriterModern extends HTMLElement {
     constructor() {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
-      const waitTime = parseInt(this.dataset.wait || "4000");
-      const target = this.querySelector('.typewriter-text');
+      const waitTime = parseInt(this.dataset.wait || "3000");
+      const target = this.querySelector('.typewriter-display');
+      const line = this.querySelector('.glitch-line');
       
-      if (target && phrases.length > 0) {
-        this.initTypewriter(target, phrases, waitTime);
-      }
-    }
+      if (!target || phrases.length === 0) return;
 
-    initTypewriter(element, phrases, waitTime) {
-      let phraseIndex = 0;
-      let charIndex = 0;
-      let isDeleting = false;
+      let index = 0;
 
-      const type = () => {
-        const currentPhrase = phrases[phraseIndex];
-        let typeSpeed = isDeleting ? 50 : 100;
+      const animateSequence = () => {
+        const word = phrases[index];
+        // Split word into spans for GSAP
+        target.innerHTML = word.split('').map(char => 
+          `<span class="char" style="display:inline-block; opacity:0">${char === ' ' ? '&nbsp;' : char}</span>`
+        ).join('');
 
-        if (isDeleting) {
-          element.textContent = currentPhrase.substring(0, charIndex - 1);
-          charIndex--;
-        } else {
-          element.textContent = currentPhrase.substring(0, charIndex + 1);
-          charIndex++;
-        }
+        const chars = target.querySelectorAll('.char');
+        
+        const tl = gsap.timeline({
+          onComplete: () => setTimeout(exitSequence, waitTime)
+        });
 
-        if (!isDeleting && charIndex === currentPhrase.length) {
-          isDeleting = true;
-          typeSpeed = waitTime;
-        } else if (isDeleting && charIndex === 0) {
-          isDeleting = false;
-          phraseIndex = (phraseIndex + 1) % phrases.length;
-          typeSpeed = 500;
-        }
+        
+        tl.to(chars, {
+          opacity: 1,
+          fontWeight: 900,
+          y: 0,
+          stagger: 0.03,
+          ease: "expo.out",
+          duration: 0.8
+        })
+        .fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 1.5, ease: "power4.inOut" }, 0);
 
-        setTimeout(type, typeSpeed);
+        const exitSequence = () => {
+          gsap.to(chars, {
+            opacity: 0,
+            y: -20,
+            filter: "blur(10px)",
+            stagger: 0.02,
+            ease: "expo.in",
+            onComplete: () => {
+              index = (index + 1) % phrases.length;
+              animateSequence();
+            }
+          });
+          gsap.to(line, { scaleX: 0, transformOrigin: "right", duration: 0.5 });
+        };
       };
 
-      type();
+      animateSequence();
     }
   }
 
-  if (!customElements.get('type-writer')) {
-    customElements.define('type-writer', TypeWriterElement);
-  }
+  customElements.define('type-writer-modern', TypeWriterModern);
 </script>
 
 <style>
-  .typing-box-container {
+  
+  .luxury-frame {
+    font-family: 'Inter', -apple-system, sans-serif;
     background: #000;
-    display: flex;
-    justify-content: center;
-}
-
-.typing-box {
+    border: 1px solid #222;
+    position: relative;
     width: 100%;
-    max-width: 900px;
-    border: 1px solid #333;
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  .frame-meta {
+    padding: 15px 20px;
+    border-bottom: 1px solid #222;
     display: flex;
-   align-items: center;
-}
+    align-items: center;
+    gap: 10px;
+  }
 
-.box-content {
-    padding: 40px;
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    min-height: 250px;
-}
-.cursor {
-    color: #ff0033;
-    font-weight: 300;
-    margin-left: 5px;
-    animation: blink 0.8s step-end infinite;
-}
+  .dot {
+    width: 6px;
+    height: 6px;
+    background: #ff0033;
+    border-radius: 50%;
+  }
 
-@keyframes blink {
-    from, to { opacity: 1; }
-    50% { opacity: 0; }
-}
+  .label-text {
+    color: #666;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .box-content {
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+  }
+
+  .typewriter-display {
+    color: #fff;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    margin: 0;
+    line-height: 0.9;
+    letter-spacing: -0.05em; /* Tight high-fashion tracking */
+    text-transform: uppercase;
+  }
+
+  .glitch-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, #ff0033, transparent);
+    transform-origin: left;
+  }
+
+  .frame-corner {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-right: 1px solid #444;
+    border-bottom: 1px solid #444;
+  }
+
+  @supports (font-variation-settings: normal) {
+    .typewriter-display {
+      font-variation-settings: "wght" 900;
+    }
+  }
 </style>
