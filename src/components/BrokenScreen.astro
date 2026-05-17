@@ -1,7 +1,7 @@
 ---
 // src/components/BrokenScreen.astro
 const { 
-  phrases = ["SYSTEM FAILURE.", "REALITY BREACH.", "STAY CALM."], 
+  phrases = ["SYSTEM FAILURE.", "REALITY BREACH.", "CONNECTING...", "STAY CALM."], 
   waitTime = 2000,
   label = "HARDWARE_CHECK // ERROR_77" 
 } = Astro.props;
@@ -11,8 +11,9 @@ const {
   <type-writer-prank data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="viewport">
         <div class="glass-crack-system">
-            <svg viewBox="0 0 1000 1000" preserveAspectRatio="none">
+            <svg id="glass-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
                 <path class="crack-line" d="M0,200 L300,400 L250,450 L600,600 L550,650 L1000,800 M400,0 L300,400 L700,300 L1000,400 M300,400 L0,1000" fill="none" stroke="white" stroke-width="2" />
+                <g id="shard-group"></g>
                 <circle cx="300" cy="400" r="5" fill="white" class="impact-point" />
             </svg>
         </div>
@@ -21,7 +22,6 @@ const {
             <div class="meta-data">{label}</div>
             <div class="text-canvas">
                 <h2 class="display-text main"></h2>
-                <h2 class="display-text flicker"></h2>
             </div>
         </div>
 
@@ -39,69 +39,98 @@ const {
       const phrases = JSON.parse(this.dataset.phrases || "[]");
       const waitTime = parseInt(this.dataset.wait || "2000");
       const displays = this.querySelectorAll('.display-text');
-      const crackPath = this.querySelector('.crack-line');
       const glassLayer = this.querySelector('.glass-crack-system');
+      const shardGroup = this.querySelector('#shard-group');
+      const crackPath = this.querySelector('.crack-line');
       
       let index = 0;
+
+      // Function to create fake shards near the impact point
+      const createShards = () => {
+        shardGroup.innerHTML = ''; // Clear old shards
+        for (let i = 0; i < 15; i++) {
+          const shard = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          const size = Math.random() * 50 + 20;
+          // Create small triangular shards
+          shard.setAttribute("d", `M0,0 L${size},${size/2} L${size/2},${size} Z`);
+          shard.setAttribute("fill", "rgba(255,255,255,0.2)");
+          shard.setAttribute("stroke", "white");
+          shard.setAttribute("class", "glass-shard");
+          // Center shards around the impact point (300, 400)
+          gsap.set(shard, { x: 300, y: 400, opacity: 0 });
+          shardGroup.appendChild(shard);
+        }
+      };
 
       const runSequence = () => {
         const word = phrases[index];
         const markup = word.split('').map(c => `<span class="char">${c}</span>`).join('');
         displays.forEach(d => d.innerHTML = markup);
-
         const chars = this.querySelectorAll('.char');
+        
+        createShards();
+        const shards = this.querySelectorAll('.glass-shard');
         const tl = gsap.timeline();
 
-        // 1. Initial "Broken Screen" State (Silent for 1 second)
-        tl.set(glassLayer, { opacity: 1, filter: "drop-shadow(0 0 2px white)" });
-        tl.set(displays, { opacity: 0 });
+        // 1. RE-ESTABLISH CRACK (Trick the user again)
+        tl.set(crackPath, { opacity: 1, scale: 1, x: 0, y: 0 });
+        tl.set(displays, { opacity: 0, filter: "blur(10px)" });
 
-      
-        tl.to(glassLayer, { 
-            duration: 0.1, 
-            repeat: 5, 
-            yoyo: true, 
-            opacity: 0.5, 
-            delay: 1.5 // The "Suspense" delay
-        });
-
-        tl.to(displays, { 
-            opacity: 1, 
-            duration: 0.05, 
-            onStart: () => {
-                // Chaotic flash sound-visual effect
-                gsap.to(".viewport", { backgroundColor: "#1a0000", duration: 0.05, repeat: 10, yoyo: true });
-            }
-        });
-
-       
+        // 2. SUSPENSE & FLICKER
+        tl.to(glassLayer, { duration: 0.1, repeat: 3, yoyo: true, opacity: 0.6, delay: 0.5 });
+        
+        // 3. TEXT APPEARS
+        tl.to(displays, { opacity: 1, filter: "blur(0px)", duration: 0.1 });
         tl.fromTo(chars, 
-            { opacity: 0, y: 10 }, 
-            { 
-                opacity: 1, 
-                y: 0, 
-                stagger: 0.02, 
-                ease: "power4.out",
-                onUpdate: function() {
-                    // Randomly color characters crimson or white
-                    this.targets().forEach(t => {
-                        if(Math.random() > 0.8) {
-                            t.style.color = "#ff0033";
-                            t.style.textShadow = "0 0 10px #ff0033";
-                        } else {
-                            t.style.color = "white";
-                            t.style.textShadow = "none";
-                        }
-                    });
-                }
+          { opacity: 0, scale: 2 }, 
+          { 
+            opacity: 1, scale: 1, stagger: 0.03, ease: "back.out(2)",
+            onUpdate: function() {
+              this.targets().forEach(t => {
+                t.style.color = Math.random() > 0.9 ? "#ff0033" : "white";
+              });
             }
+          }
         );
 
-        // 4. Reset for next phrase
+        // 4. THE SHATTER (At the end of the text)
+        tl.add(() => {
+          // Explode Original Crack
+          gsap.to(crackPath, {
+            duration: 0.6,
+            opacity: 0,
+            scale: 1.5,
+            rotation: 10,
+            ease: "power2.in"
+          });
+
+          // Explode Shards
+          gsap.to(shards, {
+            duration: 0.8,
+            opacity: 1,
+            x: () => 300 + (Math.random() - 0.5) * 800,
+            y: () => 400 + (Math.random() - 0.5) * 800,
+            rotation: () => Math.random() * 720,
+            scale: 0,
+            ease: "power3.out",
+            stagger: 0.01
+          });
+
+          // Text Chaos during shatter
+          gsap.to(chars, {
+            x: () => (Math.random() - 0.5) * 50,
+            y: () => (Math.random() - 0.5) * 50,
+            duration: 0.1,
+            repeat: 5,
+            yoyo: true
+          });
+        }, "+=1"); // Wait 1 second after text finishes before shattering
+
+        // 5. NEXT PHRASE
         tl.to(displays, { 
             opacity: 0, 
             delay: waitTime / 1000, 
-            duration: 0.1,
+            duration: 0.4,
             onComplete: () => {
                 index = (index + 1) % phrases.length;
                 runSequence();
@@ -119,92 +148,52 @@ const {
 <style>
   .screen-container {
     background: #000;
-    width: 100%;
-    height: 100vh;
-    cursor: none;
+    width: 100%; height: 100vh;
     overflow: hidden;
     font-family: 'Inter', sans-serif;
   }
 
   .viewport {
     position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
     background: #000;
   }
 
-  /* The Crack Overlay */
   .glass-crack-system {
     position: absolute;
-    inset: 0;
-    z-index: 100;
+    inset: 0; z-index: 100;
     pointer-events: none;
-    opacity: 1;
   }
 
-  svg {
-    width: 100%;
-    height: 100%;
-  }
+  svg { width: 100%; height: 100%; overflow: visible; }
 
   .crack-line {
-    stroke: rgba(255, 255, 255, 0.8);
-    stroke-width: 1.5;
-    filter: drop-shadow(0 0 1px rgba(255,255,255,0.5));
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 2px white);
   }
 
-  .impact-point {
-    filter: blur(2px);
-    box-shadow: 0 0 20px white;
-  }
+  .glass-shard { stroke-width: 1; }
 
-  /* The Content Layer */
-  .content-layer {
-    z-index: 10;
-    text-align: center;
-  }
+  .content-layer { z-index: 10; text-align: center; }
 
   .meta-data {
-    font-family: monospace;
-    font-size: 10px;
-    color: #333;
-    letter-spacing: 5px;
-    margin-bottom: 20px;
-  }
-
-  .text-canvas {
-    position: relative;
+    font-family: monospace; font-size: 10px;
+    color: #444; letter-spacing: 5px; margin-bottom: 20px;
   }
 
   .display-text {
-    font-size: clamp(2rem, 10vw, 8rem);
-    font-weight: 900;
-    margin: 0;
+    font-size: clamp(2rem, 12vw, 9rem);
+    font-weight: 900; color: white;
     text-transform: uppercase;
-    color: white;
   }
 
-  .flicker {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    mix-blend-mode: color-dodge;
-    opacity: 0.5;
-  }
+  .char { display: inline-block; position: relative; }
 
   .vignette {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, transparent 30%, black 100%);
-    pointer-events: none;
-    z-index: 50;
-  }
-
-  .char {
-    display: inline-block;
-    transition: all 0.05s steps(2);
+    position: absolute; inset: 0;
+    background: radial-gradient(circle, transparent 20%, black 120%);
+    z-index: 50; pointer-events: none;
   }
 </style>
