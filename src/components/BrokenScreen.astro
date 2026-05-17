@@ -9,12 +9,25 @@ const {
 
 <div class="screen-container">
   <type-writer-prank data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
-    <div class="viewport">
+    <div class="viewport" id="viewport">
+        
+        <svg class="filter-svg" style="position: absolute; width: 0; height: 0;">
+          <filter id="glass-refraction">
+            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.1" numOctaves="2" result="noise" seed="1" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" id="refraction-map" />
+          </filter>
+        </svg>
+
         <div class="glass-crack-system">
             <svg id="glass-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+                <radialGradient id="impact-glow">
+                    <stop offset="0%" stop-color="rgba(255,255,255,0.8)" />
+                    <stop offset="100%" stop-color="transparent" />
+                </radialGradient>
+                
                 <path class="crack-line" d="M0,200 L300,400 L250,450 L600,600 L550,650 L1000,800 M400,0 L300,400 L700,300 L1000,400 M300,400 L0,1000" fill="none" stroke="white" stroke-width="2" />
                 <g id="shard-group"></g>
-                <circle cx="300" cy="400" r="5" fill="white" class="impact-point" />
+                <circle cx="300" cy="400" r="40" fill="url(#impact-glow)" class="glow-point" />
             </svg>
         </div>
 
@@ -38,100 +51,108 @@ const {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
       const waitTime = parseInt(this.dataset.wait || "2000");
-      const displays = this.querySelectorAll('.display-text');
-      const glassLayer = this.querySelector('.glass-crack-system');
+      const viewport = this.querySelector('#viewport');
       const shardGroup = this.querySelector('#shard-group');
       const crackPath = this.querySelector('.crack-line');
+      const refractionMap = this.querySelector('#refraction-map');
       
       let index = 0;
 
-      // Function to create fake shards near the impact point
       const createShards = () => {
-        shardGroup.innerHTML = ''; // Clear old shards
-        for (let i = 0; i < 15; i++) {
+        shardGroup.innerHTML = '';
+        // Create 30 varying shards (Large, Small, and Dust)
+        for (let i = 0; i < 35; i++) {
           const shard = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          const size = Math.random() * 50 + 20;
-          // Create small triangular shards
-          shard.setAttribute("d", `M0,0 L${size},${size/2} L${size/2},${size} Z`);
-          shard.setAttribute("fill", "rgba(255,255,255,0.2)");
-          shard.setAttribute("stroke", "white");
+          const isDust = Math.random() > 0.7;
+          const size = isDust ? Math.random() * 5 : Math.random() * 40 + 10;
+          
+          shard.setAttribute("d", `M0,0 L${size},${size/3} L${size/2},${size} Z`);
+          shard.setAttribute("fill", isDust ? "white" : "rgba(255,255,255,0.15)");
+          shard.setAttribute("stroke", "rgba(255,255,255,0.4)");
           shard.setAttribute("class", "glass-shard");
-          // Center shards around the impact point (300, 400)
-          gsap.set(shard, { x: 300, y: 400, opacity: 0 });
+          
+          gsap.set(shard, { x: 300, y: 400, opacity: 0, scale: 0 });
           shardGroup.appendChild(shard);
         }
       };
 
       const runSequence = () => {
         const word = phrases[index];
-        const markup = word.split('').map(c => `<span class="char">${c}</span>`).join('');
-        displays.forEach(d => d.innerHTML = markup);
+        const display = this.querySelector('.display-text');
+        display.innerHTML = word.split('').map(c => `<span class="char">${c}</span>`).join('');
         const chars = this.querySelectorAll('.char');
         
         createShards();
         const shards = this.querySelectorAll('.glass-shard');
         const tl = gsap.timeline();
 
-        // 1. RE-ESTABLISH CRACK (Trick the user again)
-        tl.set(crackPath, { opacity: 1, scale: 1, x: 0, y: 0 });
-        tl.set(displays, { opacity: 0, filter: "blur(10px)" });
+        // 1. STABLE CRACK (Initial Illusion)
+        tl.set(crackPath, { opacity: 1, scale: 1, filter: "blur(0px)" });
+        tl.set(display, { opacity: 0, filter: "url(#glass-refraction)" });
+        tl.set("#refraction-map", { attr: { scale: 0 } });
 
-        // 2. SUSPENSE & FLICKER
-        tl.to(glassLayer, { duration: 0.1, repeat: 3, yoyo: true, opacity: 0.6, delay: 0.5 });
+        // 2. THE HIT (Subtle jump)
+        tl.to(viewport, { x: 2, y: -2, duration: 0.05, repeat: 3, yoyo: true, delay: 0.8 });
         
-        // 3. TEXT APPEARS
-        tl.to(displays, { opacity: 1, filter: "blur(0px)", duration: 0.1 });
+        // 3. TEXT BLEED-IN
+        tl.to(display, { opacity: 1, duration: 0.2 });
         tl.fromTo(chars, 
-          { opacity: 0, scale: 2 }, 
+          { opacity: 0, y: 20, rotationX: 90 }, 
           { 
-            opacity: 1, scale: 1, stagger: 0.03, ease: "back.out(2)",
+            opacity: 1, y: 0, rotationX: 0, stagger: 0.02, ease: "expo.out",
             onUpdate: function() {
               this.targets().forEach(t => {
-                t.style.color = Math.random() > 0.9 ? "#ff0033" : "white";
+                if(Math.random() > 0.95) t.style.color = "#ff0033";
+                else t.style.color = "white";
               });
             }
           }
         );
 
-        // 4. THE SHATTER (At the end of the text)
+        
         tl.add(() => {
-          // Explode Original Crack
-          gsap.to(crackPath, {
-            duration: 0.6,
-            opacity: 0,
-            scale: 1.5,
-            rotation: 10,
-            ease: "power2.in"
+          // Intense Screen Shake
+          gsap.to(viewport, { x: "random(-10, 10)", y: "random(-10, 10)", duration: 0.1, repeat: 8, yoyo: true });
+          
+          // Refraction Chaos (Text warps as glass breaks)
+          gsap.to("#refraction-map", { attr: { scale: 100 }, duration: 0.5, ease: "power4.out" });
+
+          // Explode Crack Path
+          gsap.to(crackPath, { opacity: 0, scale: 1.2, duration: 0.4 });
+
+          // Explode Shards with 3D feel
+          shards.forEach(shard => {
+            gsap.to(shard, {
+              opacity: 1,
+              scale: Math.random() * 2,
+              x: 300 + (Math.random() - 0.5) * 1200,
+              y: 400 + (Math.random() - 0.5) * 1200,
+              rotation: "random(-500, 500)",
+              duration: "random(0.7, 1.2)",
+              ease: "power2.out"
+            });
           });
 
-          // Explode Shards
-          gsap.to(shards, {
-            duration: 0.8,
-            opacity: 1,
-            x: () => 300 + (Math.random() - 0.5) * 800,
-            y: () => 400 + (Math.random() - 0.5) * 800,
-            rotation: () => Math.random() * 720,
-            scale: 0,
-            ease: "power3.out",
-            stagger: 0.01
-          });
-
-          // Text Chaos during shatter
+          // Characters fly apart slightly
           gsap.to(chars, {
-            x: () => (Math.random() - 0.5) * 50,
-            y: () => (Math.random() - 0.5) * 50,
-            duration: 0.1,
-            repeat: 5,
-            yoyo: true
+            opacity: 0,
+            z: "random(-500, 500)",
+            x: "random(-100, 100)",
+            y: "random(-100, 100)",
+            rotation: "random(-20, 20)",
+            filter: "blur(10px)",
+            duration: 0.6,
+            delay: 0.2
           });
-        }, "+=1"); // Wait 1 second after text finishes before shattering
+        }, "+=1.5");
 
-        // 5. NEXT PHRASE
-        tl.to(displays, { 
+        // 5. CLEANUP & LOOP
+        tl.to(viewport, { 
             opacity: 0, 
-            delay: waitTime / 1000, 
-            duration: 0.4,
+            duration: 0.5, 
+            delay: 1,
             onComplete: () => {
+                gsap.set(viewport, { opacity: 1 });
                 index = (index + 1) % phrases.length;
                 runSequence();
             }
@@ -158,6 +179,7 @@ const {
     width: 100%; height: 100%;
     display: flex; justify-content: center; align-items: center;
     background: #000;
+    perspective: 1000px; /* Essential for 3D shards */
   }
 
   .glass-crack-system {
@@ -169,31 +191,33 @@ const {
   svg { width: 100%; height: 100%; overflow: visible; }
 
   .crack-line {
-    stroke: rgba(255, 255, 255, 0.9);
-    stroke-width: 2;
-    filter: drop-shadow(0 0 2px white);
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
   }
 
-  .glass-shard { stroke-width: 1; }
+  .glow-point { opacity: 0.4; }
 
   .content-layer { z-index: 10; text-align: center; }
 
-  .meta-data {
-    font-family: monospace; font-size: 10px;
-    color: #444; letter-spacing: 5px; margin-bottom: 20px;
-  }
-
   .display-text {
-    font-size: clamp(2rem, 12vw, 9rem);
+    font-size: clamp(2rem, 15vw, 11rem);
     font-weight: 900; color: white;
     text-transform: uppercase;
+    transform-style: preserve-3d;
   }
 
-  .char { display: inline-block; position: relative; }
+  .char { display: inline-block; will-change: transform, opacity; }
 
   .vignette {
     position: absolute; inset: 0;
-    background: radial-gradient(circle, transparent 20%, black 120%);
+    background: radial-gradient(circle, transparent 10%, black 130%);
     z-index: 50; pointer-events: none;
+  }
+
+  .meta-data {
+    font-family: monospace; font-size: 10px;
+    color: #222; letter-spacing: 10px; margin-bottom: 30px;
+    text-transform: uppercase;
   }
 </style>
