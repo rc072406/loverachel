@@ -41,15 +41,6 @@ const models = [
     
     if (!section || cards.length === 0) return;
 
-    
-    
-    gsap.set(cards, { 
-      xPercent: -50, 
-      yPercent: -50,
-      left: "50%",
-      top: "50%" 
-    });
-
     const scrollTriggerEndValue = cards.length * window.innerHeight;
 
     gsap.to(cards, {
@@ -60,9 +51,7 @@ const models = [
         scrub: 1,
         pin: true,
         anticipatePin: 1,
-        invalidateOnRefresh: true, // Good for responsive resizing
       },
-      
       x: () => (Math.random() > 0.5 ? window.innerWidth * 1.5 : -window.innerWidth * 1.5),
       y: () => -window.innerHeight * (1.2 + Math.random()), 
       rotation: () => Math.random() * 90 - 45,
@@ -75,11 +64,9 @@ const models = [
     });
   };
 
-  // Run on load and after Astro swaps
   runAnimation();
   document.addEventListener("astro:after-swap", runAnimation);
 </script>
- 
 
 <style>
   .database-section {
@@ -163,11 +150,12 @@ const models = [
     padding: 12px 12px 65px 12px;
     left: 50%;
     top: 50%;
+    transform: translate(-50%, -50%);
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
     cursor: pointer;
-    will-change: transform, opacity;
+     will-change: transform, opacity;
     -webkit-backface-visibility: hidden; 
     backface-visibility: hidden;
   }
