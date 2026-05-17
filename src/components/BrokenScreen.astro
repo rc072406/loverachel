@@ -1,226 +1,188 @@
 ---
 // src/components/BrokenScreen.astro
-const { 
-  phrases = ["SYSTEM FAILURE.", "REALITY BREACH.", "CONNECTING...", "STAY CALM."], 
-  waitTime = 2000,
-  label = "HARDWARE_CHECK // ERROR_77" 
-} = Astro.props;
 ---
 
-<div class="screen-container">
-  <shatter-overkill data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
-    <div class="viewport" id="viewport">
-        
-        <svg class="filter-svg" style="position: absolute; width: 0; height: 0;">
-          <filter id="glass-refraction">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.1" numOctaves="1" result="noise" seed="2" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" id="refraction-map" />
-          </filter>
-        </svg>
+<div class="shatter-container">
+  <div class="text-layer main-text">FASHION, ART AND STEM</div>
+  
+  <div class="shard-wrapper" id="shard-wrapper">
+    {Array.from({ length: 15 }).map((_, i) => (
+      <div class={`shard shard-${i}`}>
+        <div class="shard-content">FASHION, ART AND STEM</div>
+      </div>
+    ))}
+  </div>
 
-        <div class="glass-crack-system">
-            <svg id="glass-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
-                <radialGradient id="impact-glow">
-                    <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
-                    <stop offset="100%" stop-color="transparent" />
-                </radialGradient>
-                
-                <path class="crack-line" d="M0,200 L300,400 L250,450 L600,600 L550,650 L1000,800 M400,0 L300,400 L700,300 L1000,400 M300,400 L0,1000" fill="none" stroke="white" stroke-width="1.5" />
-                <g id="massive-shard-group"></g>
-                <circle cx="300" cy="400" r="50" fill="url(#impact-glow)" class="glow-point" />
-            </svg>
-        </div>
-
-        <div class="content-layer">
-            <div class="meta-data">{label}</div>
-            <div class="text-canvas">
-                <h2 class="display-text main"></h2>
-            </div>
-        </div>
-
-        <div class="vignette"></div>
-    </div>
-  </shatter-overkill>
+  <div class="flash-overlay"></div>
 </div>
 
 <script>
-  import { gsap } from "gsap";
+  import { gsap } from 'gsap';
 
-  class ShatterOverkill extends HTMLElement {
-    constructor() {
-      super();
-      const phrases = JSON.parse(this.dataset.phrases || "[]");
-      const waitTime = parseInt(this.dataset.wait || "2000");
-      const viewport = this.querySelector('#viewport');
-      const shardGroup = this.querySelector('#massive-shard-group');
-      const crackPath = this.querySelector('.crack-line');
-      const glowPoint = this.querySelector('.glow-point');
-      
-      let index = 0;
+  const shards = document.querySelectorAll('.shard');
+  const flash = document.querySelector('.flash-overlay');
+  const mainText = document.querySelector('.main-text');
 
-      const createMassiveShards = () => {
-        shardGroup.innerHTML = '';
-        const fragment = document.createDocumentFragment();
-        
-        
-        for (let i = 0; i < 600; i++) {
-          const shard = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          
-          const roll = Math.random();
-          let size, opacity, stroke;
+  function shatterSequence() {
+    const tl = gsap.timeline({ 
+      repeat: -1, 
+      repeatDelay: 3,
+      defaults: { ease: "expo.out" } 
+    });
 
-          if (roll > 0.8) { // Large Chunks
-            size = Math.random() * 45 + 15;
-            opacity = 0.2;
-            stroke = 0.5;
-          } else if (roll > 0.3) { // Shards
-            size = Math.random() * 20 + 5;
-            opacity = 0.4;
-            stroke = 0.3;
-          } else { // Dust/Needles
-            size = Math.random() * 5 + 1;
-            opacity = 0.8;
-            stroke = 0;
-          }
+    // 1. Initial State
+    tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0 });
+    tl.set(mainText, { opacity: 1, filter: 'blur(0px)' });
 
-          shard.setAttribute("d", `M0,0 L${size},${size/Math.random()*2} L${size/2},${size} Z`);
-          shard.setAttribute("fill", roll < 0.3 ? "white" : "rgba(255,255,255,0.2)");
-          if(stroke > 0) shard.setAttribute("stroke", "rgba(255,255,255,0.5)");
-          shard.setAttribute("stroke-width", stroke);
-          shard.setAttribute("class", "glass-shard");
-          
-          gsap.set(shard, { x: 300, y: 400, opacity: 0, scale: 0, z: 0 });
-          fragment.appendChild(shard);
-        }
-        shardGroup.appendChild(fragment);
-      };
+   
+    tl.to(mainText, { 
+      letterSpacing: "2vw", 
+      duration: 1.5, 
+      ease: "power4.inOut" 
+    });
 
-      const runSequence = () => {
-        const word = phrases[index];
-        const display = this.querySelector('.display-text');
-        display.innerHTML = word.split('').map(c => `<span class="char">${c}</span>`).join('');
-        const chars = this.querySelectorAll('.char');
-        
-        createMassiveShards();
-        const shards = this.querySelectorAll('.glass-shard');
-        const tl = gsap.timeline();
+    // 3. The Impact (Hyper-realistic Flash)
+    tl.to(flash, { 
+      opacity: 1, 
+      duration: 0.04, 
+      onStart: () => {
+        gsap.set(mainText, { opacity: 0 });
+      }
+    })
+    .to(flash, { opacity: 0, duration: 0.2 });
 
-        // 1. INITIAL ILLUSION
-        tl.set(crackPath, { opacity: 0.8, scale: 1 });
-        tl.set(glowPoint, { opacity: 0.4 });
-        tl.set(display, { opacity: 0, filter: "url(#glass-refraction)" });
-        tl.set("#refraction-map", { attr: { scale: 0 } });
+    // 4. The Chaotic Shatter (Physics-defying movement)
+    shards.forEach((shard) => {
+      const randomX = (Math.random() - 0.5) * 600;
+      const randomY = (Math.random() - 0.5) * 600;
+      const randomZ = Math.random() * 500;
+      const rotX = (Math.random() - 0.5) * 360;
+      const rotY = (Math.random() - 0.5) * 360;
 
-        // 2. THE HIT (Subtle jump)
-        tl.to(viewport, { x: 2, y: -2, duration: 0.05, repeat: 3, yoyo: true, delay: 1.0 });
+      tl.to(shard, {
+        opacity: 1,
+        x: randomX,
+        y: randomY,
+        z: randomZ,
+        rotationX: rotX,
+        rotationY: rotY,
+        scale: 0.5 + Math.random(),
+        duration: 1.2,
+      }, 0.04); // Stagger start right after flash
+    });
 
-        // 3. TYPING REVEAL (Clean Mono)
-        tl.to(display, { opacity: 1, duration: 0.1 });
-        tl.fromTo(chars, 
-          { opacity: 0, y: 5 }, 
-          { 
-            opacity: 1, y: 0, stagger: 0.02, duration: 0.1,
-            onUpdate: function() {
-              this.targets().forEach(t => {
-                if(Math.random() > 0.96) {
-                    t.style.color = "#ff0033";
-                    t.style.transform = `skewX(${Math.random() * 20 - 10}deg)`;
-                } else {
-                    t.style.color = "white";
-                    t.style.transform = "none";
-                }
-              });
-            }
-          }
-        );
+    // 5. Shard Vibration (Chaotic Energy)
+    tl.to('.shard-content', {
+      x: "random(-5, 5)",
+      y: "random(-5, 5)",
+      duration: 0.05,
+      repeat: 10,
+      yoyo: true,
+      ease: "none"
+    }, 0.1);
 
-        // 4. THE CATASTROPHIC SHATTER
-        tl.add(() => {
-          gsap.to(viewport, { x: "random(-15, 15)", y: "random(-15, 15)", duration: 0.08, repeat: 10, yoyo: true });
-          gsap.to("#refraction-map", { attr: { scale: 120 }, duration: 0.4, ease: "power4.out" });
-          gsap.to([crackPath, glowPoint], { opacity: 0, scale: 1.5, duration: 0.3 });
-
-          shards.forEach(shard => {
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = 1500 + Math.random() * 3000;
-            
-            gsap.to(shard, {
-              opacity: 1,
-              scale: Math.random() * 3,
-              x: 300 + Math.cos(angle) * velocity,
-              y: 400 + Math.sin(angle) * velocity,
-              z: "random(1000, 3000)",
-              rotation: "random(-1000, 1000)",
-              duration: 0.6,
-              ease: "expo.out"
-            });
-          });
-
-          gsap.to(chars, {
-            opacity: 0,
-            z: 1500,
-            x: "random(-400, 400)",
-            y: "random(-400, 400)",
-            rotation: "random(-90, 90)",
-            filter: "blur(15px)",
-            duration: 0.4,
-            stagger: { amount: 0.1 }
-          });
-        }, "+=1.8");
-
-        // 5. LOOP
-        tl.to(viewport, { 
-            opacity: 0, duration: 0.8, delay: 1.5,
-            onComplete: () => {
-                gsap.set(viewport, { opacity: 1 });
-                index = (index + 1) % phrases.length;
-                runSequence();
-            }
-        });
-      };
-
-      runSequence();
-    }
+    // 6. Slow Dissolve
+    tl.to(shards, { 
+      opacity: 0, 
+      filter: 'blur(20px)', 
+      scale: 1.5,
+      duration: 1.5,
+      stagger: 0.03
+    }, "+=0.5");
   }
 
-  customElements.define('shatter-overkill', ShatterOverkill);
+  // Run on load
+  window.addEventListener('load', shatterSequence);
 </script>
 
 <style>
-  .screen-container { background: #000; width: 100%; height: 100vh; overflow: hidden; }
-  
-  .viewport {
-    position: relative; width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
-    perspective: 2000px; transform-style: preserve-3d;
+  .shatter-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #050505; /* Deep luxury black */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    perspective: 1200px;
+    font-family: 'Inter', sans-serif;
   }
 
-  .glass-crack-system { position: absolute; inset: 0; z-index: 100; pointer-events: none; transform-style: preserve-3d; }
-  
-  svg { width: 100%; height: 100%; overflow: visible; }
-
-  .crack-line { stroke: rgba(255, 255, 255, 0.7); stroke-width: 1; filter: drop-shadow(0 0 2px white); }
-
-  .display-text {
-    font-family: 'Fira Code', 'IBM Plex Mono', monospace;
-    font-size: clamp(2rem, 12vw, 9rem);
-    font-weight: 300; color: white;
+  .text-layer {
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(2rem, 8vw, 12rem);
     text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  .shard-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transform-style: preserve-3d;
   }
 
-  .char { display: inline-block; will-change: transform, opacity; }
-
-  .vignette {
-    position: absolute; inset: 0;
-    background: radial-gradient(circle, transparent 20%, black 140%);
-    z-index: 50; pointer-events: none;
+  .shard {
+    position: absolute;
+    opacity: 0;
+    will-change: transform;
+    /* Glass-like refraction effect */
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
   }
 
-  .meta-data {
-    position: absolute; top: 40px; left: 40px;
-    font-family: 'Fira Code', monospace; font-size: 10px;
-    color: #1a1a1a; letter-spacing: 12px;
+  .shard-content {
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(2rem, 8vw, 12rem);
     text-transform: uppercase;
+    white-space: nowrap;
+    /* Chromatic Aberration */
+    text-shadow: 
+      -2px -1px 0px rgba(255, 0, 80, 0.7), 
+      2px 1px 0px rgba(0, 255, 255, 0.7);
+  }
+
+  /* Sharp, Jagged Clip Paths for Shards */
+  .shard-0 { clip-path: polygon(10% 10%, 45% 15%, 40% 45%, 5% 35%); }
+  .shard-1 { clip-path: polygon(50% 5%, 90% 10%, 85% 40%, 55% 45%); }
+  .shard-2 { clip-path: polygon(15% 55%, 45% 50%, 40% 90%, 10% 85%); }
+  .shard-3 { clip-path: polygon(55% 55%, 95% 50%, 90% 95%, 60% 85%); }
+  .shard-4 { clip-path: polygon(30% 30%, 70% 30%, 70% 70%, 30% 70%); }
+  .shard-5 { clip-path: polygon(0% 0%, 20% 0%, 10% 20%); }
+  .shard-6 { clip-path: polygon(80% 0%, 100% 0%, 90% 20%); }
+  .shard-7 { clip-path: polygon(0% 100%, 20% 100%, 10% 80%); }
+  .shard-8 { clip-path: polygon(80% 100%, 100% 100%, 90% 80%); }
+  
+  /* Adding more randomized shards */
+  .shard:nth-child(n+9) {
+    clip-path: polygon(40% 10%, 60% 10%, 50% 90%);
+    opacity: 0.5;
+  }
+
+  .flash-overlay {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .shatter-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 5;
   }
 </style>
