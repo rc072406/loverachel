@@ -1,0 +1,255 @@
+---
+// src/components/BrokenScreen.astro
+---
+
+<div class="shatter-container">
+  <div class="camera-overlay">
+    <div class="camera-ui">
+      <div class="corner top-left"></div>
+      <div class="corner top-right"></div>
+      <div class="corner bottom-left"></div>
+      <div class="corner bottom-right"></div>
+      
+      <div class="camera-meta top-meta">
+        <span class="rec-dot"></span> <span id="timer">00:00:12:04</span>
+      </div>
+      <div class="camera-meta bottom-meta">
+        <span>love, RACHEL 400</span>
+        <span>F/2.8</span>
+        <span>1/125</span>
+      </div>
+      <div class="center-cross"></div>
+    </div>
+  </div>
+
+  <div class="text-layer main-text">
+    <span>THE ONLY</span>
+    <span>VISUAL</span>
+    <span>CHIMERA</span>
+  </div>
+  
+  <div class="shard-wrapper" id="shard-wrapper">
+    {Array.from({ length: 15 }).map((_, i) => (
+      <div class={`shard shard-${i}`}>
+        <div class="shard-content">
+          <span>THE ONLY</span>
+          <span>VISUAL</span>
+          <span>CHIMERA</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="flash-overlay"></div>
+</div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const shards = document.querySelectorAll('.shard');
+  const flash = document.querySelector('.flash-overlay');
+  const mainText = document.querySelector('.main-text');
+  const cameraUI = document.querySelector('.camera-ui');
+
+  function shatterSequence() {
+    const tl = gsap.timeline({ 
+      repeat: -1, 
+      repeatDelay: 2.5,
+      defaults: { ease: "expo.out" } 
+    });
+
+    tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0, filter: 'blur(0px)' });
+    tl.set(mainText, { opacity: 1, filter: 'blur(0px)', scale: 1 });
+    tl.set('.main-text span', { letterSpacing: "-0.05em" });
+
+    // 1. Tension Build: Animate letter spacing on the spans
+    tl.to('.main-text span', { 
+      letterSpacing: "1vw", 
+      duration: 2, 
+      ease: "power2.inOut" 
+    });
+
+    // 2. The Impact
+    tl.to(flash, { 
+      opacity: 1, 
+      duration: 0.05, 
+      onStart: () => {
+        gsap.set(mainText, { opacity: 0 });
+        gsap.fromTo(cameraUI, 
+          { x: -8, y: -8 }, 
+          { x: 0, y: 0, duration: 0.3, ease: "elastic.out(1, 0.3)" }
+        );
+      }
+    })
+    .to(flash, { opacity: 0, duration: 0.15 });
+
+    // 3. Shard Explosion
+    shards.forEach((shard) => {
+      const randomX = (Math.random() - 0.5) * 600;
+      const randomY = (Math.random() - 0.5) * 600;
+      const randomZ = 500 + Math.random() * 500; 
+      const rotX = (Math.random() - 0.5) * 450;
+      const rotY = (Math.random() - 0.5) * 450;
+
+      tl.to(shard, {
+        opacity: 1,
+        x: randomX,
+        y: randomY,
+        z: randomZ,
+        rotationX: rotX,
+        rotationY: rotY,
+        scale: 1.2,
+        duration: 1.8,
+      }, 2.05); 
+    });
+
+    tl.to(shards, { 
+      opacity: 0, 
+      filter: 'blur(20px)', 
+      duration: 1,
+      stagger: 0.01
+    }, "+=0.8");
+  }
+
+  window.addEventListener('load', shatterSequence);
+</script>
+
+<style>
+  .shatter-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #050505;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    perspective: 1200px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .camera-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px; 
+  }
+
+  .camera-ui {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #fff;
+  }
+  .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+  .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+  .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+  .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+  
+  .camera-meta {
+    position: absolute;
+    color: #fff;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+  .top-meta { top: 20px; left: 20px; display: flex; align-items: center; gap: 8px; }
+  .bottom-meta { bottom: 20px; width: calc(100% - 40px); display: flex; justify-content: space-between; padding: 0 20px; }
+
+  .rec-dot {
+    width: 8px; height: 8px; background: #ff0000; border-radius: 50%;
+    box-shadow: 0 0 8px #ff0000; animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .center-cross {
+    position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+    transform: translate(-50%, -50%); opacity: 0.3;
+  }
+  .center-cross::before, .center-cross::after { content: ''; position: absolute; background: #fff; }
+  .center-cross::before { top: 50%; left: 0; width: 100%; height: 1px; }
+  .center-cross::after { left: 50%; top: 0; width: 1px; height: 100%; }
+
+  /* --- STACKED TYPOGRAPHY --- */
+  .text-layer, .shard-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0.85; 
+    color: #fff;
+    font-weight: 950;
+    font-size: clamp(2rem, 10vw, 8rem);
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .text-layer span, .shard-content span {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .shard-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+    z-index: 10;
+  }
+
+  .shard { position: absolute; opacity: 0; will-change: transform; }
+
+  .shard-content {
+    text-shadow: -3px -1px 0px rgba(255, 0, 80, 0.8), 3px 1px 0px rgba(0, 255, 255, 0.8);
+  }
+
+  
+  .shard-0 { clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%); }
+  .shard-1 { clip-path: polygon(0 30%, 100% 30%, 100% 60%, 0 60%); }
+  .shard-2 { clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%); }
+  .shard-3 { clip-path: polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%); }
+  /* More varied shards for the stack */
+  .shard-4 { clip-path: polygon(0 15%, 50% 0, 50% 50%, 0 40%); }
+  .shard-5 { clip-path: polygon(50% 0, 100% 15%, 100% 40%, 50% 50%); }
+  .shard-6 { clip-path: polygon(0 40%, 50% 50%, 50% 100%, 0 85%); }
+  .shard-7 { clip-path: polygon(50% 50%, 100% 40%, 100% 85%, 50% 100%); }
+  .shard:nth-child(n+8) { clip-path: polygon(45% 45%, 55% 45%, 50% 55%); opacity: 0.4; }
+
+  .flash-overlay {
+    position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 200; pointer-events: none;
+  }
+@media (max-width: 600px) {
+  .camera-overlay {
+    padding: 20px; 
+  }
+
+  .bottom-meta {
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 4px;
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .top-meta {
+    top: 10px;
+    left: 10px;
+  }
+}
+</style>
