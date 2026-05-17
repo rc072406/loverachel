@@ -13,19 +13,21 @@ const {
         <span class="dot"></span>
         <span class="label-text">{label}</span>
     </div>
-    <span class="tech-id">SYSTEM_OVERRIDE_ENABLED</span>
+    <span class="tech-id" id="status-code">STATUS: STABLE</span>
   </div>
 
   <type-writer-chaotic data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="box-content">
         <div class="glitch-canvas">
             <h2 class="typewriter-display main-layer"></h2>
-            <h2 class="typewriter-display ghost-layer" aria-hidden="true"></h2>
+            <h2 class="typewriter-display ghost-red" aria-hidden="true"></h2>
+            <h2 class="typewriter-display ghost-blue" aria-hidden="true"></h2>
         </div>
         
         <div class="v-line l-1"></div>
         <div class="v-line l-2"></div>
         <div class="glitch-line"></div>
+        <div class="scanline"></div>
     </div>
   </type-writer-chaotic>
 
@@ -40,79 +42,98 @@ const {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
       const waitTime = parseInt(this.dataset.wait || "3000");
-      const mainTarget = this.querySelector('.main-layer');
-      const ghostTarget = this.querySelector('.ghost-layer');
+      const layers = this.querySelectorAll('.typewriter-display');
       const line = this.querySelector('.glitch-line');
+      const status = this.querySelector('#status-code');
       
-      if (!mainTarget || phrases.length === 0) return;
+      if (layers.length === 0 || phrases.length === 0) return;
 
       let index = 0;
+      const charsList = "@#$%&X01<>?/[]{}—+*";
 
       const animateSequence = () => {
         const word = phrases[index];
         const markup = word.split(' ').map(wordStr => 
           `<span class="word-wrap">${wordStr.split('').map(char => 
-            `<span class="char">${char}</span>`
+            `<span class="char" data-char="${char}">${char}</span>`
           ).join('')}</span>`
         ).join('<span class="space">&nbsp;</span>');
 
-        mainTarget.innerHTML = markup;
-        ghostTarget.innerHTML = markup;
+        layers.forEach(l => l.innerHTML = markup);
 
-        const mainChars = mainTarget.querySelectorAll('.char');
-        const ghostChars = ghostTarget.querySelectorAll('.char');
+        const allChars = this.querySelectorAll('.char');
+        const mainChars = this.querySelector('.main-layer').querySelectorAll('.char');
         
         const tl = gsap.timeline({
           onComplete: () => setTimeout(exitSequence, waitTime)
         });
 
-        // Entrance: Randomized weight, font-swapping, and position
-        tl.fromTo(mainChars, 
-          { opacity: 0, y: () => Math.random() * 40 - 20, x: () => Math.random() * 20 - 10 },
+        // 1. Initial Glitch / Scramble Phase
+        tl.to(status, { textContent: "STATUS: OVERRIDE", duration: 0.1 });
+        
+        tl.fromTo(allChars, 
+          { 
+            opacity: 0, 
+            x: () => Math.random() * 100 - 50, 
+            y: () => Math.random() * 100 - 50,
+            scale: 2,
+            skewX: 45
+          },
           { 
             opacity: 1, 
-            y: 0, 
             x: 0, 
-            duration: 0.05, 
-            stagger: { each: 0.03, from: "random" },
+            y: 0, 
+            scale: 1,
+            skewX: 0,
+            duration: 0.1, 
+            stagger: { each: 0.02, from: "random" },
             onUpdate: function() {
-                // Randomly swap fonts during animation
-                if (Math.random() > 0.9) {
-                    this.targets().forEach(t => t.style.fontFamily = "'Fira Code', monospace");
+              // The "Crazy" Part: Randomize characters and fonts during reveal
+              this.targets().forEach(t => {
+                if (Math.random() > 0.6) {
+                  t.textContent = charsList[Math.floor(Math.random() * charsList.length)];
+                  t.style.fontFamily = "'Fira Code', monospace";
+                  t.style.color = "#ff0033";
                 } else {
-                    this.targets().forEach(t => t.style.fontFamily = "'Inter', sans-serif");
+                  t.textContent = t.getAttribute('data-char');
+                  t.style.fontFamily = "'Inter', sans-serif";
+                  t.style.color = "";
                 }
+              });
             }
           }
         )
-        // Ghost layer lags and stays in Fira Code
-        .fromTo(ghostChars,
-          { opacity: 0, scale: 1.2 },
-          { 
-            opacity: 0.4, 
-            scale: 1, 
-            x: () => Math.random() * 10, 
-            duration: 1, 
-            ease: "expo.out" 
-          }, 0
-        )
-        .to(line, { scaleX: 1.5, x: "-25%", duration: 0.1, repeat: 5, yoyo: true }, 0);
+        // 2. Settle into layers
+        .to(".ghost-red", { x: 3, opacity: 0.5, duration: 0.1 }, "-=0.1")
+        .to(".ghost-blue", { x: -3, opacity: 0.5, duration: 0.1 }, "-=0.1")
+        .to(line, { 
+            scaleX: 2, 
+            opacity: 1, 
+            y: () => Math.random() * 200 - 100,
+            duration: 0.05, 
+            repeat: 10, 
+            yoyo: true 
+        }, 0);
 
         const exitSequence = () => {
-          gsap.to([mainChars, ghostChars], {
+          gsap.to(status, { textContent: "STATUS: PURGING", duration: 0.1 });
+          
+          gsap.to(allChars, {
+            x: () => (Math.random() - 0.5) * 600,
+            y: () => (Math.random() - 0.5) * 600,
+            rotation: () => (Math.random() - 0.5) * 180,
             opacity: 0,
-            x: () => (Math.random() - 0.5) * 200,
-            y: () => (Math.random() - 0.5) * 200,
-            rotation: () => (Math.random() - 0.5) * 45,
-            filter: "blur(20px)",
-            duration: 0.5,
-            stagger: 0.01,
-            ease: "circ.in",
+            scale: 0,
+            filter: "blur(30px)",
+            duration: 0.6,
+            stagger: { each: 0.01, from: "center" },
+            ease: "power4.in",
             onComplete: () => {
               index = (index + 1) % phrases.length;
               animateSequence();
             }
           });
+          gsap.to(".typewriter-display", { skewY: 20, duration: 0.5 });
         };
       };
 
@@ -128,99 +149,115 @@ const {
 
   .luxury-frame {
     background: #000;
-    border: 1px solid #333;
+    border: 1px solid #222;
     position: relative;
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
+    cursor: crosshair;
   }
 
   .frame-meta {
-    padding: 10px 20px;
-    border-bottom: 1px solid #333;
+    padding: 12px 20px;
+    border-bottom: 1px solid #222;
     display: flex;
     justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 10px;
-    color: #555;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #444;
   }
 
   .box-content {
-    min-height: 500px; 
-    padding: 40px;
+    min-height: 550px; 
+    padding: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
   }
 
   .glitch-canvas {
     position: relative;
     width: 100%;
-    max-width: 800px;
+    display: grid;
+    place-items: center;
   }
 
   .typewriter-display {
+    grid-area: 1/1;
     margin: 0;
-    font-size: clamp(3.5rem, 12vw, 8rem);
+    font-size: clamp(3rem, 14vw, 9rem);
     text-transform: uppercase;
-    line-height: 0.8;
+    line-height: 0.75;
     word-break: break-word;
     display: flex;
     flex-wrap: wrap;
-    gap: 0 10px;
+    justify-content: center;
+    gap: 0 15px;
+    pointer-events: none;
   }
 
   .main-layer {
     color: #fff;
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    position: relative;
-    z-index: 2;
+    z-index: 3;
+    mix-blend-mode: difference;
   }
 
-  .ghost-layer {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    color: #ff0033;
-    font-family: 'Fira Code', monospace;
-    opacity: 0;
-    z-index: 1;
-    pointer-events: none;
-  }
+  .ghost-red { color: #ff0033; z-index: 2; opacity: 0; font-family: 'Fira Code', monospace; }
+  .ghost-blue { color: #00f0ff; z-index: 1; opacity: 0; font-family: 'Fira Code', monospace; }
 
-  .word-wrap { display: inline-block; white-space: nowrap; }
+  .word-wrap { display: inline-block; }
 
-  
   .v-line {
     position: absolute;
     width: 1px;
     height: 100%;
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(to bottom, transparent, #222, transparent);
     top: 0;
   }
-  .l-1 { left: 20%; }
-  .l-2 { left: 80%; }
+  .l-1 { left: 15%; }
+  .l-2 { right: 15%; }
 
   .glitch-line {
     position: absolute;
-    height: 4px;
-    width: 100%;
-    background: #ff0033;
-    top: 50%;
-    left: 0;
+    height: 2px;
+    width: 120%;
+    background: #fff;
+    left: -10%;
     mix-blend-mode: overlay;
     transform: scaleX(0);
+    z-index: 10;
+  }
+
+  .scanline {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, transparent 50%, rgba(255, 0, 51, 0.05) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
   }
 
   .frame-corner {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 40px;
-    height: 40px;
-    border-right: 2px solid #ff0033;
-    border-bottom: 2px solid #ff0033;
+    bottom: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-right: 1px solid #ff0033;
+    border-bottom: 1px solid #ff0033;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    background: #ff0033;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+    box-shadow: 0 0 8px #ff0033;
   }
 </style>
