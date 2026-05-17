@@ -7,25 +7,25 @@ const {
 } = Astro.props;
 ---
 
-<div class="luxury-frame chaotic-mode">
+<div class="luxury-frame anarchy-mode">
   <div class="frame-meta">
-    <span class="dot"></span>
-    <span class="label-text">{label}</span>
-    <span class="tech-id">FIRA_CODE_V2.0</span>
+    <div class="meta-left">
+        <span class="dot"></span>
+        <span class="label-text">{label}</span>
+    </div>
+    <span class="tech-id">SYSTEM_OVERRIDE_ENABLED</span>
   </div>
 
   <type-writer-chaotic data-phrases={JSON.stringify(phrases)} data-wait={waitTime}>
     <div class="box-content">
-        <div class="code-bg" aria-hidden="true">
-          {`{ status: "RECODING", buffer: 0x${Math.random().toString(16).slice(2,8)} }`}
+        <div class="glitch-canvas">
+            <h2 class="typewriter-display main-layer"></h2>
+            <h2 class="typewriter-display ghost-layer" aria-hidden="true"></h2>
         </div>
         
-        <slot>
-            <h2 class="typewriter-display"></h2>
-        </slot>
-        
+        <div class="v-line l-1"></div>
+        <div class="v-line l-2"></div>
         <div class="glitch-line"></div>
-        <div class="noise-overlay"></div>
     </div>
   </type-writer-chaotic>
 
@@ -40,79 +40,79 @@ const {
       super();
       const phrases = JSON.parse(this.dataset.phrases || "[]");
       const waitTime = parseInt(this.dataset.wait || "3000");
-      const target = this.querySelector('.typewriter-display');
+      const mainTarget = this.querySelector('.main-layer');
+      const ghostTarget = this.querySelector('.ghost-layer');
       const line = this.querySelector('.glitch-line');
-      const codeBg = this.querySelector('.code-bg');
       
-      if (!target || phrases.length === 0) return;
+      if (!mainTarget || phrases.length === 0) return;
 
       let index = 0;
 
       const animateSequence = () => {
         const word = phrases[index];
-        // Wrap characters and add a random "glitch" character to some
-        target.innerHTML = word.split('').map(char => 
-          `<span class="char-wrapper" style="display:inline-block; position:relative;">
-            <span class="char" style="display:inline-block; opacity:0; transform: translateY(10px)">${char === ' ' ? '&nbsp;' : char}</span>
-            <span class="ghost-char" style="position:absolute; left:0; top:0; opacity:0; color:#ff0033; font-family:'Fira Code', monospace;">${Math.random() > 0.5 ? 'X' : '_'}</span>
-          </span>`
-        ).join('');
+        const markup = word.split(' ').map(wordStr => 
+          `<span class="word-wrap">${wordStr.split('').map(char => 
+            `<span class="char">${char}</span>`
+          ).join('')}</span>`
+        ).join('<span class="space">&nbsp;</span>');
 
-        const chars = target.querySelectorAll('.char');
-        const ghosts = target.querySelectorAll('.ghost-char');
+        mainTarget.innerHTML = markup;
+        ghostTarget.innerHTML = markup;
+
+        const mainChars = mainTarget.querySelectorAll('.char');
+        const ghostChars = ghostTarget.querySelectorAll('.char');
         
         const tl = gsap.timeline({
           onComplete: () => setTimeout(exitSequence, waitTime)
         });
 
-        // 1. Chaotic Entrance
-        tl.to(chars, {
-          opacity: 1,
-          y: 0,
-          duration: 0.05,
-          stagger: {
-            each: 0.04,
-            from: "random"
-          },
-          ease: "none"
-        })
-        // 2. Ghost Flicker 
-        .to(ghosts, {
-          opacity: 0.8,
-          duration: 0.1,
-          stagger: { each: 0.02, from: "random" },
-          repeat: 1,
-          yoyo: true
-        }, 0)
-        // 3. Line Glitch
-        .fromTo(line, { scaleX: 0, opacity: 0 }, { 
-          scaleX: 1, 
-          opacity: 1, 
-          duration: 0.2, 
-          repeat: 3, 
-          yoyo: true, 
-          ease: "steps(4)" 
-        }, 0)
-        // 4. Update code background
-        .add(() => {
-            if(codeBg) codeBg.textContent = `0x${Math.random().toString(16).slice(2,10).toUpperCase()}`;
-        }, 0);
+        // Entrance: Randomized weight, font-swapping, and position
+        tl.fromTo(mainChars, 
+          { opacity: 0, y: () => Math.random() * 40 - 20, x: () => Math.random() * 20 - 10 },
+          { 
+            opacity: 1, 
+            y: 0, 
+            x: 0, 
+            duration: 0.05, 
+            stagger: { each: 0.03, from: "random" },
+            onUpdate: function() {
+                // Randomly swap fonts during animation
+                if (Math.random() > 0.9) {
+                    this.targets().forEach(t => t.style.fontFamily = "'Fira Code', monospace");
+                } else {
+                    this.targets().forEach(t => t.style.fontFamily = "'Inter', sans-serif");
+                }
+            }
+          }
+        )
+        // Ghost layer lags and stays in Fira Code
+        .fromTo(ghostChars,
+          { opacity: 0, scale: 1.2 },
+          { 
+            opacity: 0.4, 
+            scale: 1, 
+            x: () => Math.random() * 10, 
+            duration: 1, 
+            ease: "expo.out" 
+          }, 0
+        )
+        .to(line, { scaleX: 1.5, x: "-25%", duration: 0.1, repeat: 5, yoyo: true }, 0);
 
         const exitSequence = () => {
-          gsap.to(chars, {
-            x: () => (Math.random() - 0.5) * 50,
-            y: () => (Math.random() - 0.5) * 50,
+          gsap.to([mainChars, ghostChars], {
             opacity: 0,
-            filter: "blur(15px)",
-            duration: 0.4,
+            x: () => (Math.random() - 0.5) * 200,
+            y: () => (Math.random() - 0.5) * 200,
+            rotation: () => (Math.random() - 0.5) * 45,
+            filter: "blur(20px)",
+            duration: 0.5,
             stagger: 0.01,
-            ease: "power4.in",
+            ease: "circ.in",
             onComplete: () => {
               index = (index + 1) % phrases.length;
               animateSequence();
             }
           });
-          gsap.to(line, { scaleX: 0, opacity: 0, duration: 0.2 });
         };
       };
 
@@ -124,109 +124,103 @@ const {
 </script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;700&family=Inter:wght@900&display=swap');
 
   .luxury-frame {
-    font-family: 'Inter', sans-serif;
     background: #000;
-    border: 1px solid #1a1a1a;
+    border: 1px solid #333;
     position: relative;
     width: 100%;
-    max-width: 1000px;
     margin: 0 auto;
     overflow: hidden;
   }
 
   .frame-meta {
     padding: 10px 20px;
-    border-bottom: 1px solid #1a1a1a;
+    border-bottom: 1px solid #333;
     display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .tech-id {
+    justify-content: space-between;
     font-family: 'Fira Code', monospace;
-    font-size: 8px;
-    color: #333;
-    margin-left: auto;
+    font-size: 10px;
+    color: #555;
   }
 
   .box-content {
-    min-height: 400px;
+    min-height: 500px; 
+    padding: 40px;
     display: flex;
     align-items: center;
-    padding: 60px;
+    justify-content: center;
     position: relative;
   }
 
-  .code-bg {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-family: 'Fira Code', monospace;
-    font-size: 12px;
-    color: rgba(255, 0, 51, 0.2);
-    pointer-events: none;
-    letter-spacing: 2px;
+  .glitch-canvas {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
   }
 
   .typewriter-display {
-    color: #fff;
-    font-size: clamp(3rem, 10vw, 6rem);
-    font-weight: 900;
     margin: 0;
-    line-height: 0.85;
-    letter-spacing: -0.07em;
+    font-size: clamp(3.5rem, 12vw, 8rem);
     text-transform: uppercase;
+    line-height: 0.8;
+    word-break: break-word;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 10px;
+  }
+
+  .main-layer {
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    position: relative;
     z-index: 2;
   }
 
-  .glitch-line {
+  .ghost-layer {
     position: absolute;
-    bottom: 40px;
-    left: 60px;
-    height: 1px;
-    width: calc(100% - 120px);
-    background: #ff0033;
-    box-shadow: 0 0 10px #ff0033;
+    top: 5px;
+    left: 5px;
+    color: #ff0033;
+    font-family: 'Fira Code', monospace;
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
   }
 
-  .noise-overlay {
+  .word-wrap { display: inline-block; white-space: nowrap; }
+
+  
+  .v-line {
     position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.05;
-    pointer-events: none;
+    width: 1px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    top: 0;
+  }
+  .l-1 { left: 20%; }
+  .l-2 { left: 80%; }
+
+  .glitch-line {
+    position: absolute;
+    height: 4px;
+    width: 100%;
+    background: #ff0033;
+    top: 50%;
+    left: 0;
+    mix-blend-mode: overlay;
+    transform: scaleX(0);
   }
 
   .frame-corner {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 20px;
-    height: 20px;
-    background: #ff0033;
-    clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  }
-
-  .label-text {
-    color: #fff;
-    font-size: 11px;
-    letter-spacing: 3px;
-    font-weight: 400;
-    font-family: 'Fira Code', monospace;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    background: #ff0033;
-    animation: pulse 0.5s infinite alternate;
-  }
-
-  @keyframes pulse {
-    from { opacity: 0.2; }
-    to { opacity: 1; }
+    width: 40px;
+    height: 40px;
+    border-right: 2px solid #ff0033;
+    border-bottom: 2px solid #ff0033;
   }
 </style>
