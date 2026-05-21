@@ -2,7 +2,6 @@
 // src/components/StarField.astro 
 ---
 <div id="star-container"></div>
-<div id="global-glare"></div>
 <div id="custom-cursor">
   <div class="cursor-core"></div>
   <div class="cursor-tail"></div>
@@ -85,7 +84,6 @@
 
   // --- SHOOTING STAR PHYSICS ---
   const cursor = document.getElementById('custom-cursor');
-   const glare = document.getElementById('global-glare');
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
   let posX = mouseX;
@@ -124,16 +122,6 @@ if (cursor) {
         cursor.style.opacity = "1";
       }
     }
-if (glare) {
-     
-      glare.style.transform = `translate3d(${posX - 400}px, ${posY - 400}px, 0)`;
-      
-     
-      const velocity = Math.sqrt(dx*dx + dy*dy);
-      const brightness = Math.min(0.07 + (velocity / 1000), 0.15);
-      glare.style.opacity = brightness.toString();
-    }
-
 
     renderer.render(scene, camera);
   }
@@ -234,23 +222,5 @@ a, button, [role="button"], .menu-item {
 
 .content-overlay > * {
   pointer-events: auto;
-}
-#global-glare {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 800px; 
-  height: 800px;
-  background: radial-gradient(
-    circle, 
-    rgba(255, 255, 255, 0.07) 0%, 
-    rgba(255, 255, 255, 0.03) 30%,
-    rgba(255, 255, 255, 0) 70%
-  );
-  pointer-events: none;
-  z-index: 9999; 
-  transform: translate(-50%, -50%);
-  mix-blend-mode: screen;
-  will-change: transform;
 }
 </style>
