@@ -1,0 +1,154 @@
+---
+/* StarField.astro */
+---
+<div id="star-container"></div>
+<div id="custom-cursor"></div>
+
+<script>
+  import * as THREE from 'three';
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const container = document.getElementById('star-container');
+  const scene = new THREE.Scene();
+
+  const createGlowTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(canvas);
+  };
+
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  const particlesGeometry = new THREE.BufferGeometry();
+  const count = 4000;
+  const positions = new Float32Array(count * 3);
+
+  for(let i = 0; i < count * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 25; 
+  }
+
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.12,
+    map: createGlowTexture(),
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    opacity: 0.8
+  });
+
+  const stars = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(stars);
+  camera.position.z = 5;
+
+  gsap.to(stars.rotation, {
+    x: Math.PI * 0.2,
+    y: Math.PI * 0.5,
+    scrollTrigger: {
+      trigger: "body",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1.5, 
+    }
+  });
+
+  const cursor = document.getElementById('custom-cursor');
+  const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  const mouse = { x: pos.x, y: pos.y };
+  const speed = 0.1;
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  function updateCursor() {
+    const dt = 1.0 - Math.pow(1.0 - speed, gsap.ticker.deltaRatio());
+    pos.x += (mouse.x - pos.x) * dt;
+    pos.y += (mouse.y - pos.y) * dt;
+    gsap.set(cursor, { 
+      x: pos.x, 
+      y: pos.y,
+      xPercent: -50,
+      yPercent: -50 
+    });
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    stars.rotation.y += 0.0003;
+    updateCursor();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  window.addEventListener('mousedown', () => gsap.to(cursor, { scale: 1.8, duration: 0.3 }));
+  window.addEventListener('mouseup', () => gsap.to(cursor, { scale: 1, duration: 0.3 }));
+</script>
+
+<style is:global>
+  #star-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background: #000;
+  }
+
+  @media (pointer: fine) {
+    body, a, button {
+      cursor: none !important;
+    }
+  }
+
+  #custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: exclusion;
+    box-shadow: 
+      0 0 15px 2px rgba(255, 255, 255, 0.9),
+      0 0 30px 10px rgba(255, 255, 255, 0.4),
+      0 0 60px 20px rgba(255, 255, 255, 0.1);
+  }
+
+  @media (pointer: coarse) {
+    #custom-cursor {
+      display: none;
+    }
+  }
+</style>
