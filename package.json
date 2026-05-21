@@ -1,3 +1,4 @@
+
 {
   "name": "loverachel",
   "type": "module",
@@ -5,11 +6,14 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.0.0",
-    "gsap": "^3.12.5"
+    "gsap": "^3.12.5",
+    "@astrojs/cloudflare": "^12.0.0",
+    "astro": "^5.18.1"
   }
 }
