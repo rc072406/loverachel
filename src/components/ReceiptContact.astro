@@ -2,10 +2,11 @@
 ---
 <section class="receipt-area">
   <div class="perspective-wrapper">
-    <p class="press-alert">PRESS ME/p>
+    <p class="press-alert">PRESS ME</p>
     
     <div class="receipt-stack" id="receiptStack">
       <div class="receipt receipt-back" id="receiptBack">
+        <div class="paper-texture"></div>
         <div class="receipt-content">
           <p class="receipt-header">SYSTEM_CONTACT_LOG</p>
           <div class="divider"></div>
@@ -18,6 +19,7 @@
       </div>
 
       <div class="receipt receipt-front" id="receiptFront">
+        <div class="paper-texture"></div>
         <div class="receipt-content">
           <p class="receipt-title">RECEIPT: ISSUE NO.01</p>
           <p>DATE: 07.24.06</p>
@@ -43,166 +45,159 @@
 
 <style>
   .receipt-area {
-    min-height: 140vh; /* Extra room for the fly-away */
+    min-height: 120vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: transparent;
-    overflow: visible;
+    overflow: visible !important; 
   }
 
   .perspective-wrapper {
-  
-    perspective: 800px;
+    perspective: 1200px; 
+    perspective-origin: 50% 50%;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: visible;
   }
 
   .receipt-stack {
     position: relative;
-    width: 380px;
-    height: 550px;
+    width: 360px;
+    height: 520px;
     transform-style: preserve-3d;
-    cursor: none; 
+    
   }
 
   .receipt {
     position: absolute;
     inset: 0;
-    background: #f0f0f0;
-    color: #000;
     padding: 40px;
+    color: #1a1a1a;
+    background-color: #fcfcfc;
+  
+    background-image: linear-gradient(to bottom, #ffffff 0%, #f2f2f2 100%);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    border-bottom: 5px dashed #bbb;
+    
     font-family: 'Fira Code', monospace;
     font-size: 11px;
     line-height: 1.6;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-    /* The dashed border is iconic for receipts */
-    border-bottom: 4px dashed #ccc;
     
     backface-visibility: hidden;
     transform-origin: center center;
     will-change: transform, opacity;
   }
 
+  
+  .paper-texture {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
   .receipt-back {
     z-index: 1;
-    background: #ffffff;
-    transform: translateZ(-50px) rotateY(5deg);
-    filter: brightness(0.8); /* Dim it while it's behind */
+    transform: translateZ(-60px) rotateY(2deg);
   }
 
   .receipt-front {
     z-index: 10;
-    background: #e5e5e5;
-    transform: translateZ(50px);
+    transform: translateZ(60px);
   }
 
   .divider {
     height: 1px;
     background: #000;
-    margin: 20px 0;
+    margin: 15px 0;
     width: 100%;
-    opacity: 0.2;
+    opacity: 0.15;
   }
 
-  .receipt-title { font-weight: 800; text-align: center; font-size: 14px; }
-  .receipt-signature { font-size: 16px; font-weight: 900; text-transform: uppercase; margin-top: 30px; }
+  .receipt-title { font-weight: 800; text-align: center; font-size: 13px; }
+  .receipt-signature { font-size: 15px; font-weight: 900; margin-top: 25px; }
   
   .press-alert {
  
     font-size: 10px;
-    letter-spacing: 3px;
- 
-    margin-bottom: 30px;
-    opacity: 0.6;
+
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+    animation: blink 2s infinite;
   }
+
+  @keyframes blink { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.2; } }
 </style>
 
 <script>
   import { gsap } from 'gsap';
 
-  const setupPremiumInteraction = () => {
+  const initReceipt = () => {
     const stack = document.querySelector('#receiptStack');
     const front = document.querySelector('#receiptFront');
     const back = document.querySelector('#receiptBack');
-    const alert = document.querySelector('.press-alert');
 
     if (!stack || !front || !back) return;
 
+    // Reset initial positions
+    gsap.set(front, { z: 60, rotationY: 0, rotationX: 0, opacity: 1 });
+    gsap.set(back, { z: -60, filter: "brightness(0.7)" });
 
-    gsap.set(back, { filter: "brightness(0.7)", z: -100 });
-    gsap.set(front, { z: 50 });
+    const tl = gsap.timeline({ 
+      paused: true,
+      defaults: { ease: "expo.inOut" }
+    });
 
-    const tl = gsap.timeline({ paused: true });
-
-    
     tl.to(front, {
-      duration: 1.4,
-      z: -6000,          
-      y: -1000,          
-      x: 300,            
-      rotationX: 240,   
-      rotationY: 60,
-      rotationZ: 30,
-      scale: 0.1,        
+      duration: 1.6,
+      z: -5000,        // Way back into the stars
+      y: -1200,        // Shoots up
+      x: 400,          // Drifts right
+      rotationX: 360,  // Full 3D tumble
+      rotationY: 90,
       opacity: 0,
-      ease: "expo.in",
+      force3D: true    // Forces hardware acceleration
     })
     .to(back, {
-      duration: 1,
-      z: 150,            
-      rotateY: 0,
-      rotateX: 0,
+      duration: 1.2,
+      z: 0,
       filter: "brightness(1)",
-      scale: 1.05,
-      ease: "expo.out",
-    }, "-=1.0") 
-    .to(alert, {
-      opacity: 0,
-      y: -20,
-      duration: 0.3
-    }, 0);
+      rotateY: 0,
+      ease: "expo.out"
+    }, "-=1.2");
 
+    stack.addEventListener('mouseenter', () => tl.play());
+    stack.addEventListener('mouseleave', () => tl.reverse());
+
+   
     stack.addEventListener('mousemove', (e) => {
-      const { clientX, clientY } = e;
-      const { left, top, width, height } = stack.getBoundingClientRect();
-      
-     
-      const xVal = (clientX - left) / width - 0.5;
-      const yVal = (clientY - top) / height - 0.5;
+      if (tl.progress() > 0.1 && tl.progress() < 0.9) return;
 
-      if (!tl.isActive() && tl.progress() === 0) {
-       
+      const rect = stack.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+      if (tl.progress() === 0) {
         gsap.to(front, {
-          duration: 0.6,
-          rotateY: xVal * 15,
-          rotateX: -yVal * 15,
-          x: xVal * 20,
-          y: yVal * 20,
-          ease: "power2.out"
+          duration: 0.5,
+          rotateY: x * 20,
+          rotateX: -y * 20,
+          overwrite: "auto"
         });
-      } else if (tl.progress() > 0.8) {
-     
+      } else {
         gsap.to(back, {
-          duration: 0.8,
-          rotateY: xVal * 10,
-          rotateX: -yVal * 10,
-          ease: "power3.out"
+          duration: 0.5,
+          rotateY: x * 15,
+          rotateX: -y * 15,
+          overwrite: "auto"
         });
       }
     });
-
-   
-    stack.addEventListener('mouseenter', () => tl.play());
-    stack.addEventListener('mouseleave', () => {
-      tl.reverse();
-      // Reset front tilt on leave
-      gsap.to(front, { duration: 1, rotateX: 0, rotateY: 0, x: 0, y: 0 });
-    });
   };
 
-  setupPremiumInteraction();
-  document.addEventListener('astro:after-swap', setupPremiumInteraction);
+  initReceipt();
+  document.addEventListener('astro:after-swap', initReceipt);
 </script>
