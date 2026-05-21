@@ -82,7 +82,7 @@
     }
   });
 
-  // --- SHOOTING STAR PHYSICS ---
+  
   const cursor = document.getElementById('custom-cursor');
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
@@ -97,10 +97,10 @@
   function animate() {
     requestAnimationFrame(animate);
     
-    // Constant slow drift
+    
     stars.rotation.y += 0.0005;
 
-    // Smooth physics for the cursor
+    
     const dt = 0.15; 
     const dx = mouseX - posX;
     const dy = mouseY - posY;
@@ -111,22 +111,19 @@
     if (cursor) {
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
       const velocity = Math.sqrt(dx*dx + dy*dy);
-      // Stretching logic: longer when fast, circular when still
-      const scale = 1 + (velocity / 120);
-
-      cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${angle}deg) scaleX(${scale})`;
       
-      // Automatic fade over footer area
-      if (mouseY > window.innerHeight - 80) {
-        cursor.style.opacity = "0.2";
-      } else {
-        cursor.style.opacity = "1";
-      }
+      
+      const scaleX = 1 + (velocity / 60); 
+      const scaleY = Math.max(0.6, 1 - (velocity / 200));
+
+      cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${angle}deg) scale(${scaleX}, ${scaleY})`;
+      
+    
+      cursor.style.opacity = (mouseY > window.innerHeight - 80) ? "0.2" : "1";
     }
 
     renderer.render(scene, camera);
   }
-  animate();
 
   // --- RESPONSIVE RESIZE ---
   window.addEventListener('resize', () => {
@@ -167,37 +164,50 @@
     position: relative;
   }
 
-  /* 4. The Shooting Star Cursor */
-  #custom-cursor {
-    position: fixed;
-    top: 0; left: 0;
-    width: 40px; 
-    height: 10px;
-    pointer-events: none;
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    will-change: transform;
-    mix-blend-mode: exclusion;
-    transition: opacity 0.3s ease;
-  }
 
-  .cursor-core {
-    width: 8px; height: 8px;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 0 15px #fff, 0 0 30px #fff;
-  }
+#custom-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 120px; 
+  height: 20px;
+  pointer-events: none;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; 
+  will-change: transform;
+  mix-blend-mode: screen; 
+  transition: opacity 0.3s ease;
+}
 
-  .cursor-tail {
-    position: absolute;
-    right: 4px;
-    width: 50px;
-    height: 1px;
-    background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
-    filter: blur(0.5px);
-  }
+.cursor-core {
+  width: 3px; 
+  height: 3px;
+  background: #fff;
+  border-radius: 50%;
+ 
+  box-shadow: 
+    0 0 8px 2px #fff, 
+    0 0 15px 5px rgba(255, 255, 255, 0.6),
+    0 0 30px 10px rgba(0, 150, 255, 0.2); 
+  z-index: 2;
+}
+
+.cursor-tail {
+  position: absolute;
+  right: 1px;
+  width: 100px; 
+  height: 8px; 
+ 
+  background: linear-gradient(to left, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(255, 255, 255, 0.2) 40%, 
+    transparent 100%
+  );
+  
+  clip-path: polygon(0% 50%, 100% 10%, 100% 90%);
+  filter: blur(0.5px);
+}
 
   /* Hide default cursor only on desktops */
   @media (pointer: fine) { 
