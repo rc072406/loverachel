@@ -2,7 +2,7 @@
 ---
 <section class="receipt-area">
   <div class="perspective-wrapper">
-    <p class="press-alert">SEND_SIGNAL // HOVER</p>
+    <p class="press-alert">SIGNAL_LOST // PRESS ME </p>
     
     <div class="receipt-stack" id="receiptStack">
       <div class="receipt receipt-back" id="receiptBack">
@@ -14,7 +14,7 @@
           <p>EMAIL: N/A [ENCRYPTED]</p>
           <p>LOC: 40.7128° N, 74.0060° W</p>
           <div class="divider"></div>
-          <p class="receipt-footer">SCAN FOR CLEARANCE</p>
+          <p class="receipt-footer">SCAN FOR ENTRY</p>
         </div>
       </div>
 
@@ -53,11 +53,12 @@
   }
 
   .perspective-wrapper {
-    perspective: 2000px;
+    perspective: 2500px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: visible;
   }
 
   .receipt-stack {
@@ -70,76 +71,83 @@
   .receipt {
     position: absolute;
     inset: 0;
-    padding: 40px;
+    padding: 45px;
     color: #1a1a1a;
-    background: #e4e4e4;
-    
+    background: #e0e0e0;
+ 
     background-image: 
-      linear-gradient(45deg, rgba(0,0,0,0.02) 25%, transparent 25%),
-      linear-gradient(-45deg, rgba(0,0,0,0.02) 25%, transparent 25%),
-      linear-gradient(to bottom, #f0f0f0, #d9d9d9);
-    background-size: 4px 4px, 4px 4px, 100% 100%;
+      repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px),
+      linear-gradient(to bottom, #eeeeee, #cccccc);
     
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    border-bottom: 6px dashed #999;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    
+    
+    --mask: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) 50% / 20px 100% no-repeat,
+            conic-gradient(from 135deg at top, #000 90deg, #0000 0) 50% / 20px 100% no-repeat;
+    -webkit-mask: var(--mask);
+    mask: var(--mask);
     
     font-family: 'Fira Code', monospace;
     font-size: 11px;
-    
-    
-    clip-path: polygon(0% 0%, 100% 1%, 99% 98%, 2% 100%);
-    
     backface-visibility: hidden;
     transform-origin: center center;
     will-change: transform, opacity;
   }
 
-
   .industrial-overlay {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.15;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    mix-blend-mode: multiply;
+    opacity: 0.2;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
   }
 
   .receipt-back {
     z-index: 1;
-    transform: translateZ(-100px) rotateY(4deg);
-    filter: brightness(0.6);
+    transform: translateZ(-80px) rotateY(5deg);
+    filter: brightness(0.5);
   }
 
   .receipt-front {
     z-index: 10;
-    transform: translateZ(100px);
+    transform: translateZ(80px);
   }
 
   .divider {
     height: 1px;
-    background: #000;
+    border-top: 1px dashed rgba(0,0,0,0.3);
     margin: 15px 0;
     width: 100%;
-    opacity: 0.3;
   }
 
-  .receipt-title { font-weight: 800; text-align: center; font-size: 13px; text-decoration: underline; }
-  .receipt-signature { font-size: 15px; font-weight: 900; margin-top: 25px; border: 1px solid #000; display: inline-block; padding: 5px; }
+  .receipt-title { font-weight: 800; text-align: center; font-size: 14px; text-transform: uppercase; }
+  
+
+  .receipt-signature { 
+    font-size: 18px; 
+    font-weight: 900; 
+    margin-top: 30px; 
+    letter-spacing: -1px;
+    opacity: 0.85;
+    transform: rotate(-2deg);
+  }
   
   .press-alert {
-   
+    font-family: 'Fira Code', monospace;
     font-size: 10px;
- 
-    margin-bottom: 25px;
-    letter-spacing: 4px;
-    font-weight: bold;
+    color: #ff0033;
+    margin-bottom: 30px;
+    letter-spacing: 5px;
+    text-shadow: 0 0 10px rgba(255,0,51,0.3);
+    animation: blink 2s infinite ease-in-out;
   }
 </style>
 
 <script>
   import { gsap } from 'gsap';
 
-  const initIndustrialReceipt = () => {
+  const initRefinedReceipt = () => {
     const stack = document.querySelector('#receiptStack');
     const front = document.querySelector('#receiptFront');
     const back = document.querySelector('#receiptBack');
@@ -148,39 +156,40 @@
 
     const tl = gsap.timeline({ 
       paused: true,
-      defaults: { ease: "sine.inOut" }
+      defaults: { ease: "power4.inOut" } 
     });
 
+    // Realistic "Wind" Flight Path
     tl.to(front, {
-      duration: 0.4,
-      x: -20,          // Initial "wind-up" to the left
-      rotationZ: -2,
-      z: 120,
+      duration: 0.5,
+      x: -40,           // Wind-up pull to the left
+      y: 20,            // Slight dip
+      rotationZ: -5,
+      ease: "power2.out"
     })
     .to(front, {
-      duration: 1.8,
-      x: 1200,         // Flies far to the right
-      y: -900,         // Sweeps up
-      z: -8000,        // Vanishes deep into stars
-      rotationX: 720,  // High-speed tumble
-      rotationY: 180,
-      rotationZ: 45,
+      duration: 1.5,
+      x: 2500,          // EXTENDED right-side travel
+      y: -1500,         // Shooting high up
+      z: -10000,        // Disappearing deep into starfield
+      rotationX: 1080,  // Triple tumble
+      rotationY: 360,   // Full spin
+      rotationZ: 90,
       opacity: 0,
-      ease: "power2.in",
+      ease: "power3.in",
       force3D: true
     }, "-=0.1")
     .to(back, {
-      duration: 1.2,
+      duration: 1,
       z: 0,
       filter: "brightness(1)",
       rotateY: 0,
-      ease: "expo.out"
-    }, "-=1.4");
+      ease: "back.out(1.2)"
+    }, "-=1.3");
 
     stack.addEventListener('mouseenter', () => tl.play());
     stack.addEventListener('mouseleave', () => tl.reverse());
 
-    
     stack.addEventListener('mousemove', (e) => {
       if (tl.isActive()) return;
       const rect = stack.getBoundingClientRect();
@@ -189,16 +198,16 @@
 
       const target = tl.progress() === 0 ? front : back;
       gsap.to(target, {
-        duration: 0.8,
-        rotateY: x * 25,
-        rotateX: -y * 25,
-        x: x * 15,
-        ease: "power2.out",
+        duration: 1,
+        rotateY: x * 30,
+        rotateX: -y * 30,
+        x: x * 25,
+        ease: "power3.out",
         overwrite: "auto"
       });
     });
   };
 
-  initIndustrialReceipt();
-  document.addEventListener('astro:after-swap', initIndustrialReceipt);
+  initRefinedReceipt();
+  document.addEventListener('astro:after-swap', initRefinedReceipt);
 </script>
