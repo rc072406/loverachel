@@ -1,0 +1,172 @@
+---
+// ..components/ReceiptContact.astro
+---
+<section class="receipt-area">
+  <div class="receipt-container">
+    <p class="press-alert">HOVER TO SEND</p>
+    
+    <div class="receipt-stack" id="receiptStack">
+      <div class="receipt receipt-back" id="receiptBack">
+        <div class="receipt-content">
+          <p>--- CONTACT COLLECTIVE ---</p>
+          <p>INSTAGRAM: @LOVERACHEL</p>
+          <p>EMAIL: N/A [ACTIVE SCRIPTS ONLY]</p>
+          <p>LOCATION: NYC_OFFICE_40.7128°N</p>
+          <p>--------------------------</p>
+          <p class="receipt-footer">SCAN FOR ENTRY</p>
+        </div>
+      </div>
+
+      <div class="receipt receipt-front" id="receiptFront">
+        <div class="receipt-content">
+          <p class="receipt-title">RECEIPT: ISSUE NO.01</p>
+          <p>DATE: 07.24.06</p>
+          <p>REF: RECODING FEMININITY</p>
+          <p>--------------------------</p>
+          <p class="greeting">To whom it may concern,</p>
+          <p>
+            Submissions for the magazine and front page are always welcomed. 
+            The magazine scouts for editorials and stories that will define 
+            the intersection of style and technical discipline.
+          </p>
+          <p>
+            love, Rachel is an indie fashion magazine that features girls 
+            who change the game in STEM.
+          </p>
+          <p>--------------------------</p>
+          <div class="receipt-signature">love, RACHEL</div>
+          <p class="receipt-footer">THANK YOU FOR YOUR INPUT</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+
+  .receipt-area {
+    min-height: 120vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent !important;
+    padding: 150px 20px;
+  }
+
+  .receipt-container {
+    perspective: 1500px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .receipt-stack {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 600px;
+    cursor: pointer;
+    transform-style: preserve-3d;
+  }
+
+  .receipt {
+    position: absolute;
+    inset: 0;
+    background: #e0e0e0;
+    color: #000;
+    padding: 35px;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-bottom: 3px dashed #bbb;
+    backface-visibility: hidden; 
+  }
+
+  .receipt-back {
+    z-index: 1;
+    background: #ffffff;
+    transform: translateZ(-10px) rotate(-1deg);
+  }
+
+  .receipt-front {
+    z-index: 5;
+    transform: translateZ(10px) rotate(1deg);
+  }
+
+  /* Typography */
+  .receipt-title { font-weight: 700; text-align: center; border-bottom: 1px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+  .receipt-footer { margin-top: 40px; text-align: center; font-size: 10px; border-top: 1px dashed #000; padding-top: 15px; }
+  .receipt-signature { font-weight: bold; margin-top: 20px; font-size: 14px; }
+  
+  .press-alert {
+    margin-bottom: 20px;
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const initAnimation = () => {
+    const stack = document.getElementById('receiptStack');
+    const front = document.getElementById('receiptFront');
+    const back = document.getElementById('receiptBack');
+
+    if (!stack || !front || !back) return;
+
+    stack.addEventListener('mouseenter', () => {
+      // Fly into the starfield
+      gsap.to(front, {
+        duration: 2,
+        z: -2500,        // Way back into the distance
+        y: -200,         // Slight float up
+        rotationX: 110,  // Tumble slightly
+        rotationZ: 15,
+        opacity: 0,
+        ease: "power2.in"
+      });
+
+      // Reveal the info
+      gsap.to(back, {
+        duration: 0.8,
+        z: 0,
+        rotate: 0,
+        scale: 1.1,
+        ease: "back.out(1.7)"
+      });
+    });
+
+    stack.addEventListener('mouseleave', () => {
+      // Return to original state
+      gsap.to(front, {
+        duration: 1.2,
+        z: 10,
+        y: 0,
+        rotationX: 0,
+        rotationZ: 1,
+        opacity: 1,
+        ease: "power2.out"
+      });
+
+      gsap.to(back, {
+        duration: 0.6,
+        z: -10,
+        rotate: -1,
+        scale: 1,
+        ease: "power2.out"
+      });
+    });
+  };
+
+  initAnimation();
+
+  
+  document.addEventListener('astro:after-swap', initAnimation);
+</script>
