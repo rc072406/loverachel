@@ -21,7 +21,7 @@
       <div class="receipt receipt-front" id="receiptFront">
         <div class="industrial-overlay"></div>
         <div class="receipt-content">
-          <p class="receipt-title">RECEIPT: ISSUE NO.01</p>
+          <p class="-title">: ISSUE NO.01</p>
           <p>DATE: 07.24.06</p>
           <p>REF: RECODING FEMININITY</p>
           <div class="divider"></div>
@@ -74,18 +74,21 @@
     padding: 45px;
     color: #1a1a1a;
     background: #e0e0e0;
+    
  
     background-image: 
-      repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px),
-      linear-gradient(to bottom, #eeeeee, #cccccc);
+      linear-gradient(to bottom, #ffffff 0%, #d4d4d4 100%);
     
     box-shadow: 0 30px 60px rgba(0,0,0,0.4);
     
+   
+    --mask-pattern: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / 15px 10px repeat-x,
+                    conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / 15px 10px repeat-x;
+
+    --mask-body: linear-gradient(#000, #000) center / 100% calc(100% - 20px) no-repeat;
     
-    --mask: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) 50% / 20px 100% no-repeat,
-            conic-gradient(from 135deg at top, #000 90deg, #0000 0) 50% / 20px 100% no-repeat;
-    -webkit-mask: var(--mask);
-    mask: var(--mask);
+    -webkit-mask: var(--mask-pattern), var(--mask-body);
+    mask: var(--mask-pattern), var(--mask-body);
     
     font-family: 'Fira Code', monospace;
     font-size: 11px;
@@ -125,12 +128,14 @@
   
 
   .receipt-signature { 
-    font-size: 18px; 
+   font-size: 20px; 
     font-weight: 900; 
     margin-top: 30px; 
     letter-spacing: -1px;
-    opacity: 0.85;
-    transform: rotate(-2deg);
+    opacity: 0.9;
+    transform: rotate(-3deg);
+    filter: blur(0.4px); 
+    color: #050505;
   }
   
   .press-alert {
