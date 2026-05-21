@@ -2,7 +2,6 @@
 // src/components/StarField.astro 
 ---
 <div id="star-container"></div>
-<div id="glare" class="light-glare"></div>
 <div id="custom-cursor">
   <div class="cursor-core"></div>
   <div class="cursor-tail"></div>
@@ -82,10 +81,9 @@
       scrub: 1.5,
     }
   });
-// --- PHYSICS & CURSOR ---
+
+  // --- SHOOTING STAR PHYSICS ---
   const cursor = document.getElementById('custom-cursor');
-  const glare = document.getElementById('glare'); 
-  
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
   let posX = mouseX;
@@ -98,33 +96,38 @@
 
   function animate() {
     requestAnimationFrame(animate);
-    stars.rotation.y += 0.0003;
+    
+    // Constant slow drift
+    stars.rotation.y += 0.0005;
 
+    // Smooth physics for the cursor
     const dt = 0.15; 
     const dx = mouseX - posX;
     const dy = mouseY - posY;
+    
     posX += dx * dt;
     posY += dy * dt;
 
-    if (cursor) {
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      const velocity = Math.sqrt(dx*dx + dy*dy);
-      const scale = 1 + (velocity / 150);
+if (cursor) {
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  const velocity = Math.sqrt(dx*dx + dy*dy);
+  const scale = 1 + (velocity / 120);
 
+  cursor.style.transform = `translate3d(${posX - 100}px, ${posY - 10}px, 0) rotate(${angle}deg) scaleX(${scale})`;
       
-      cursor.style.transform = `translate3d(${posX}px, ${posY}px, 0) translate(-100%, -50%) rotate(${angle}deg) scaleX(${scale})`;
-      
-    
-      if (glare) {
-        glare.style.transform = `translate3d(${posX}px, ${posY}px, 0) translate(-50%, -50%)`;
-        const glareOpacity = Math.min(0.2 + (velocity / 400), 0.6);
-        glare.style.opacity = glareOpacity.toString();
+      // Automatic fade over footer area
+      if (mouseY > window.innerHeight - 80) {
+        cursor.style.opacity = "0.2";
+      } else {
+        cursor.style.opacity = "1";
       }
     }
+
     renderer.render(scene, camera);
   }
   animate();
 
+  // --- RESPONSIVE RESIZE ---
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -195,16 +198,6 @@
   filter: blur(0.5px);
   opacity: 0.8;
 }
-.light-glare {
-    position: absolute;
-    top: 0; left: 0; width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
-    pointer-events: none;
-    z-index: 20;
-    transform: translate(-50%, -50%);
-    mix-blend-mode: overlay;
-    will-change: transform;
-  }
 
   /* Hide default cursor only on desktops */
   @media (pointer: fine) { 
