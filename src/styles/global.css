@@ -26,6 +26,7 @@ body {
 main {
     padding-top: 80px; 
     background-color: transparent !important;
+    background: transparent !important;
 }
 
 section {
@@ -34,10 +35,13 @@ section {
     padding: 100px 5%; 
     border-bottom: var(--border);
     background-color: transparent !important;
+     background: transparent !important;
 }
 .content-overlay {
-    background-color: transparent !important;
-}
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+  }
 
 
 /* --- DATABASE SECTION --- */
@@ -49,6 +53,8 @@ section {
     font-family: 'Inter', sans-serif ;
     font-size: clamp(2.5rem, 6vw, 4rem);
     margin-bottom: 60px;
+    background-color: transparent !important;
+    background: transparent !important;
 }
 
 .model-pile-container {
@@ -220,6 +226,7 @@ section {
     padding: 100px 0;
     overflow: hidden;
     width: 100%;
+    z-index: 2000 !important;
 }
 
 .stack-container {
@@ -292,6 +299,8 @@ section {
     align-items: center;
     background: transparent !important;
     padding: 150px 20px;
+    background-color: transparent !important;
+  
 }
 
 .receipt-stack {
@@ -392,6 +401,7 @@ section {
     background-color: transparent !important;
     min-height: 100vh;
     overflow: hidden; 
+    background: transparent !important;
     
 }
 
