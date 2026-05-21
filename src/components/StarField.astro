@@ -169,18 +169,17 @@ if (cursor) {
 /* 4. The Shooting Star Cursor */
 #custom-cursor {
   position: fixed;
-  top: 0; left: 0;
-
+  top: 0;
+  left: 0;
   width: 100px; 
   height: 20px;
-  pointer-events: none;
+  pointer-events: none !important; 
   z-index: 100000;
   display: flex;
   align-items: center;
-  
   justify-content: flex-end; 
   will-change: transform;
-  transform-origin: right center;
+  transform-origin: right center; 
   mix-blend-mode: screen; 
   transition: opacity 0.3s ease;
 }
@@ -227,4 +226,19 @@ if (cursor) {
   @media (pointer: coarse) { 
     #custom-cursor { display: none; } 
   }
+
+a, button, [role="button"], .menu-item {
+  position: relative;
+  z-index: 100001; 
+  pointer-events: auto !important;
+}
+
+
+.content-overlay {
+  pointer-events: none;
+}
+
+.content-overlay > * {
+  pointer-events: auto;
+}
 </style>
