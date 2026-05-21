@@ -1,10 +1,16 @@
 ---
-// src/components/Navigation.astro
-const pathname = new URL(Astro.request.url).pathname;
+const { pathname } = Astro.url; 
 
-const isAbout = pathname.endsWith('/about') ;
-const isIssues = pathname.endsWith('/issues') ;
-const isContact = pathname.endsWith('/contact') ;
+// Function to check if the link is active
+const isActive = (path) => {
+  const normalizedPath = pathname.replace(/\/$/, "");
+  const targetPath = path.replace(/\/$/, "");
+  return normalizedPath === targetPath;
+};
+
+const isAbout = isActive('/about');
+const isIssues = isActive('/issues');
+const isContact = isActive('/contact');
 ---
 
 <nav-island>
