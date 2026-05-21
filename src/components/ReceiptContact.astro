@@ -2,28 +2,30 @@
 ---
 <section class="receipt-area">
   <div class="perspective-wrapper">
-    <p class="press-alert">SIGNAL_LOST // PRESS ME </p>
+    <p class="press-alert">SIGNAL LOST ?? PRESS ME </p>
     
     <div class="receipt-stack" id="receiptStack">
+      <div class="light-glare" id="glare"></div>
+
       <div class="receipt receipt-back" id="receiptBack">
-        <div class="industrial-overlay"></div>
+        <div class="paper-grain"></div>
         <div class="receipt-content">
-          <p class="receipt-header">SYSTEM_CONTACT_LOG</p>
+          <p class="receipt-header">AUTHENTICATION_LOG</p>
           <div class="divider"></div>
+          <p class="meta-data">ID: 882-001-NYC</p>
           <p>INSTAGRAM: @LOVERACHEL</p>
-          <p>EMAIL: N/A [ENCRYPTED]</p>
+          <p>EMAIL: N/A [ENCRYPTED_SCRIPTS]</p>
           <p>LOC: 40.7128° N, 74.0060° W</p>
           <div class="divider"></div>
-          <p class="receipt-footer">SCAN FOR ENTRY</p>
+          <p class="receipt-footer">SCAN_FOR_CLEARANCE</p>
         </div>
       </div>
 
       <div class="receipt receipt-front" id="receiptFront">
-        <div class="industrial-overlay"></div>
+        <div class="paper-grain"></div>
         <div class="receipt-content">
-          <p class="-title">: ISSUE NO.01</p>
-          <p>DATE: 07.24.06</p>
-          <p>REF: RECODING FEMININITY</p>
+          <p class="receipt-title">RECEIPT: ISSUE NO.01</p>
+          <p class="meta-data">DATE: 07.24.06 // REF: RE-CODE</p>
           <div class="divider"></div>
           <p class="greeting">To whom it may concern,</p>
           <p>
@@ -49,16 +51,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: visible !important;
+    background: transparent;
+    overflow: visible;
   }
 
   .perspective-wrapper {
-    perspective: 2500px;
+    perspective: 3000px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: visible;
   }
 
   .receipt-stack {
@@ -71,148 +73,185 @@
   .receipt {
     position: absolute;
     inset: 0;
-    padding: 45px;
-    color: #1a1a1a;
-    background: #e0e0e0;
+    padding: 50px 40px;
+    color: #121212;
+    background: #fdfdfd;
     
  
     background-image: 
-      linear-gradient(to bottom, #ffffff 0%, #d4d4d4 100%);
+      linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(240,240,240,1) 50%, rgba(220,220,220,1) 100%);
     
-    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-    
-   
-    --mask-pattern: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / 15px 10px repeat-x,
-                    conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / 15px 10px repeat-x;
+    box-shadow: 
+      0 10px 30px rgba(0,0,0,0.2),
+      0 30px 100px rgba(0,0,0,0.4);
 
-    --mask-body: linear-gradient(#000, #000) center / 100% calc(100% - 20px) no-repeat;
     
+    --mask-pattern: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) bottom / 14px 8px repeat-x,
+                    conic-gradient(from 135deg at top, #000 90deg, #0000 0) top / 14px 8px repeat-x;
+    --mask-body: linear-gradient(#000, #000) center / 100% calc(100% - 16px) no-repeat;
     -webkit-mask: var(--mask-pattern), var(--mask-body);
     mask: var(--mask-pattern), var(--mask-body);
-    
+
     font-family: 'Fira Code', monospace;
     font-size: 11px;
+    line-height: 1.5;
     backface-visibility: hidden;
-    transform-origin: center center;
     will-change: transform, opacity;
   }
 
-  .industrial-overlay {
+  
+  .paper-grain {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.2;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.12;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='crinkle'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='5' stitchTiles='stitch'/%3E%3CfeSpecularLighting surfaceScale='5' specularConstant='0.8' specularExponent='20' lighting-color='white'%3E%3CfeDistantLight azimuth='45' elevation='45'/%3E%3C/feSpecularLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23crinkle)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+
+
+  .light-glare {
+    position: absolute;
+    top: 0; left: 0; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
+    pointer-events: none;
+    z-index: 20;
+    transform: translate(-50%, -50%);
     mix-blend-mode: overlay;
+    will-change: transform;
   }
 
   .receipt-back {
     z-index: 1;
-    transform: translateZ(-80px) rotateY(5deg);
-    filter: brightness(0.5);
+    transform: translateZ(-150px) rotateY(10deg) rotateX(5deg);
+    filter: brightness(0.6) grayscale(0.2);
   }
 
   .receipt-front {
     z-index: 10;
-    transform: translateZ(80px);
+    transform: translateZ(100px);
   }
 
   .divider {
     height: 1px;
-    border-top: 1px dashed rgba(0,0,0,0.3);
-    margin: 15px 0;
-    width: 100%;
+    border-top: 1px dashed rgba(0,0,0,0.2);
+    margin: 20px 0;
   }
 
-  .receipt-title { font-weight: 800; text-align: center; font-size: 14px; text-transform: uppercase; }
-  
+  .receipt-title { 
+    font-weight: 800; 
+    text-align: center; 
+    letter-spacing: 1px; 
+    text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.1);
+  }
+
+  .meta-data { font-size: 9px; text-align: center; opacity: 0.6; }
 
   .receipt-signature { 
-   font-size: 20px; 
+    font-size: 22px; 
     font-weight: 900; 
     margin-top: 30px; 
-    letter-spacing: -1px;
-    opacity: 0.9;
     transform: rotate(-3deg);
-    filter: blur(0.4px); 
-    color: #050505;
+    color: #000;
+    filter: blur(0.3px); /* Ink bleed */
+    letter-spacing: -1.5px;
   }
   
   .press-alert {
     font-family: 'Fira Code', monospace;
     font-size: 10px;
     color: #ff0033;
-    margin-bottom: 30px;
-    letter-spacing: 5px;
-    text-shadow: 0 0 10px rgba(255,0,51,0.3);
-    animation: blink 2s infinite ease-in-out;
+    margin-bottom: 40px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    font-weight: bold;
+    animation: pulse 2s infinite;
   }
+
+  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 </style>
 
 <script>
   import { gsap } from 'gsap';
 
-  const initRefinedReceipt = () => {
+  const initPremiumReceipt = () => {
     const stack = document.querySelector('#receiptStack');
     const front = document.querySelector('#receiptFront');
     const back = document.querySelector('#receiptBack');
+    const glare = document.querySelector('#glare');
 
     if (!stack || !front || !back) return;
 
+    // Set initial 3D hidden states
+    gsap.set(back, { filter: "brightness(0.6) grayscale(0.2)" });
+
     const tl = gsap.timeline({ 
       paused: true,
-      defaults: { ease: "power4.inOut" } 
+      defaults: { ease: "expo.inOut" } 
     });
 
-    // Realistic "Wind" Flight Path
+    // THE FLYING PHYSICS
     tl.to(front, {
-      duration: 0.5,
-      x: -40,           // Wind-up pull to the left
-      y: 20,            // Slight dip
-      rotationZ: -5,
-      ease: "power2.out"
+      duration: 0.6,
+      x: -60,
+      y: 40,
+      rotationZ: -8,
+      z: 200,
+      ease: "back.out(1.7)" // Springy wind-up
     })
     .to(front, {
-      duration: 1.5,
-      x: 2500,          // EXTENDED right-side travel
-      y: -1500,         // Shooting high up
-      z: -10000,        // Disappearing deep into starfield
-      rotationX: 1080,  // Triple tumble
-      rotationY: 360,   // Full spin
-      rotationZ: 90,
+      duration: 1.8,
+      x: 3500,        // Shoots off screen
+      y: -2000,       // Flies up
+      z: -12000,      // Into deep space
+      rotationX: 1440, // Violent tumble
+      rotationY: 720,
+      rotationZ: 120,
       opacity: 0,
-      ease: "power3.in",
+      ease: "power4.in",
       force3D: true
     }, "-=0.1")
     .to(back, {
-      duration: 1,
+      duration: 1.4,
       z: 0,
-      filter: "brightness(1)",
       rotateY: 0,
-      ease: "back.out(1.2)"
-    }, "-=1.3");
+      rotateX: 0,
+      filter: "brightness(1) grayscale(0)",
+      ease: "expo.out"
+    }, "-=1.5");
 
+    // MOUSE INTERACTION
     stack.addEventListener('mouseenter', () => tl.play());
     stack.addEventListener('mouseleave', () => tl.reverse());
 
-    stack.addEventListener('mousemove', (e) => {
-      if (tl.isActive()) return;
+    window.addEventListener('mousemove', (e) => {
       const rect = stack.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-      const target = tl.progress() === 0 ? front : back;
-      gsap.to(target, {
-        duration: 1,
-        rotateY: x * 30,
-        rotateX: -y * 30,
-        x: x * 25,
-        ease: "power3.out",
-        overwrite: "auto"
+      
+      gsap.to(glare, {
+        duration: 0.5,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        ease: "power2.out"
       });
+
+      if (!tl.isActive()) {
+        const target = tl.progress() === 0 ? front : back;
+        gsap.to(target, {
+          duration: 1.2,
+          rotateY: x * 35,
+          rotateX: -y * 35,
+          x: x * 30,
+          y: y * 20,
+          ease: "power3.out",
+          overwrite: "auto"
+        });
+      }
     });
   };
 
-  initRefinedReceipt();
-  document.addEventListener('astro:after-swap', initRefinedReceipt);
+  initPremiumReceipt();
+  document.addEventListener('astro:after-swap', initPremiumReceipt);
 </script>
