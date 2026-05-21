@@ -1,18 +1,19 @@
 ---
 ---
 <section class="receipt-area">
-  <div class="receipt-container">
-    <p class="press-alert">HOVER TO SEND</p>
+  <div class="perspective-wrapper">
+    <p class="press-alert">PRESS ME/p>
     
     <div class="receipt-stack" id="receiptStack">
       <div class="receipt receipt-back" id="receiptBack">
         <div class="receipt-content">
-          <p>--- CONTACT COLLECTIVE ---</p>
+          <p class="receipt-header">SYSTEM_CONTACT_LOG</p>
+          <div class="divider"></div>
           <p>INSTAGRAM: @LOVERACHEL</p>
-          <p>EMAIL: N/A [ACTIVE SCRIPTS ONLY]</p>
-          <p>LOCATION: NYC_OFFICE_40.7128°N</p>
-          <p>--------------------------</p>
-          <p class="receipt-footer">SCAN FOR ENTRY</p>
+          <p>EMAIL: N/A [ENCRYPTED]</p>
+          <p>LOC: 40.7128° N, 74.0060° W</p>
+          <div class="divider"></div>
+          <p class="receipt-footer">SCAN FOR CLEARANCE</p>
         </div>
       </div>
 
@@ -21,20 +22,19 @@
           <p class="receipt-title">RECEIPT: ISSUE NO.01</p>
           <p>DATE: 07.24.06</p>
           <p>REF: RECODING FEMININITY</p>
-          <p>--------------------------</p>
+          <div class="divider"></div>
           <p class="greeting">To whom it may concern,</p>
           <p>
             Submissions for the magazine and front page are always welcomed. 
-            The magazine scouts for editorials and stories that will define 
+            The magazine scouts for editorials and stories that define 
             the intersection of style and technical discipline.
           </p>
           <p>
-            love, Rachel is an indie fashion magazine that features girls 
-            who change the game in STEM.
+            love, Rachel is an indie fashion magazine featuring girls 
+            changing the game in STEM.
           </p>
-          <p>--------------------------</p>
+          <div class="divider"></div>
           <div class="receipt-signature">love, RACHEL</div>
-          <p class="receipt-footer">THANK YOU FOR YOUR INPUT</p>
         </div>
       </div>
     </div>
@@ -43,17 +43,17 @@
 
 <style>
   .receipt-area {
-    min-height: 120vh;
+    min-height: 140vh; /* Extra room for the fly-away */
     display: flex;
     justify-content: center;
     align-items: center;
-    background: transparent !important;
+    background: transparent;
     overflow: visible;
   }
 
-  .receipt-container {
-   
-    perspective: 1000px; 
+  .perspective-wrapper {
+  
+    perspective: 800px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -65,81 +65,144 @@
     width: 380px;
     height: 550px;
     transform-style: preserve-3d;
+    cursor: none; 
   }
 
   .receipt {
     position: absolute;
     inset: 0;
-    background: #e0e0e0;
+    background: #f0f0f0;
     color: #000;
-    padding: 35px;
+    padding: 40px;
     font-family: 'Fira Code', monospace;
-    font-size: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    border-bottom: 3px dashed #bbb;
+    font-size: 11px;
+    line-height: 1.6;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    /* The dashed border is iconic for receipts */
+    border-bottom: 4px dashed #ccc;
     
-    /* Hardware acceleration */
     backface-visibility: hidden;
-    transform-origin: center center; 
+    transform-origin: center center;
     will-change: transform, opacity;
   }
 
   .receipt-back {
     z-index: 1;
     background: #ffffff;
-   
-    transform: translateZ(-20px) rotate(-1deg);
+    transform: translateZ(-50px) rotateY(5deg);
+    filter: brightness(0.8); /* Dim it while it's behind */
   }
 
   .receipt-front {
-    z-index: 5;
-   
-    transform: translateZ(20px) rotate(1deg);
+    z-index: 10;
+    background: #e5e5e5;
+    transform: translateZ(50px);
   }
 
+  .divider {
+    height: 1px;
+    background: #000;
+    margin: 20px 0;
+    width: 100%;
+    opacity: 0.2;
+  }
+
+  .receipt-title { font-weight: 800; text-align: center; font-size: 14px; }
+  .receipt-signature { font-size: 16px; font-weight: 900; text-transform: uppercase; margin-top: 30px; }
+  
+  .press-alert {
  
-  .receipt-title { font-weight: 700; text-align: center; border-bottom: 1px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
-  .receipt-footer { margin-top: 40px; text-align: center; font-size: 10px; border-top: 1px dashed #000; padding-top: 15px; }
-  .receipt-signature { font-weight: bold; margin-top: 20px; font-size: 14px; }
-  .press-alert { margin-bottom: 20px; animation: blink 1.5s infinite; }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    font-size: 10px;
+    letter-spacing: 3px;
+ 
+    margin-bottom: 30px;
+    opacity: 0.6;
+  }
 </style>
 
 <script>
   import { gsap } from 'gsap';
 
-  const setupAnimation = () => {
+  const setupPremiumInteraction = () => {
     const stack = document.querySelector('#receiptStack');
     const front = document.querySelector('#receiptFront');
     const back = document.querySelector('#receiptBack');
+    const alert = document.querySelector('.press-alert');
 
     if (!stack || !front || !back) return;
 
-    // Create a timeline for better control
+
+    gsap.set(back, { filter: "brightness(0.7)", z: -100 });
+    gsap.set(front, { z: 50 });
+
     const tl = gsap.timeline({ paused: true });
 
+    
     tl.to(front, {
-      duration: 1.5,
-      z: -3000,         
-      y: -400,         
-      rotationX: 120,   
-      rotationZ: 45,    
+      duration: 1.4,
+      z: -6000,          
+      y: -1000,          
+      x: 300,            
+      rotationX: 240,   
+      rotationY: 60,
+      rotationZ: 30,
+      scale: 0.1,        
       opacity: 0,
-      ease: "power3.in"
+      ease: "expo.in",
     })
     .to(back, {
-      duration: 0.7,
-      z: 50,            
-      rotate: 0,
-      scale: 1.1,
-      ease: "back.out(1.5)"
-    }, "-=1.2"); 
+      duration: 1,
+      z: 150,            
+      rotateY: 0,
+      rotateX: 0,
+      filter: "brightness(1)",
+      scale: 1.05,
+      ease: "expo.out",
+    }, "-=1.0") 
+    .to(alert, {
+      opacity: 0,
+      y: -20,
+      duration: 0.3
+    }, 0);
 
+    stack.addEventListener('mousemove', (e) => {
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = stack.getBoundingClientRect();
+      
+     
+      const xVal = (clientX - left) / width - 0.5;
+      const yVal = (clientY - top) / height - 0.5;
+
+      if (!tl.isActive() && tl.progress() === 0) {
+       
+        gsap.to(front, {
+          duration: 0.6,
+          rotateY: xVal * 15,
+          rotateX: -yVal * 15,
+          x: xVal * 20,
+          y: yVal * 20,
+          ease: "power2.out"
+        });
+      } else if (tl.progress() > 0.8) {
+     
+        gsap.to(back, {
+          duration: 0.8,
+          rotateY: xVal * 10,
+          rotateX: -yVal * 10,
+          ease: "power3.out"
+        });
+      }
+    });
+
+   
     stack.addEventListener('mouseenter', () => tl.play());
-    stack.addEventListener('mouseleave', () => tl.reverse());
+    stack.addEventListener('mouseleave', () => {
+      tl.reverse();
+      // Reset front tilt on leave
+      gsap.to(front, { duration: 1, rotateX: 0, rotateY: 0, x: 0, y: 0 });
+    });
   };
 
-  
-  setupAnimation();
-  document.addEventListener('astro:after-swap', setupAnimation);
+  setupPremiumInteraction();
+  document.addEventListener('astro:after-swap', setupPremiumInteraction);
 </script>
