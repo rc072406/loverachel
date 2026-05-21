@@ -2,14 +2,14 @@
 // src/components/Navigation.astro
 const pathname = new URL(Astro.request.url).pathname;
 
-const isAbout = pathname.endsWith('/about') || pathname.endsWith('/about/');
-const isIssues = pathname.endsWith('/issues') || pathname.endsWith('/issues/');
-const isContact = pathname.endsWith('/contact') || pathname.endsWith('/contact/');
+const isAbout = pathname.endsWith('/about') ;
+const isIssues = pathname.endsWith('/issues') ;
+const isContact = pathname.endsWith('/contact') ;
 ---
 
 <nav-island>
   <header class="mobile-header">
-    <div class="logo"><a href="/loverachel/index">love, RACHEL</a></div>
+    <div class="logo"><a href="/index">love, RACHEL</a></div>
     <button class="hamburger" id="menuOpen">
       <span></span><span></span>
     </button>
@@ -17,27 +17,27 @@ const isContact = pathname.endsWith('/contact') || pathname.endsWith('/contact/'
 
   <nav class="side-navigation" id="sideNav">
     <div class="nav-header">
-      <div class="logo"><a href="/loverachel/index">love, RACHEL</a></div>
+      <div class="logo"><a href="/index">love, RACHEL</a></div>
       <button class="menu-close" id="menuClose">✕</button>
     </div>
 
     <section class="toc-section">
       <nav class="toc-nav">
-        <a href="/loverachel/about" class="toc-item">
+        <a href="/about" class="toc-item">
           <div class="toc-content">
             <span class="toc-link">About</span>
             <p>Architecting the exclusive visual chimera.</p>
             {isAbout && <p class="nav-alert">Where are you?</p>}
           </div>
         </a>
-        <a href="/loverachel/issues" class="toc-item">
+        <a href="/issues" class="toc-item">
           <div class="toc-content">
             <span class="toc-link">Issues</span>
             <p>From the best pointe shoes to bio-tech. Explore our latest features.</p>
             {isIssues && <p class="nav-alert">Where are you?</p>}
           </div>
         </a>
-        <a href="/loverachel/contact" class="toc-item">
+        <a href="/contact" class="toc-item">
           <div class="toc-content">
             <span class="toc-link">Contact</span>
             <p>Join the collective. How to contribute your voice.</p>
