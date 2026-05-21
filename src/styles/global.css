@@ -62,11 +62,17 @@ section {
 /* --- FOOTER ELEMENTS --- */
 .ticker-wrap {
     position: fixed;
+
     bottom: 0;
+
     left: 0;
+
     width: 100%;
-    background: #000000 !important; /* This gives the red text a solid black bar to sit on */
+
+    background: transparent;
+
     padding: 12px 0;
+
     z-index: 1100;
 }
 
