@@ -1,0 +1,298 @@
+---
+
+---
+<div class="cards-viewport">
+  <div class="cards-container">
+    <div class="card card-info">
+      <div class="card-content">
+        <div class="vertical-status">Where are you?</div>
+        
+        <div class="barcode-top">
+          <div class="barcode-lines"></div>
+          <div class="barcode-id">LR_ID_7729-06</div>
+        </div>
+        
+        <div class="submission-copy">
+          <p>
+            Submissions for the magazine and front page are always welcomed. 
+            We would love to hear your story and learn more about you. 
+            The magazine scouts for editorials and stories that will define 
+            the intersection of style and technical discipline.
+          </p>
+
+          <p>
+            For submissions, please ensure files are optimized. If you do 
+            not hear back within two cycles, we have decided to pass, 
+            but you are always encouraged to resubmit.
+          </p>
+
+          <p class="brand-statement">
+            love, Rachel is an indie fashion magazine that features girls 
+            who change the game in STEM.
+          </p>
+        </div>
+
+        <div class="database-content">
+          <div class="barcode-divider"></div>
+          <div class="name-grid">
+            {Array.from({ length: 20 }).map(() => (
+              <span>This could be you, </span>
+            ))}
+            <span class="highlight">Your Name Here, </span>
+          </div>
+        </div>
+
+        <div class="stamp-stack">
+          <div class="stamp">
+            <div class="stamp-inner">
+              <div class="strawberry-pixel"></div>
+              <div class="stamp-price">3¢</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-photo card-photo-middle">
+      <div class="photo-frame">
+        <div class="photo-container">
+          <div class="filler-bg alt-bg"></div>
+        </div>
+        <div class="belly-band">
+          <div class="band-content">
+            <div class="band-left">
+              <p>NAME</p>
+              <p> Show Package</p>
+            </div>
+            <div class="band-right">
+              <p>GN01-15SS2025</p>
+              <p>EDITION OF 25</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-photo card-photo-top">
+      <div class="photo-frame">
+        <div class="photo-container">
+          <div class="filler-bg"></div>
+        </div>
+        <div class="belly-band">
+          <div class="band-content">
+            <div class="band-left">
+              <p>love, Rachel</p>
+              <p>Issue 01</p>
+              <p>Technical Spec</p>
+            </div>
+            <div class="band-right">
+              <p>NYC_UNIT_604</p>
+              <p>EDITION OF 25</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".cards-viewport",
+      start: "top top",
+      end: "+=4000",
+      scrub: 1,
+      pin: true,
+    }
+  });
+
+  tl.to(".card-photo-top", {
+    xPercent: 120,
+    rotate: 8,
+    duration: 1.5,
+    ease: "power2.inOut"
+  })
+  .to(".card-photo-middle", {
+    xPercent: -120,
+    rotate: -8,
+    duration: 1.5,
+    ease: "power2.inOut"
+  }, "-=1")
+  .to(".card-info", {
+    scale: 1.05,
+    duration: 1
+  }, "-=0.5");
+
+  gsap.to(".vertical-status", {
+    opacity: 0.3,
+    duration: 1.5,
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut"
+  });
+</script>
+
+<style>
+  .cards-viewport {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0; 
+    overflow: hidden;
+  }
+
+  .cards-container {
+    position: relative;
+    
+    width: 380px;
+    height: 540px;
+    max-width: 90vw;
+    perspective: 2000px;
+  }
+
+  .card {
+    position: absolute;
+    inset: 0;
+    background: #fdfdfd;
+    box-shadow: 10px 10px 40px rgba(0,0,0,0.15);
+    border-radius: 2px;
+  }
+
+  /* --- PHOTO CARDS --- */
+  .card-photo {
+    padding: 20px; /* White border area */
+  }
+
+  .card-photo-top { z-index: 60; }
+  .card-photo-middle { z-index: 55; }
+  .card-info { z-index: 50; }
+
+  .photo-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .photo-container {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .filler-bg {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+  }
+
+  .alt-bg {
+    background: radial-gradient(circle at center, #222 0%, #080808 100%);
+  }
+
+
+  .belly-band {
+    position: absolute;
+    top: 50%;
+    left: -20px;
+    width: calc(100% + 40px); 
+    height: 100px;
+    background: rgba(240, 240, 240, 0.9);
+    backdrop-filter: blur(8px);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    color: #000;
+    z-index: 100;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .vertical-status {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%) rotate(90deg);
+    transform-origin: right center;
+    font-family: monospace;
+    font-size: 0.65rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #ff0033;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  .band-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-family: monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+  }
+
+  /* --- INFO CARD CONTENT --- */
+  .card-content {
+    padding: 30px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .submission-copy {
+    font-family: monospace;
+    font-size: 10px;
+    line-height: 1.5;
+    color: #444;
+    max-width: 85%;
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+
+  .brand-statement {
+    color: #000;
+    font-weight: 900;
+    border-left: 2px solid #ff0033;
+    padding-left: 10px;
+  }
+
+  .barcode-lines {
+    width: 100px;
+    height: 20px;
+    background: repeating-linear-gradient(90deg, #000 0px, #000 1px, transparent 1px, transparent 3px);
+  }
+
+  .name-grid {
+    font-family: monospace;
+    font-size: 7px;
+    column-count: 2;
+    text-transform: uppercase;
+    color: #aaa;
+  }
+
+  .highlight { color: #000; font-weight: 900; background: #ffff00; }
+
+  .stamp-stack {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+  }
+
+  .stamp {
+    width: 35px;
+    height: 45px;
+    background: #fff;
+    padding: 2px;
+    border: 1px dashed #ccc;
+  }
+</style>
