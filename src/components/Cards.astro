@@ -1,45 +1,52 @@
-<div class="cards-viewport">
-  <div class="cards-container">
-    <div class="card card-info">
-      <div class="card-content">
-        <div class="vertical-status">Where are you?</div>
-        
-        <div class="barcode-top">
-          <div class="barcode-lines"></div>
-          <div class="barcode-id">LR_ID_7729-06</div>
-        </div>
-        
-        <div class="submission-copy">
-          <p>
-            Submissions for the magazine and front page are always welcomed. 
-            We would love to hear your story and learn more about you. 
-            The magazine scouts for editorials and stories that will define 
-            the intersection of style and technical discipline.
-          </p>
+<div class="card-content editorial-layout">
+  <div class="editorial-header">
+    <div class="contact-block">
+      <span class="label">CONTACT_INQUIRIES</span>
+      <span class="email-value">HELLO@LOVERACHEL.XYZ</span>
+    </div>
+    <div class="barcode-group">
+      <div class="barcode-lines-v2"></div>
+      <div class="serial-num">LR-ISSUE-01-V2</div>
+    </div>
+  </div>
 
-          <p class="brand-statement">
-            love, Rachel is an indie fashion magazine that features girls 
-            who change the game in STEM.
-          </p>
-        </div>
+  <h2 class="main-title serif-text">Where are <br/>you?</h2>
 
-        <div class="database-content">
-          <div class="barcode-divider"></div>
-          <div class="name-grid">
-            {Array.from({ length: 14 }).map(() => (
-              <span>This could be you, </span>
-            ))}
-            <span class="highlight">Your Name Here, </span>
-          </div>
-        </div>
+  <div class="manifesto-section">
+    <div class="redacted-line"></div>
+    <p class="brand-statement-v2">
+      <span class="highlight-red">love, Rachel</span> is an indie fashion magazine featuring the architects of the future. Girls changing the game in STEM.
+    </p>
+    <p class="sub-copy">
+      WE SCOUT FOR EDITORIALS THAT DEFINE THE INTERSECTION OF STYLE AND TECHNICAL DISCIPLINE.
+    </p>
+  </div>
 
-        <div class="tech-footer">
-          <div class="email-tag">EMAIL: N/A</div>
-          <div class="barcode-mini"></div>
-          <div class="barcode-mini"></div>
-        </div>
+  <div class="name-scan-container">
+    <div class="scan-line"></div>
+    <div class="name-grid-v2">
+      <div class="name-column">
+        <span>AWAITING DATA...</span>
+        <span>AWAITING DATA...</span>
+        <span>AWAITING DATA...</span>
+        <span class="your-name">YOUR NAME HERE</span>
+        <span>AWAITING DATA...</span>
+      </div>
+      <div class="name-column">
+        <span>AWAITING DATA...</span>
+        <span>AWAITING DATA...</span>
+        <span>AWAITING DATA...</span>
+        <span>AWAITING DATA...</span>
+        <span>AWAITING DATA...</span>
       </div>
     </div>
+  </div>
+
+  <div class="footer-industrial">
+    <div class="stamp">COLLECTOR EDITION / 2026</div>
+    <div class="tech-specs">40.7128° N, 74.0060° W</div>
+  </div>
+</div>
 
     <div class="card card-photo card-photo-middle">
       <div class="photo-frame">
@@ -208,74 +215,137 @@
     flex-direction: column;
   }
 
-  .vertical-status {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%) rotate(90deg);
-    transform-origin: right center;
-    font-family: monospace;
-    font-size: 0.6rem;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #ff0033;
-    z-index: 10;
-  }
 
-  .submission-copy {
-    font-family: monospace;
-    font-size: 10px;
-    line-height: 1.5;
-    color: #444;
-    margin-top: 25px;
-    text-transform: uppercase;
-  }
+.editorial-layout {
+  padding: 25px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #eee;
+}
 
-  .brand-statement {
-    color: #000;
-    font-weight: 900;
-    border-left: 2px solid #ff0033;
-    padding-left: 10px;
-    margin-top: 15px;
-  }
+.editorial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
 
-  .barcode-lines {
-    width: 80px;
-    height: 18px;
-    background: repeating-linear-gradient(90deg, #000 0px, #000 1px, transparent 1px, transparent 3px);
-  }
+.contact-block {
+  background: #000;
+  color: #fff;
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 9px;
+  display: flex;
+  flex-direction: column;
+}
 
-  .database-content { margin-top: auto; padding-bottom: 60px; }
+.email-value {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
 
-  .name-grid {
-    font-family: monospace;
-    font-size: 7px;
-    column-count: 2;
-    color: #bbb;
-  }
+.main-title {
+  font-size: 3.5rem !important;
+  line-height: 0.9;
+  margin: 10px 0;
+  color: #000;
+  font-weight: 400;
+}
 
-  
-  .tech-footer {
-    position: absolute;
-    bottom: 30px;
-    left: 35px;
-    right: 35px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
+.manifesto-section {
+  position: relative;
+  margin: 20px 0;
+}
 
-  .email-tag {
-    font-family: monospace;
-    font-size: 9px;
-    font-weight: bold;
-    letter-spacing: 1px;
-  }
+.redacted-line {
+  width: 40px;
+  height: 8px;
+  background: #000;
+  margin-bottom: 10px;
+}
 
-  .barcode-mini {
-    flex-grow: 1;
-    height: 12px;
-    background: repeating-linear-gradient(90deg, #000 0, #000 1px, transparent 1px, transparent 4px);
-    opacity: 0.2;
-  }
+.brand-statement-v2 {
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.highlight-red {
+  background: #ff0033;
+  color: #fff;
+  padding: 0 4px;
+}
+
+.sub-copy {
+  font-family: monospace;
+  font-size: 8px;
+  color: #888;
+  letter-spacing: 1px;
+}
+
+
+.name-scan-container {
+  position: relative;
+  background: #f9f9f9;
+  padding: 15px;
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 0, 51, 0.5);
+  box-shadow: 0 0 8px #ff0033;
+  animation: scan 3s linear infinite;
+}
+
+.name-grid-v2 {
+  display: flex;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 8px;
+  color: #ccc;
+}
+
+.name-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.your-name {
+  color: #000;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.footer-industrial {
+  display: flex;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 8px;
+  border-top: 1px solid #000;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.barcode-lines-v2 {
+  width: 60px;
+  height: 30px;
+  background: repeating-linear-gradient(90deg, #000 0, #000 1px, transparent 1px, transparent 3px);
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
 </style>
