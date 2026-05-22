@@ -95,47 +95,54 @@
     mouseY = e.clientY;
   });
 
-  function animate() {
-    requestAnimationFrame(animate);
-    
-    // Constant slow drift
-    stars.rotation.y += 0.0005;
 
-    // Smooth physics for the cursor
-    const dt = 0.15; 
-    const dx = mouseX - posX;
-    const dy = mouseY - posY;
-    
-    posX += dx * dt;
-    posY += dy * dt;
+function animate() {
+  requestAnimationFrame(animate);
+  
+  stars.rotation.y += 0.0005;
 
-if (cursor) {
-  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-  const velocity = Math.sqrt(dx*dx + dy*dy);
-  const scale = 1 + (velocity / 120);
+  const dt = 0.15; 
+  const dx_m = mouseX - posX;
+  const dy_m = mouseY - posY;
+  posX += dx_m * dt;
+  posY += dy_m * dt;
 
-  cursor.style.transform = `translate3d(${posX - 100}px, ${posY - 10}px, 0) rotate(${angle}deg) scaleX(${scale})`;
- const glare = cursor.querySelector('.cursor-glare');
-  if (glare) {
-    
-    const glareIntensity = Math.min(1, 0.4 + (velocity / 200));
-    glare.style.opacity = glareIntensity.toString();
-    glare.style.transform = `scale(${1 + velocity / 150})`;
-  }
+  if (cursor) {
+    const angle = Math.atan2(dy_m, dx_m) * (180 / Math.PI);
+    const velocity = Math.sqrt(dx_m * dx_m + dy_m * dy_m);
+    const scale = 1 + (velocity / 120);
 
-      
-     
-      if (mouseY > window.innerHeight - 80) {
-        cursor.style.opacity = "0.2";
-      } else {
-        cursor.style.opacity = "1";
+    cursor.style.transform = `translate3d(${posX - 100}px, ${posY - 10}px, 0) rotate(${angle}deg) scaleX(${scale})`;
+
+    // Star Interaction Logic
+    const vector = new THREE.Vector3(
+      (mouseX / window.innerWidth) * 2 - 1,
+      -(mouseY / window.innerHeight) * 2 + 1,
+      0.5
+    );
+    vector.unproject(camera);
+    const dir = vector.sub(camera.position).normalize();
+    const distance = -camera.position.z / dir.z;
+    const mouse3D = camera.position.clone().add(dir.multiplyScalar(distance));
+
+    const positions = stars.geometry.attributes.position.array;
+    for (let i = 0; i < count * 3; i += 3) {
+      const x = positions[i];
+      const y = positions[i+1];
+      const dx = mouse3D.x - x;
+      const dy = mouse3D.y - y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 3) { 
+        const force = (3 - dist) / 3;
+        positions[i] -= dx * force * 0.05; 
+        positions[i+1] -= dy * force * 0.05;
       }
     }
-
-    renderer.render(scene, camera);
+    stars.geometry.attributes.position.needsUpdate = true;
   }
-  animate();
-
+  renderer.render(scene, camera);
+}
   // --- RESPONSIVE RESIZE ---
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -194,18 +201,17 @@ animation: pulse-glow 1.5s infinite alternate;
 .cursor-tail {
   position: absolute;
   right: 0;
-
   width: 80px; 
   height: 4px; 
-  
   background: linear-gradient(to left, 
     rgba(255, 255, 255, 1) 0%, 
     rgba(255, 255, 255, 0.4) 30%, 
     transparent 100%
-  );
- 
+  ); 
+  
   clip-path: polygon(0% 50%, 100% 20%, 100% 80%);
-  filter: blur(0.5px);
+  filter: blur(1px) contrast(1.2); 
+  transition: width 0.2s ease-out;
   opacity: 0.8;
 }
 
