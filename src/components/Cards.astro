@@ -124,16 +124,12 @@
 
   @import url('https://fonts.googleapis.com/css2?family=GFS+Didot&display=swap');
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  :root {
-    --lavender: #c8a2c8; 
-    --fira: 'Fira Code', monospace;
-    --serif: 'GFS Didot', serif;
+  .serif-text {
+    font-family: 'GFS Didot', serif;
+    text-transform: none !important; 
+    font-size: 1.4rem !important;
+    letter-spacing: -0.5px !important;
+    margin-bottom: 2px;
   }
 
   .cards-viewport {
@@ -142,7 +138,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fdfdfd; 
+    background: transparent; 
     overflow: hidden;
   }
 
@@ -157,39 +153,41 @@
   .card {
     position: absolute;
     inset: 0;
-    background: #fff;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    background: #fdfdfd;
+    box-shadow: 10px 10px 40px rgba(0,0,0,0.12);
     border-radius: 2px;
-    overflow: hidden;
   }
 
-  /* Layers */
-  .card-photo-top { z-index: 60; padding: 20px; }
-  .card-photo-middle { z-index: 55; padding: 20px; }
+  .card-photo { padding: 20px; }
+  .card-photo-top { z-index: 60; }
+  .card-photo-middle { z-index: 55; }
   .card-info { z-index: 50; }
 
-  /* Photo Card Elements */
   .photo-frame { position: relative; width: 100%; height: 100%; }
   .photo-container { width: 100%; height: 100%; background: #000; overflow: hidden; }
-  .filler-bg { width: 100%; height: 100%; background: radial-gradient(circle, #1a1a1a, #000); }
-  .alt-bg { background: radial-gradient(circle, #222, #080808); }
+  .filler-bg { width: 100%; height: 100%; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); }
+  .alt-bg { background: radial-gradient(circle at center, #222 0%, #080808 100%); }
 
   .belly-band {
     position: absolute;
-    top: 50%;
-    left: -20px;
-    width: calc(100% + 40px); 
-    height: 110px;
-    background: var(--lavender); 
-    backdrop-filter: blur(12px);
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    padding: 0 30px;
-    color: #000;
-    z-index: 100;
-    border-top: 0.5px solid rgba(0,0,0,0.05);
-    border-bottom: 0.5px solid rgba(0,0,0,0.05);
+  top: 50%;
+  left: -20px;
+  width: calc(100% + 40px); 
+  height: 110px;
+ 
+  background: #c8a2c8; 
+  backdrop-filter: blur(12px);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  color: #000;
+  z-index: 100;
+  
+  border-top: 0.5px solid rgba(0,0,0,0.05);
+  border-bottom: 0.5px solid rgba(0,0,0,0.05);
+  
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   }
 
   .band-content {
@@ -197,106 +195,130 @@
     justify-content: space-between;
     align-items: flex-end;
     width: 100%;
-    font-family: var(--serif);
+    font-family: 'GFS Didot', serif;
     font-size: 8px;
   }
 
-
-  .editorial-classic {
+ 
+  .card-content {
+    padding: 35px;
     height: 100%;
-    padding: 40px 30px !important;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    background: #fff;
   }
 
-  .flyer-meta-top {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'GFS Didot', serif;
-    font-size: 7px;
-    letter-spacing: 1.5px;
-    color: #999;
-    border-bottom: 0.5px solid #eee;
-    padding-bottom: 10px;
-  }
 
-  .main-title {
-    font-family: var(--serif);
-    font-size: 3.5rem !important;
-    line-height: 0.85;
-    letter-spacing: -2px !important;
-    color: #000;
-    margin-top: 10px !important;
-  }
+:root {
+  --lavender: #c8a2c8; 
+  --fira: 'Fira Code', monospace;
+  --serif: 'GFS Didot', serif;
+}
 
-  .lavender-rule {
-    width: 40px;
-    height: 3px;
-    background: var(--lavender);
-    margin-top: 15px;
-  }
+/* Container */
+.editorial-classic {
+  height: 100%;
+  padding: 40px 30px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  box-sizing: border-box; 
+}
 
-  .manifesto-classic {
-    margin: 20px 0;
-    max-width: 90%;
-  }
 
-  .fira-copy {
-    font-family: var(--fira);
-    font-size: 9.5px;
-    line-height: 1.6;
-    color: #333;
-    text-transform: uppercase;
-  }
+.flyer-meta-top {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--serif);
+  font-size: 7px;
+  letter-spacing: 1.5px;
+  color: #999;
+  border-bottom: 0.5px solid #eee;
+  padding-bottom: 10px;
+}
 
-  .italic-serif {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 1.1rem;
-    color: #000;
-    text-transform: none;
-  }
+/* Hero Section */
+.title-wrap {
+  margin-top: 10px;
+}
 
-  .flyer-footer-classic {
-    border-top: 1px solid #000;
-    padding-top: 15px;
-  }
+.main-title {
+  font-family: var(--serif);
+  font-size: 3.8rem !important;
+  line-height: 0.85;
+  letter-spacing: -2px !important;
+  color: #000;
+  margin: 0 !important;
+}
 
-  .fira-small {
-    display: block;
-    font-family: var(--fira);
-    font-size: 6px;
-    letter-spacing: 1px;
-    color: #999;
-    margin-bottom: 4px;
-  }
+.lavender-rule {
+  width: 40px;
+  height: 3px;
+  background: var(--lavender);
+  margin-top: 15px;
+}
 
-  .fira-data {
-    font-family: var(--fira);
-    font-size: 9px;
-    font-weight: 600;
-  }
+/* Body Copy */
+.manifesto-classic {
+  margin: 20px 0;
+  max-width: 90%;
+}
 
-  .footer-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-top: 15px;
-  }
+.fira-copy {
+  font-family: var(--fira);
+  font-size: 10px;
+  line-height: 1.6;
+  color: #333;
+  text-transform: uppercase;
+}
 
-  .user-name-classic {
-    font-family: var(--serif);
-    font-size: 1.3rem;
-    color: #000;
-    border-bottom: 1px solid var(--lavender);
-    padding-bottom: 2px;
-  }
+.italic-serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #000;
+  text-transform: none;
+}
 
-  .coords {
-    font-family: var(--fira);
-    font-size: 7px;
-    color: #bbb;
-  }
+
+.flyer-footer-classic {
+  border-top: 1px solid #000;
+  padding-top: 20px;
+}
+
+.fira-small {
+  display: block;
+  font-family: var(--fira);
+  font-size: 6px;
+  letter-spacing: 1px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.fira-data {
+  font-family: var(--fira);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 20px;
+}
+
+.user-name-classic {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: #000;
+  border-bottom: 1px solid var(--lavender);
+  padding-bottom: 2px;
+}
+
+.coords {
+  font-family: var(--fira);
+  font-size: 7px;
+  color: #bbb;
+}
 </style>
