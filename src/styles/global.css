@@ -4,8 +4,9 @@
     --accent: #ff0033; 
     --border: 1px solid #333;
     --inter: 'Inter', sans-serif;
-    --bodoni: 'Bodoni Moda', serif;
+    --didot: 'GFS Didot', serif;
     --fira: 'Fira Code', monospace;
+    
 }
 
 * {
