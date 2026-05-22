@@ -1,0 +1,304 @@
+---
+---
+
+<div class="cards-viewport">
+  <div class="cards-container">
+    <div class="card card-1">
+      <div class="spine-texture"></div>
+      <div class="card-content">
+        <div class="barcode-top">
+          <div class="barcode-lines"></div>
+          <div class="barcode-id">LR_ID_7729-06</div>
+        </div>
+        <div class="vertical-status">Where are you?</div>
+        <div class="pink-tag">
+          <span class="tag-id">467-7513</span>
+          <span class="tag-sub">ACTIVE_SCRIPTS</span>
+        </div>
+        <div class="database-content">
+          <div class="barcode-divider"></div>
+          <div class="name-grid">
+            {Array.from({ length: 100 }).map(() => (
+              <span>This could be you, </span>
+            ))}
+            <span class="highlight">Your Name Here, </span>
+          </div>
+        </div>
+        <div class="stamp-stack">
+          <div class="stamp"><div class="stamp-inner"><div class="strawberry-pixel"></div><div class="stamp-price">3¢</div></div></div>
+          <div class="stamp"><div class="stamp-inner"><div class="strawberry-pixel"></div><div class="stamp-price">3¢</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-photo-reveal">
+      <div class="spine-texture"></div>
+      <div class="photo-container">
+        <div class="filler-bg"></div>
+        <div class="belly-band">
+          <div class="band-content">
+            <div class="band-left">
+              <p>filler filler</p>
+              <p>filler filler</p>
+              <p>filler filler</p>
+            </div>
+            <div class="band-right">
+              <p>filler filler</p>
+              <p>EDITION OF 25</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<svg style="position: absolute; width: 0; height: 0;">
+  <filter id="rough-edge">
+    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+</svg>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".cards-viewport",
+      start: "top top",
+      end: "+=3000",
+      scrub: 1,
+      pin: true,
+    }
+  });
+
+  gsap.set(".card", { transformOrigin: "left center" });
+
+  tl.to(".card-photo-reveal", {
+    xPercent: 105,
+    rotateY: -5,
+    duration: 1,
+    ease: "power2.inOut"
+  })
+  .to(".card-1", {
+    rotateY: -15,
+    x: -20,
+    duration: 1
+  }, 0);
+
+  gsap.to(".vertical-status", {
+    opacity: 0.4,
+    repeat: -1,
+    yoyo: true,
+    duration: 0.8,
+    ease: "power1.inOut"
+  });
+</script>
+
+<style>
+  .cards-viewport {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e5e5e5;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 0, 0, 0.03) 10px, rgba(0, 0, 0, 0.03) 11px);
+    overflow: hidden;
+  }
+
+  .cards-container {
+    position: relative;
+    width: 500px;
+    height: 700px;
+    perspective: 2000px;
+  }
+
+  .card {
+    position: absolute;
+    inset: 0;
+    background: #fdfdfd;
+    box-shadow: 15px 15px 40px rgba(0,0,0,0.1);
+    display: flex;
+  }
+
+  .spine-texture {
+    width: 12px;
+    height: 100%;
+    background: linear-gradient(to right, var(--accent, #ff0033) 0%, transparent 20%),
+                repeating-linear-gradient(to bottom, #ddd 0px, #ddd 1px, #fff 1px, #fff 2px);
+    filter: url(#rough-edge);
+    flex-shrink: 0;
+    z-index: 20;
+  }
+
+  .card-content {
+    flex-grow: 1;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .barcode-top {
+    margin-bottom: 20px;
+  }
+
+  .barcode-lines {
+    width: 140px;
+    height: 25px;
+    background: repeating-linear-gradient(90deg, #000 0px, #000 1px, transparent 1px, transparent 3px, #000 3px, #000 6px, transparent 6px, transparent 7px, #000 7px, #000 8px);
+    background-size: 25px 100%;
+  }
+
+  .barcode-id {
+    font-family: var(--fira, monospace);
+    font-size: 8px;
+    letter-spacing: 3px;
+    margin-top: 5px;
+  }
+
+  .vertical-status {
+    position: absolute;
+    top: 50%;
+    left: -15px;
+    transform: translateY(-50%) rotate(-90deg);
+    font-family: var(--fira, monospace);
+    font-weight: 900;
+    color: var(--accent, #ff0033);
+    font-size: 2.5rem;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  .pink-tag {
+    position: absolute;
+    top: 15%;
+    right: 10%;
+    width: 80px;
+    height: 60px;
+    background: #ff85a1;
+    padding: 10px;
+    transform: rotate(5deg);
+    font-family: var(--fira, monospace);
+    font-size: 8px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+  }
+
+  .tag-id { display: block; font-weight: 900; font-size: 12px; }
+
+  .database-content {
+    margin-left: 40px;
+    margin-top: 60px;
+  }
+
+  .barcode-divider {
+    width: 100%;
+    height: 12px;
+    background: repeating-linear-gradient(90deg, #000 0px, #000 1px, transparent 1px, transparent 2px, #000 2px, #000 3px, transparent 3px, transparent 8px);
+    margin-bottom: 15px;
+  }
+
+  .name-grid {
+    font-family: var(--fira, monospace);
+    font-size: 9px;
+    column-count: 2;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .highlight { background: yellow; font-weight: 900; }
+
+  .stamp-stack {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .stamp {
+    width: 40px;
+    height: 50px;
+    background: #fff;
+    padding: 3px;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+    mask-image: radial-gradient(circle at 4px 4px, transparent 3px, black 3px);
+    mask-size: 8px 8px;
+    mask-position: -4px -4px;
+  }
+
+  .stamp-inner {
+    border: 1px solid #eee;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .strawberry-pixel {
+    width: 12px;
+    height: 15px;
+    background: var(--accent, #ff0033);
+    border-radius: 50% 50% 40% 40%;
+  }
+
+  .stamp-price {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    font-family: serif;
+    font-weight: bold;
+  }
+
+  .photo-container {
+    flex-grow: 1;
+    padding: 20px;
+    position: relative;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .filler-bg {
+    flex-grow: 1;
+    background: #000;
+    width: 100%;
+  }
+
+  .belly-band {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 160px;
+    background: rgba(180, 180, 180, 0.95);
+    backdrop-filter: blur(5px);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    color: #333;
+    z-index: 30;
+  }
+
+  .band-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-family: serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  .card-photo-reveal {
+    z-index: 50;
+  }
+</style>
