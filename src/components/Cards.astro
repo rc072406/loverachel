@@ -1,54 +1,39 @@
-<div class="cards-viewport">
-  <div class="cards-container">
+<div class="card card-info">
+  <div class="card-content editorial-classic">
     
-    <div class="card card-info">
-      <div class="card-content editorial-layout">
-        <div class="editorial-header">
-          <div class="contact-block">
-            <span class="label">CONTACT_INQUIRIES</span>
-            <span class="email-value">HELLO@LOVERACHEL.XYZ</span>
-          </div>
-          <div class="barcode-group">
-            <div class="barcode-lines-v2"></div>
-            <div class="serial-num">LR-ISSUE-01-V2</div>
-          </div>
-        </div>
+    <div class="flyer-meta-top">
+      <span class="fira-label">love, RACHEL // ISSUE NO. 01</span>
+      <span class="fira-label">COLLECTOR’S EDITION</span>
+    </div>
 
-        <h2 class="main-title serif-text">Where are <br/>you?</h2>
+    <div class="title-wrap">
+      <h2 class="main-title serif-text">Where are<br/>you?</h2>
+      <div class="lavender-rule"></div>
+    </div>
 
-        <div class="manifesto-section">
-          <div class="redacted-line"></div>
-          <p class="brand-statement-v2">
-            <span class="highlight-red">love, Rachel is an indie fashion and art magazine that features women who are changing the game in STEM. 
-          </p>
-          <p class="sub-copy">
-            WE SCOUT FOR EDITORIALS AND STORIES THAT DEFINE THE INTERSECTION OF STYLE AND TECHNICAL DISCIPLINE.
-          </p>
-        </div>
+    <div class="manifesto-classic">
+      <p class="fira-copy">
+        <span class="italic-serif">love, Rachel</span> is an indie fashion and art magazine featuring women who define the intersection of style and technical discipline.
+      </p>
+    </div>
 
-        <div class="name-scan-container">
-          <div class="scan-line"></div>
-          <div class="name-grid-v2">
-            <div class="name-column">
-              <span>AWAITING DATA...</span>
-              <span>AWAITING DATA...</span>
-              <span class="your-name">YOUR NAME HERE</span>
-              <span>AWAITING DATA...</span>
-            </div>
-            <div class="name-column">
-              <span>AWAITING DATA...</span>
-              <span>AWAITING DATA...</span>
-              <span>AWAITING DATA...</span>
-              <span>AWAITING DATA...</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="footer-industrial">
-          <div class="stamp">COLLECTOR EDITION / 2026</div>
-          <div class="tech-specs">40.7128° N, 74.0060° W</div>
-        </div>
+    <div class="flyer-footer-classic">
+      <div class="contact-details">
+        <span class="fira-small">FOR INQUIRIES</span>
+        <span class="fira-data">HELLO@LOVERACHEL.XYZ</span>
       </div>
+      
+      <div class="footer-bottom">
+        <div class="name-entry">
+          <span class="fira-small">RECIPIENT_DATA:</span>
+          <span class="user-name-classic">YOUR NAME HERE</span>
+        </div>
+        <div class="coords">40.7128° N, 74.0060° W</div>
+      </div>
+    </div>
+
+  </div>
+</div>
     </div> <div class="card card-photo card-photo-middle">
       <div class="photo-frame">
         <div class="photo-container">
@@ -222,136 +207,115 @@
   }
 
 
-.editorial-layout {
-  padding: 25px !important;
+:root {
+  --lavender: #c8a2c8; 
+  --fira: 'Fira Code', monospace;
+  --serif: 'GFS Didot', serif;
+}
+
+.editorial-classic {
+  padding: 40px 30px !important;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   background: #fff;
-  border: 1px solid #eee;
+  border: 1px solid #f0f0f0;
 }
 
-.editorial-header {
+
+.flyer-meta-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
+  font-family: var(--fira);
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #999;
+  border-bottom: 0.5px solid #eee;
+  padding-bottom: 10px;
 }
 
-.contact-block {
-  background: #000;
-  color: #fff;
-  padding: 8px 12px;
-  font-family: monospace;
-  font-size: 9px;
-  display: flex;
-  flex-direction: column;
-}
 
-.email-value {
-  font-weight: bold;
-  letter-spacing: 1px;
+.title-wrap {
+  position: relative;
+  margin-top: 20px;
 }
 
 .main-title {
-  font-size: 3.5rem !important;
-  line-height: 0.9;
-  margin: 10px 0;
+  font-family: var(--serif);
+  font-size: 4rem !important;
+  line-height: 0.85;
+  letter-spacing: -2px !important;
   color: #000;
-  font-weight: 400;
 }
 
-.manifesto-section {
-  position: relative;
-  margin: 20px 0;
-}
-
-.redacted-line {
+.lavender-rule {
   width: 40px;
-  height: 8px;
-  background: #000;
-  margin-bottom: 10px;
-}
-
-.brand-statement-v2 {
-  font-family: monospace;
-  font-size: 11px;
-  line-height: 1.4;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.highlight-red {
-  background: #ff0033;
-  color: #fff;
-  padding: 0 4px;
-}
-
-.sub-copy {
-  font-family: monospace;
-  font-size: 8px;
-  color: #888;
-  letter-spacing: 1px;
+  height: 3px;
+  background: var(--lavender);
+  margin-top: 15px;
 }
 
 
-.name-scan-container {
-  position: relative;
-  background: #f9f9f9;
-  padding: 15px;
-  border: 1px solid #eee;
-  overflow: hidden;
+.manifesto-classic {
+  margin: 40px 0;
+  max-width: 85%;
 }
 
-.scan-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: rgba(255, 0, 51, 0.5);
-  box-shadow: 0 0 8px #ff0033;
-  animation: scan 3s linear infinite;
+.fira-copy {
+  font-family: var(--fira);
+  font-size: 10px;
+  line-height: 1.6;
+  color: #333;
 }
 
-.name-grid-v2 {
-  display: flex;
-  justify-content: space-between;
-  font-family: monospace;
-  font-size: 8px;
-  color: #ccc;
-}
-
-.name-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.your-name {
+.italic-serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.1rem;
   color: #000;
-  font-weight: bold;
-  text-decoration: underline;
 }
 
-.footer-industrial {
+/* Footer Section */
+.flyer-footer-classic {
+  border-top: 1px solid #000;
+  padding-top: 20px;
+}
+
+.contact-details {
+  margin-bottom: 30px;
+}
+
+.fira-small {
+  display: block;
+  font-family: var(--fira);
+  font-size: 6px;
+  letter-spacing: 1.5px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.fira-data {
+  font-family: var(--fira);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.footer-bottom {
   display: flex;
   justify-content: space-between;
-  font-family: monospace;
-  font-size: 8px;
-  border-top: 1px solid #000;
-  padding-top: 10px;
-  margin-top: 10px;
+  align-items: flex-end;
 }
 
-.barcode-lines-v2 {
-  width: 60px;
-  height: 30px;
-  background: repeating-linear-gradient(90deg, #000 0, #000 1px, transparent 1px, transparent 3px);
+.user-name-classic {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  border-bottom: 1px solid var(--lavender);
 }
 
-@keyframes scan {
-  0% { top: 0%; }
-  100% { top: 100%; }
+.coords {
+  font-family: var(--fira);
+  font-size: 7px;
+  color: #bbb;
 }
 </style>
