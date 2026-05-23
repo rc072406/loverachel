@@ -302,16 +302,7 @@ section {
 
 
 
-/* Main Title */
-.about-title {
-    font-family: var(--inter);
-    font-weight: 900;
-    font-size: clamp(2rem, 8vw, 6rem);
-    letter-spacing: -2px;
-    margin-bottom: 80px;
-    position: relative;
-    z-index: 10;
-}
+
 
 /* Asymmetrical Grid */
 .about-grid {
