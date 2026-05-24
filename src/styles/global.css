@@ -2,7 +2,6 @@
     --bg-color: #000000;
     --text-color: #ffffff;
     --accent: #ff0033; 
-    --border: 1px solid #333;
     --inter: 'Inter', sans-serif;
     --bodoni: 'Crimson Text', serif;
     --fira: 'Fira Code', monospace;
@@ -33,7 +32,6 @@ section {
     position: relative;
     width: 100%;
     padding: 100px 5%; 
-    border-bottom: var(--border);
     background-color: transparent !important;
      background: transparent !important;
 }
