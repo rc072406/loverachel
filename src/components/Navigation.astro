@@ -173,7 +173,6 @@ a {
     color: var(--accent);
     font-family: var(--fira);
     font-size: 12px;
-    text-transform: uppercase;
     margin-top: 10px;
     letter-spacing: 1px;
     animation: blink 1.5s infinite;
@@ -182,5 +181,41 @@ a {
     0% { opacity: 1; }
     50% { opacity: 0.3; }  
     100% { opacity: 1; }
+}
+
+.toc-item {
+    position: relative;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    transition: border-color 0.3s ease;
+}
+
+.toc-item:hover {
+    border-color: var(--accent);
+}
+
+.toc-link {
+    transition: transform 0.4s ease, font-style 0.4s ease;
+}
+
+.toc-item:hover .toc-link {
+    transform: translateX(15px);
+    font-style: italic;
+}
+
+
+.toc-nav {
+    counter-reset: nav-counter;
+}
+
+.toc-item::before {
+    counter-increment: nav-counter;
+    content: "0" counter(nav-counter);
+    font-family: var(--fira);
+    font-size: 0.8rem;
+    color: var(--accent);
+    position: absolute;
+    left: -40px;
+    top: 15px;
 }
 </style>
