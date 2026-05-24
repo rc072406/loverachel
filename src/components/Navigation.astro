@@ -137,6 +137,8 @@ const isContact = isActive('/contact');
     flex-direction: column;
     padding: 60px;
     overflow-y: auto;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
 }
 
 .side-navigation.active {
@@ -188,6 +190,8 @@ a {
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     transition: border-color 0.3s ease;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
 }
 
 .toc-item:hover {
