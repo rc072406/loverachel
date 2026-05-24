@@ -106,16 +106,7 @@ section {
 
 .ticker-content span { padding-right: 60px; }
 
-.side-date {
-    position: fixed;
-    bottom: 150px;
-    right: -40px;
-    transform: rotate(-90deg);
-    font-family: var(--fira);
-    font-size: 10px;
-    color: var(--accent);
-    z-index: 500;
-}
+
 
 
 
