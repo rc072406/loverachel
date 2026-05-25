@@ -168,19 +168,7 @@ const runAnimation = () => {
   transform-style: preserve-3d;
   }
 
-  /* DESKTOP STYLES (Larger Polaroid) */
-  @media (min-width: 769px) {
-    .model-card {
-      width: 400px; /* Increased for desktop */
-      height: 485px; /* Scaled proportionally */
-      padding: 18px 18px 90px 18px;
-    }
-    
-    .polaroid-caption {
-      font-size: 3rem !important; 
-      bottom: 35px !important;
-    }
-  }
+
 
   .model-card img {
     width: 100%;
@@ -233,6 +221,19 @@ const runAnimation = () => {
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
+  }
+  /* DESKTOP STYLES (Larger Polaroid) */
+  @media (min-width: 769px) {
+    .model-card {
+      width: 400px; /* Increased for desktop */
+      height: 485px; /* Scaled proportionally */
+      padding: 18px 18px 90px 18px;
+    }
+    
+    .polaroid-caption {
+      font-size: 3rem !important; 
+      bottom: 35px !important;
+    }
   }
 
 </style>
