@@ -19,12 +19,11 @@ const models = [
       <a href={model.link} class={`model-card card-${model.id}`}>
         <img src={model.image} alt={model.name} />
         <div class="polaroid-caption">
-            <span>{model.name}</span>
-           <svg class="hollow-heart" viewBox="0 0 24 24" fill="none">
-            <path d="M11.5 6C10 3 4 3.5 3 9c-0.5 4 4 8 8.5 11.5M12.5 6c1.5-3 7.5-2.5 8.5 3 0.5 4-4 8-8.5 11.5" />
-             <path class="ink-flick" d="M11 19.5c1 0.5 2.5 1.5 3 2" />
-           </svg>
-         </div>
+          <span>{model.name}</span>
+          <svg class="hollow-heart" viewBox="0 0 24 24">
+            <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
+          </svg>
+        </div>
       </a>
     ))}
   </div>
@@ -127,7 +126,18 @@ const runAnimation = () => {
   animation: blink 2s infinite ease-in-out;
 }
 
-
+@media (max-width: 768px) {
+  .database-intro {
+    left: 10px;
+    top: 20px;
+    transform: none;
+  }
+  
+  .database-title {
+    font-size: 3.5rem;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+  }
+}
 
   .model-pile-container {
     position: relative;
@@ -165,33 +175,18 @@ const runAnimation = () => {
       height: 485px; /* Scaled proportionally */
       padding: 18px 18px 90px 18px;
     }
- .database-intro {
-    left: 10px;
-    top: 20px;
-    transform: none;
-  }
-  
-  .database-title {
-    font-size: 3.5rem;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
-  }
     
-   
+    .polaroid-caption {
+      font-size: 2.4rem !important; 
+      bottom: 35px !important;
+    }
+  }
 
   .model-card img {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
   }
-.polaroid-caption {
-      font-size: 2.4rem !important;
-      bottom: 35px !important;
-    }
-    .hollow-heart {
-      width: 1.6em;
-      margin-left: -18px; 
-    }
-}
 
 .card-1 { transform: translate3d(-55%, -50%, 0) rotate(-5deg); z-index: 1; }
 .card-2 { transform: translate3d(-48%, -52%, 0) rotate(3deg); z-index: 2; }
@@ -199,38 +194,28 @@ const runAnimation = () => {
 .card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 4; }
 
   .polaroid-caption {
-   position: absolute;
+    position: absolute;
     bottom: 28px;
     left: 0;
     right: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: -2px;
     font-family: "Homemade Apple", cursive;
     font-size: 1.8rem;
     color: #1a1a1a;
     transform: rotate(-2.5deg);
-    white-space: nowrap;
   }
 
   .hollow-heart {
-   width: 1.4em; 
-    height: 1.4em;
-    stroke: #1a1a1a;
-    stroke-width: 1.8px; 
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    position: relative;
-     margin-left: -12px; 
-    margin-top: -8px; 
-    transform: rotate(8deg); 
-    opacity: 0.9;
-    filter: blur(0.2px);
+    width: 0.8em;
+    height: 0.8em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5px;
   }
-.ink-flick {
-    stroke-width: 1.2px;
-    opacity: 0.7;
-  }
+
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
