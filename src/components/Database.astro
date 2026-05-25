@@ -1,10 +1,10 @@
 ---
 // src/components/Database.astro
 const models = [
-  { id: 1, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" },
-  { id: 2, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" },
-  { id: 3, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" },
-  { id: 4, name: "Filler Name", image: "/api/placeholder/400/400", link: "#" }
+  { id: 1, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 2, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 3, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 4, name: "Name", image: "/api/placeholder/400/400", link: "#" }
 ];
 ---
 
@@ -19,11 +19,11 @@ const models = [
       <a href={model.link} class={`model-card card-${model.id}`}>
         <img src={model.image} alt={model.name} />
         <div class="polaroid-caption">
-          <span>{model.name}</span>
-          <svg class="hollow-heart" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-         <path class="scribble" d="M10 5.5c1.5-1 3.5-1 5 1" />
-          </svg>
+            <span>{model.name}</span>
+           <svg class="hollow-heart" viewBox="0 0 24 24" fill="none">
+            <path d="M11.5 6C10 3 4 3.5 3 9c-0.5 4 4 8 8.5 11.5M12.5 6c1.5-3 7.5-2.5 8.5 3 0.5 4-4 8-8.5 11.5" />
+             <path class="ink-flick" d="M11 19.5c1 0.5 2.5 1.5 3 2" />
+           </svg>
          </div>
       </a>
     ))}
@@ -183,14 +183,14 @@ const runAnimation = () => {
     aspect-ratio: 1/1;
     object-fit: cover;
   }
-polaroid-caption {
-    font-size: 2.4rem !important;
-    bottom: 35px !important;
-  }
-  .hollow-heart {
-    width: 1.4em;
-    margin-left: -15px;
-  }
+.polaroid-caption {
+      font-size: 2.4rem !important;
+      bottom: 35px !important;
+    }
+    .hollow-heart {
+      width: 1.6em;
+      margin-left: -18px; 
+    }
 }
 
 .card-1 { transform: translate3d(-55%, -50%, 0) rotate(-5deg); z-index: 1; }
@@ -199,37 +199,38 @@ polaroid-caption {
 .card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 4; }
 
   .polaroid-caption {
-    position: absolute;
+   position: absolute;
     bottom: 28px;
     left: 0;
     right: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-  font-family: "Homemade Apple", cursive;
-  font-size: 1.8rem;
-  color: #1a1a1a;
-  transform: rotate(-2.5deg);
+    font-family: "Homemade Apple", cursive;
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    transform: rotate(-2.5deg);
+    white-space: nowrap;
   }
 
   .hollow-heart {
-   width: 1.2em; 
-  height: 1.2em;
-  fill: none;
-  stroke: #1a1a1a;
-  stroke-width: 1.2px; 
-  stroke-linecap: round;
-  stroke-linejoin: round;
-   position: relative;
-  margin-left: -10px; 
-  margin-top: -5px;   
-  transform: rotate(12deg); 
-  opacity: 0.85;
+   width: 1.4em; 
+    height: 1.4em;
+    stroke: #1a1a1a;
+    stroke-width: 1.8px; 
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    position: relative;
+     margin-left: -12px; 
+    margin-top: -8px; 
+    transform: rotate(8deg); 
+    opacity: 0.9;
+    filter: blur(0.2px);
   }
-.scribble {
-  stroke-width: 0.8px;
-  opacity: 0.6;
-}
+.ink-flick {
+    stroke-width: 1.2px;
+    opacity: 0.7;
+  }
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
