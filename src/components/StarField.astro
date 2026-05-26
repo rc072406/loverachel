@@ -1,8 +1,8 @@
 <div id="star-container"></div>
 <div id="custom-cursor">
   <div class="cursor-glare"></div>
-  <div class="cursor-core"></div>
   <div class="cursor-tail"></div>
+  <div class="cursor-core"></div>
 </div>
 <div class="content-overlay">
   <slot /> 
@@ -32,7 +32,6 @@
   container.appendChild(renderer.domElement);
 
   const renderScene = new RenderPass(scene, camera);
- 
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85);
   const composer = new EffectComposer(renderer);
   composer.addPass(renderScene);
@@ -42,54 +41,44 @@
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
     const ctx = canvas.getContext('2d');
-    
-    
     const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
     gradient.addColorStop(0.1, 'rgba(255, 255, 255, 0.9)');
     gradient.addColorStop(0.2, 'rgba(180, 220, 255, 0.6)'); 
     gradient.addColorStop(0.4, 'rgba(100, 150, 255, 0.2)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 128, 128);
     return new THREE.CanvasTexture(canvas);
   };
 
   const starTex = createStarTexture();
-
- 
   const starCount = 20000; 
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(starCount * 3);
   const colors = new Float32Array(starCount * 3);
-  const sizes = new Float32Array(starCount); // Unique sizes for variety
-  const phases = new Float32Array(starCount); // Twinkle offsets
+  const phases = new Float32Array(starCount);
 
   const starPalette = [
-    new THREE.Color(0xffffff), // Pure White
-    new THREE.Color(0xd4eaff), // Sirius Blue
-    new THREE.Color(0xffead4), // Pale Gold
-    new THREE.Color(0xf0d9ff), // Ethereal Violet
+    new THREE.Color(0xffffff),
+    new THREE.Color(0xd4eaff),
+    new THREE.Color(0xffead4),
+    new THREE.Color(0xf0d9ff),
   ];
 
   for(let i = 0; i < starCount; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 150;
     positions[i * 3 + 1] = (Math.random() - 0.5) * 150;
     positions[i * 3 + 2] = Math.random() * -800; 
-    
     const col = starPalette[Math.floor(Math.random() * starPalette.length)];
     colors[i * 3] = col.r;
     colors[i * 3 + 1] = col.g;
     colors[i * 3 + 2] = col.b;
-
-    sizes[i] = Math.random() * 0.6 + 0.1;
     phases[i] = Math.random() * Math.PI * 2;
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
   const material = new THREE.PointsMaterial({
     size: 0.5,
@@ -104,7 +93,6 @@
   const stars = new THREE.Points(geometry, material);
   scene.add(stars);
 
-  // --- Animation State ---
   let currentVelocity = 0.4;
   let targetVelocity = 0.4;
   const depthLimit = 15;
@@ -115,13 +103,14 @@
     start: "top top",
     end: "bottom bottom",
     onUpdate: (self) => {
-     
       const scrollVel = self.getVelocity() / 300;
       targetVelocity = 0.4 + scrollVel;
     }
   });
 
   const cursor = document.getElementById('custom-cursor');
+  const tail = cursor.querySelector('.cursor-tail');
+  const flare = cursor.querySelector('.cursor-glare');
   let mX = window.innerWidth / 2, mY = window.innerHeight / 2;
   let pX = mX, pY = mY;
 
@@ -131,52 +120,49 @@
     requestAnimationFrame(animate);
     const time = Date.now() * 0.001;
 
-   
     currentVelocity += (targetVelocity - currentVelocity) * 0.05;
-    
     const posArray = stars.geometry.attributes.position.array;
-    const colArray = stars.geometry.attributes.color.array;
 
     for (let i = 0; i < starCount; i++) {
       let z = posArray[i * 3 + 2];
       z += currentVelocity; 
-
-      
-      if (currentVelocity > 0 && z > depthLimit) {
-        z = depthStart;
-      } 
-      // If moving backward (scroll up) and pass horizon -> reset to front
-      else if (currentVelocity < 0 && z < depthStart) {
-        z = depthLimit;
-      }
-
+      if (currentVelocity > 0 && z > depthLimit) z = depthStart;
+      else if (currentVelocity < 0 && z < depthStart) z = depthLimit;
       posArray[i * 3 + 2] = z;
-
-      
-      const twinkle = 0.7 + Math.sin(time * 2 + phases[i]) * 0.3;
-     
     }
     
     stars.geometry.attributes.position.needsUpdate = true;
     stars.material.opacity = 0.8 + Math.sin(time) * 0.1;
 
-    
     camera.position.x += (mX / window.innerWidth - 0.5) * 0.8 - camera.position.x * 0.04;
     camera.position.y += -(mY / window.innerHeight - 0.5) * 0.8 - camera.position.y * 0.04;
     camera.lookAt(0, 0, -20);
 
-    
     const dx = mX - pX, dy = mY - pY;
-    pX += dx * 0.12; pY += dy * 0.12;
+    pX += dx * 0.15; pY += dy * 0.15;
+
     if (cursor) {
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
       const vel = Math.sqrt(dx*dx + dy*dy);
-      cursor.style.transform = `translate3d(${pX - 100}px, ${pY - 10}px, 0) rotate(${angle}deg) scaleX(${1 + vel/100})`;
+      
+      
+      const stretch = Math.min(Math.max(vel / 10, 1), 8);
+      cursor.style.transform = `translate3d(${pX}px, ${pY}px, 0) rotate(${angle}deg)`;
+      
+    
+      if (tail) {
+        tail.style.transform = `scaleX(${stretch})`;
+        tail.style.opacity = Math.min(vel / 20, 1);
+      }
+      
+    
+      if (flare) {
+        flare.style.transform = `translate(-50%, -50%) scale(${1 + vel / 50})`;
+        flare.style.opacity = 0.4 + Math.min(vel / 100, 0.6);
+      }
     }
 
-    
     targetVelocity += (0.4 - targetVelocity) * 0.02;
-
     composer.render();
   }
 
@@ -191,31 +177,49 @@
 </script>
 
 <style is:global>
-  
   #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: #000; }
+  
   #custom-cursor {
-    position: fixed; top: 0; left: 0; width: 100px; height: 20px;
+    position: fixed; top: 0; left: 0;
+    width: 0; height: 0; 
     pointer-events: none !important; z-index: 100000;
-    display: flex; align-items: center; justify-content: flex-end;
-    will-change: transform; transform-origin: right center;
-    mix-blend-mode: screen; transition: opacity 0.3s ease;
+    will-change: transform;
+    mix-blend-mode: screen;
   }
+
   .cursor-core {
-    width: 3px; height: 3px; background: #fff; border-radius: 50%;
-    box-shadow: 0 0 10px #fff, 0 0 20px #008cff;
-    animation: pulse-glow 1s infinite alternate;
+    position: absolute;
+    width: 6px; height: 6px;
+    background: #fff; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px #fff, 0 0 30px #44aaff;
+    z-index: 3;
   }
+
   .cursor-tail {
-    position: absolute; right: 0; width: 90px; height: 3px;
-    background: linear-gradient(to left, #fff 0%, rgba(100, 200, 255, 0.5) 40%, transparent 100%);
+    position: absolute;
+    right: 0; 
+    top: -1.5px;
+    width: 120px; height: 3px;
+    background: linear-gradient(to left, #fff 0%, rgba(100, 200, 255, 0.6) 30%, transparent 100%);
     clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+    transform-origin: right center;
+    opacity: 0; 
+    z-index: 2;
+    will-change: transform, opacity;
   }
+
   .cursor-glare {
-    position: absolute; right: -25px; width: 70px; height: 70px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(0, 150, 255, 0.2) 40%, transparent 70%);
-    filter: blur(5px); mix-blend-mode: screen;
+    position: absolute;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(0, 140, 255, 0.1) 45%, transparent 70%);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    filter: blur(8px);
+    z-index: 1;
+    opacity: 0.4;
   }
+
   @media (pointer: fine) { body, a, button { cursor: none !important; } }
   @media (pointer: coarse) { #custom-cursor { display: none; } }
-  @keyframes pulse-glow { from { transform: scale(1); } to { transform: scale(1.5); } }
 </style>
