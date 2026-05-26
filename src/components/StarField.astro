@@ -19,10 +19,11 @@
 
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x020408, 0.002);
+  scene.background = new THREE.Color(0x000103);
+  scene.fog = new THREE.FogExp2(0x000103, 0.002);
   
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-  camera.position.z = 10;
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
+  camera.position.z = 100;
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,160 +33,140 @@
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.5, 0.4, 0.85);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.5, 0.9);
   composer.addPass(bloomPass);
 
-  const createTexture = (size, color = 'rgba(255, 255, 255, 1)', isNebula = false) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = size; canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    const center = size / 2;
-    const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
-    
-    if (isNebula) {
-      gradient.addColorStop(0, color.replace('1)', '0.15)'));
-      gradient.addColorStop(0.5, color.replace('1)', '0.04)'));
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    } else {
-      gradient.addColorStop(0, '#ffffff');
-      gradient.addColorStop(0.2, color);
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    }
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
-    return new THREE.CanvasTexture(canvas);
-  };
+  const starTex = new THREE.TextureLoader().load('https://assets.codepen.io/127738/dot-texture.png');
 
-  const biomes = [
-    { name: 'Azure Reach', color: 'rgba(100, 200, 255, 1)', zStart: 0, zEnd: -500, count: 8000 },
-    { name: 'Golden Maw', color: 'rgba(255, 200, 100, 1)', zStart: -500, zEnd: -1000, count: 12000 },
-    { name: 'Violet Void', color: 'rgba(200, 100, 255, 1)', zStart: -1000, zEnd: -1500, count: 10000 },
-    { name: 'Nova Heart', color: 'rgba(255, 80, 80, 1)', zStart: -1500, zEnd: -2000, count: 15000 }
+  const stages = [
+    { z: 0, color: 0x4488ff, name: "The Blue Lagoon" },
+    { z: -1200, color: 0xffaa44, name: "Golden Corridor" },
+    { z: -2400, color: 0xff44aa, name: "Nebula Core" },
+    { z: -3600, color: 0x44ffaa, name: "Emerald Deep" }
   ];
 
-  const allPoints = [];
+  const stageGroups = [];
 
-  biomes.forEach(biome => {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(biome.count * 3);
-    const base = new Float32Array(biome.count * 3);
-    const colors = new Float32Array(biome.count * 3);
-    const biomeCol = new THREE.Color(biome.color);
+  stages.forEach((stage, idx) => {
+    const group = new THREE.Group();
+    const count = 12000;
+    const geometry = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const cols = new Float32Array(count * 3);
+    const color = new THREE.Color(stage.color);
 
-    for(let i = 0; i < biome.count; i++) {
-      const cluster = Math.pow(Math.random(), 2.5);
-      const x = (Math.random() - 0.5) * 400 * cluster;
-      const y = (Math.random() - 0.5) * 400 * cluster;
-      const z = biome.zStart + (Math.random() * (biome.zEnd - biome.zStart));
-      
-      pos[i*3] = base[i*3] = x + (Math.random()-0.5)*100;
-      pos[i*3+1] = base[i*3+1] = y + (Math.random()-0.5)*100;
-      pos[i*3+2] = base[i*3+2] = z;
+    for (let i = 0; i < count; i++) {
+      // Create a "Tunnel" shape using polar coordinates
+      const radius = 10 + Math.random() * 150;
+      const angle = Math.random() * Math.PI * 2;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const z = stage.z + (Math.random() - 0.5) * 1200;
 
-      colors[i*3] = biomeCol.r + (Math.random()-0.5)*0.2;
-      colors[i*3+1] = biomeCol.g + (Math.random()-0.5)*0.2;
-      colors[i*3+2] = biomeCol.b + (Math.random()-0.5)*0.2;
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = y;
+      pos[i * 3 + 2] = z;
+
+      cols[i * 3] = color.r + (Math.random() - 0.5) * 0.3;
+      cols[i * 3 + 1] = color.g + (Math.random() - 0.5) * 0.3;
+      cols[i * 3 + 2] = color.b + (Math.random() - 0.5) * 0.3;
     }
 
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(cols, 3));
 
-    const starPoints = new THREE.Points(geo, new THREE.PointsMaterial({
-      size: 0.9, map: createTexture(64, biome.color), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true, sizeAttenuation: true
-    }));
-    
-    scene.add(starPoints);
-    allPoints.push({ mesh: starPoints, base, biome });
-
-    // Add large nebula glow for this biome
-    const nebulaGeo = new THREE.PlaneGeometry(600, 600);
-    const nebulaMat = new THREE.MeshBasicMaterial({
-      map: createTexture(512, biome.color, true),
+    const points = new THREE.Points(geometry, new THREE.PointsMaterial({
+      size: 1.2,
+      map: starTex,
       transparent: true,
       blending: THREE.AdditiveBlending,
+      vertexColors: true,
       depthWrite: false,
-      opacity: 0.3
-    });
-    const nebula = new THREE.Mesh(nebulaGeo, nebulaMat);
-    nebula.position.set(0, 0, (biome.zStart + biome.zEnd) / 2);
-    scene.add(nebula);
+      sizeAttenuation: true
+    }));
+
+    group.add(points);
+    scene.add(group);
+    stageGroups.push({ group, baseZ: stage.z });
   });
 
-  let targetVel = 0.5, curVel = 0.5;
+  let scrollVelocity = 0;
+  let targetScroll = 0;
+
   ScrollTrigger.create({
     trigger: "body",
-    onUpdate: (self) => { targetVel = 0.5 + (Math.abs(self.getVelocity()) / 150); }
+    start: "top top",
+    end: "bottom bottom",
+    onUpdate: (self) => {
+      scrollVelocity = self.getVelocity() / 100;
+      targetScroll = self.progress * -3600; // Total depth of stages
+    }
   });
 
-  const mouse3D = new THREE.Vector3();
+  let currentCameraZ = 100;
   let mX = 0, mY = 0, pX = 0, pY = 0;
 
-  window.addEventListener('mousemove', (e) => { 
-    mX = e.clientX; mY = e.clientY; 
-    mouse3D.set((mX/window.innerWidth)*2-1, -(mY/window.innerHeight)*2+1, 0.5).unproject(camera);
+  window.addEventListener('mousemove', (e) => {
+    mX = (e.clientX / window.innerWidth - 0.5) * 20;
+    mY = (e.clientY / window.innerHeight - 0.5) * 20;
   });
 
   function animate() {
     requestAnimationFrame(animate);
-    const time = Date.now() * 0.001;
-    curVel += (targetVel - curVel) * 0.05;
-    
-    allPoints.forEach(group => {
-      const posArr = group.mesh.geometry.attributes.position.array;
-      for (let i = 0; i < group.biome.count; i++) {
-        let z = posArr[i*3+2];
-        z += curVel;
 
-        const dx = posArr[i*3] - mouse3D.x;
-        const dy = posArr[i*3+1] - mouse3D.y;
-        const dSq = dx*dx + dy*dy;
-        const force = 20.0 * Math.exp(-Math.abs(z - camera.position.z)*0.1);
+    // Smooth scroll following
+    currentCameraZ += (targetScroll - currentCameraZ) * 0.05;
+    camera.position.z = currentCameraZ + 100;
 
-        if (dSq < force) {
-          const pct = (force - dSq) / force;
-          posArr[i*3] += dx * pct * 0.04;
-          posArr[i*3+1] += dy * pct * 0.04;
-        }
+    // Camera FOV Warp based on speed
+    const speed = Math.abs(scrollVelocity);
+    camera.fov += (60 + (speed * 2) - camera.fov) * 0.1;
+    camera.updateProjectionMatrix();
 
-        posArr[i*3] += (group.base[i*3] - posArr[i*3]) * 0.02;
-        posArr[i*3+1] += (group.base[i*3+1] - posArr[i*3+1]) * 0.02;
-
-        if (z > 50) z = -2000;
-        posArr[i*3+2] = z;
-      }
-      group.mesh.geometry.attributes.position.needsUpdate = true;
-    });
-
-    camera.position.x += (mX/window.innerWidth-0.5)*5 - camera.position.x*0.05;
-    camera.position.y += -(mY/window.innerHeight-0.5)*5 - camera.position.y*0.05;
+    // Mouse movement influence
+    camera.position.x += (-mX - camera.position.x) * 0.05;
+    camera.position.y += (mY - camera.position.y) * 0.05;
     camera.lookAt(0, 0, camera.position.z - 200);
 
-    pX += (mX - pX) * 0.15; pY += (mY - pY) * 0.15;
-    const cursor = document.getElementById('custom-cursor');
-    if (cursor) cursor.style.transform = `translate3d(${pX}px, ${pY}px, 0)`;
-
-    targetVel += (0.5 - targetVel) * 0.02;
+    // Render
     composer.render();
+
+    // Cursor smoothing
+    pX += (mX * 50 - pX) * 0.1; // mapping back to screen space roughly
+    pY += (mY * 50 - pY) * 0.1;
+    const cursor = document.getElementById('custom-cursor');
+    if (cursor) {
+      cursor.style.transform = `translate3d(${window.innerWidth/2 + pX}px, ${window.innerHeight/2 + pY}px, 0)`;
+    }
+    
+    scrollVelocity *= 0.9; // Friction
   }
 
   animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+  });
 </script>
 
 <style is:global>
-  #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: #000105; }
+  #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: #000; }
   #custom-cursor {
-    position: fixed; top: 0; left: 0; width: 20px; height: 20px; margin-left: -10px; margin-top: -10px;
+    position: fixed; top: 0; left: 0; width: 24px; height: 24px; margin-left: -12px; margin-top: -12px;
     pointer-events: none !important; z-index: 100000; mix-blend-mode: screen; will-change: transform;
-    display: flex; align-items: center; justify-content: center;
   }
   .cursor-star {
     width: 4px; height: 4px; background: #fff; border-radius: 50%;
-    box-shadow: 0 0 10px #fff, 0 0 20px rgba(255,255,255,0.5);
+    box-shadow: 0 0 10px #fff, 0 0 20px #4488ff;
   }
   .cursor-glow {
-    position: absolute; width: 100px; height: 100px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-    border-radius: 50%; filter: blur(10px);
+    position: absolute; top: 50%; left: 50%; width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(68, 136, 255, 0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%); filter: blur(15px);
   }
+  body { height: 500vh; margin: 0; overflow-x: hidden; background: #000; }
   @media (pointer: fine) { body, a, button { cursor: none !important; } }
 </style>
