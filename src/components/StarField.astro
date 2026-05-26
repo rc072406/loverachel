@@ -122,12 +122,14 @@
     requestAnimationFrame(animate);
     const posAttrib = stars.geometry.attributes.position;
     
+    // Convert 2D Mouse to 3D for starfield interaction
     mouse3D.set((mX / window.innerWidth) * 2 - 1, -(mY / window.innerHeight) * 2 + 1, 0.5);
     mouse3D.unproject(camera);
     let dir = mouse3D.sub(camera.position).normalize();
     let distance = -camera.position.z / dir.z;
     let cursor3D = camera.position.clone().add(dir.multiplyScalar(distance));
 
+    // Calculate speed based on scroll velocity
     const diveSpeed = 0.5 + (scrollVel * 0.2);
 
     for (let i = 0; i < starCount; i++) {
@@ -136,12 +138,15 @@
       let z = posAttrib.getZ(i);
 
       z += diveSpeed; 
+      
+      // Reset logic for infinite dive
       if (z > 100) {
         z = -900;
         x = (Math.random() - 0.5) * 400;
         y = (Math.random() - 0.5) * 400;
       }
 
+      // Star repulsion from cursor core
       const dx = x - cursor3D.x;
       const dy = y - cursor3D.y;
       const distSq = dx * dx + dy * dy;
@@ -155,13 +160,16 @@
     }
     posAttrib.needsUpdate = true;
 
+    // Nebula movement
     nebula.position.z += (diveSpeed * 0.1);
     if(nebula.position.z > 200) nebula.position.z = -400;
 
+    // Warp Field of View effect
     const targetFOV = 60 + Math.min(scrollVel * 0.8, 50);
     camera.fov += (targetFOV - camera.fov) * 0.1;
     camera.updateProjectionMatrix();
 
+    // Custom Cursor Logic
     const dx = mX - pX;
     const dy = mY - pY;
     pX += dx * 0.15;
