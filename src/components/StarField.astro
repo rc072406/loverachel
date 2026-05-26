@@ -173,12 +173,6 @@
     stars.rotation.x += 0.0001;
     nebula.rotation.y += 0.0001;
 
-    
-    const targetFOV = 60 + (scrollVel * 0.1);
-    camera.fov += (targetFOV - camera.fov) * 0.1;
-    camera.updateProjectionMatrix();
-    scrollVel *= 0.9;
-
 
     const posAttr = stars.geometry.attributes.position;
     const vector = new THREE.Vector3(mouseV.x, mouseV.y, 0).unproject(camera);
