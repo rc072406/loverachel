@@ -33,7 +33,7 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   container.appendChild(renderer.domElement);
 
-  // --- STAR TEXTURE CREATION ---
+  // --- STAR TEXTURE ---
   const createGlowTexture = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 64; canvas.height = 64;
@@ -48,42 +48,42 @@
     return new THREE.CanvasTexture(canvas);
   };
 
-  // --- STAR GENERATION ---
-  const particlesGeometry = new THREE.BufferGeometry();
-  const count = 5000;
-  const positions = new Float32Array(count * 3);
-
-  for(let i = 0; i < count * 3; i+=3) { 
-    // Spreading stars in a large "frustum" in front of camera
-    positions[i] = (Math.random() - 0.5) * 100;     // X
-    positions[i+1] = (Math.random() - 0.5) * 100;   // Y
-    positions[i+2] = (Math.random() * 60) - 40;     // Z
-  }
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-  const stars = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({
-    size: 0.25, 
-    map: createGlowTexture(),
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    opacity: 1
-  }));
-  scene.add(stars);
-
-  // --- SCROLL ANIMATION ---
-  gsap.to(stars.rotation, {
-    x: 0.4,
-    y: 0.6,
-    scrollTrigger: {
-      trigger: "body",
-      start: "top top",
-      end: "bottom bottom",
-      scrub: 1.5,
+  // --- LAYER GENERATOR ---
+  const createStarLayer = (count, size, opacity, spread, zRange) => {
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    for(let i = 0; i < count * 3; i+=3) { 
+      positions[i] = (Math.random() - 0.5) * spread;
+      positions[i+1] = (Math.random() - 0.5) * spread;
+      positions[i+2] = (Math.random() * zRange) - (zRange/2);
     }
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return new THREE.Points(geometry, new THREE.PointsMaterial({
+      size,
+      map: createGlowTexture(),
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      opacity
+    }));
+  };
+
+  const bgStars = createStarLayer(4000, 0.12, 0.4, 120, 60); // Distant, small
+  const fgStars = createStarLayer(600, 0.35, 0.7, 80, 40);   // Closer, brighter
+  scene.add(bgStars, fgStars);
+
+  // --- PARALLAX SCROLLING ---
+  gsap.to(bgStars.rotation, {
+    x: 0.2, y: 0.3,
+    scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 2 }
   });
 
-  // --- SHOOTING STAR PHYSICS ---
+  gsap.to(fgStars.rotation, {
+    x: 0.5, y: 0.8,
+    scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 1 }
+  });
+
+  // --- MOUSE & PHYSICS ---
   const cursor = document.getElementById('custom-cursor');
   let mouseX = window.innerWidth / 2;
   let mouseY = window.innerHeight / 2;
@@ -95,48 +95,57 @@
     mouseY = e.clientY;
   });
 
+ 
+  window.addEventListener('mousedown', () => {
+    gsap.to(cursor, { scale: 0.7, duration: 0.15 });
+    gsap.to(fgStars.material, { opacity: 1, duration: 0.2 });
+  });
+  window.addEventListener('mouseup', () => {
+    gsap.to(cursor, { scale: 1, duration: 0.4, ease: "back.out(2)" });
+    gsap.to(fgStars.material, { opacity: 0.7, duration: 0.8 });
+  });
+
   function animate() {
     requestAnimationFrame(animate);
+    const time = Date.now() * 0.001;
     
-    // Constant slow drift
-    stars.rotation.y += 0.0005;
+   
+    bgStars.rotation.y += 0.0002;
+   
+    fgStars.material.opacity = 0.5 + Math.sin(time * 1.5) * 0.2;
 
-    // Smooth physics for the cursor
+    
     const dt = 0.15; 
     const dx = mouseX - posX;
     const dy = mouseY - posY;
-    
     posX += dx * dt;
     posY += dy * dt;
 
-if (cursor) {
-  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-  const velocity = Math.sqrt(dx*dx + dy*dy);
-  const scale = 1 + (velocity / 120);
-
-  cursor.style.transform = `translate3d(${posX - 100}px, ${posY - 10}px, 0) rotate(${angle}deg) scaleX(${scale})`;
- const glare = cursor.querySelector('.cursor-glare');
-  if (glare) {
-    
-    const glareIntensity = Math.min(1, 0.4 + (velocity / 200));
-    glare.style.opacity = glareIntensity.toString();
-    glare.style.transform = `scale(${1 + velocity / 150})`;
-  }
-
+    if (cursor) {
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      const velocity = Math.sqrt(dx*dx + dy*dy);
       
-     
-      if (mouseY > window.innerHeight - 80) {
-        cursor.style.opacity = "0.2";
-      } else {
-        cursor.style.opacity = "1";
+  
+      const stretch = 1 + (velocity / 120);
+      const squeeze = 1 - Math.min(0.4, velocity / 180);
+
+      cursor.style.transform = `translate3d(${posX - 100}px, ${posY - 10}px, 0) rotate(${angle}deg) scale(${stretch}, ${squeeze})`;
+      
+      const glare = cursor.querySelector('.cursor-glare');
+      if (glare) {
+        const glareIntensity = Math.min(1, 0.4 + (velocity / 200));
+        glare.style.opacity = glareIntensity.toString();
+        glare.style.transform = `scale(${1 + velocity / 150}) translateX(${-velocity/4}px)`;
       }
+
+    
+      cursor.style.opacity = (mouseY > window.innerHeight - 80) ? "0.2" : "1";
     }
 
     renderer.render(scene, camera);
   }
   animate();
 
-  // --- RESPONSIVE RESIZE ---
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -145,121 +154,100 @@ if (cursor) {
 </script>
 
 <style is:global>
-  /* 1. The Star Canvas Container */
   #star-container {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
     z-index: -1; 
     pointer-events: none;
-    background: #000;
+    background: radial-gradient(circle at center, #050a15 0%, #000 100%);
   }
 
- 
 
-/* 4. The Shooting Star Cursor */
-#custom-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100px; 
-  height: 20px;
-  pointer-events: none !important; 
-  z-index: 100000;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end; 
-  will-change: transform;
-  transform-origin: right center; 
-  mix-blend-mode: screen; 
-  transition: opacity 0.3s ease;
-}
+  #star-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+  }
 
-.cursor-core {
-  
-  width: 2px; 
-  height: 2px;
-  background: #fff;
-  border-radius: 50%;
-  
-  box-shadow: 
-    0 0 5px #fff, 
-    0 0 10px #fff, 
-    0 0 20px rgba(255, 255, 255, 0.8),
-    0 0 30px rgba(0, 140, 255, 0.3); 
-  z-index: 2;
-animation: pulse-glow 1.5s infinite alternate;
-}
+  #custom-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100px; 
+    height: 20px;
+    pointer-events: none !important; 
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; 
+    will-change: transform;
+    transform-origin: right center; 
+    mix-blend-mode: plus-lighter; 
+    transition: opacity 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.4));
+  }
 
-.cursor-tail {
-  position: absolute;
-  right: 0;
+  .cursor-core {
+    width: 2px; 
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+    z-index: 2;
+    animation: pulse-glow 1.5s infinite alternate;
+  }
 
-  width: 80px; 
-  height: 4px; 
-  
-  background: linear-gradient(to left, 
-    rgba(255, 255, 255, 1) 0%, 
-    rgba(255, 255, 255, 0.4) 30%, 
-    transparent 100%
-  );
- 
-  clip-path: polygon(0% 50%, 100% 20%, 100% 80%);
-  filter: blur(0.5px);
-  opacity: 0.8;
-}
+  .cursor-tail {
+    position: absolute;
+    right: 0;
+    width: 90px; 
+    height: 2px; 
+    background: linear-gradient(to left, 
+      rgba(255, 255, 255, 1) 0%, 
+      rgba(100, 200, 255, 0.5) 40%, 
+      transparent 100%
+    );
+    clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+    filter: blur(0.5px);
+    opacity: 0.7;
+  }
 
-  /* Hide default cursor only on desktops */
+  .cursor-glare {
+    position: absolute;
+    right: -25px; 
+    width: 60px; height: 60px;
+    background: radial-gradient(circle, 
+      rgba(255, 255, 255, 0.8) 0%, 
+      rgba(0, 150, 255, 0.2) 40%, 
+      transparent 70%
+    );
+    border-radius: 50%;
+    filter: blur(6px); 
+    z-index: 1;
+  }
+
   @media (pointer: fine) { 
     body, a, button, .hero-section { cursor: none !important; } 
   }
   
-  /* Disable custom cursor on mobile to save battery/prevent lag */
   @media (pointer: coarse) { 
     #custom-cursor { display: none; } 
   }
 
-a, button, [role="button"], .menu-item {
-  position: relative;
-  z-index: 100001; 
-  pointer-events: auto !important;
-}
+  .content-overlay {
+    pointer-events: none;
+    position: relative;
+    z-index: 10;
+  }
 
+  .content-overlay > * {
+    pointer-events: auto;
+  }
 
-.content-overlay {
-  pointer-events: none;
-}
-
-.content-overlay > * {
-  pointer-events: auto;
-}
-
-
-.cursor-glare {
-  position: absolute;
-  right: -20px; 
-  width: 60px;
-  height: 60px;
-
-  background: radial-gradient(
-    circle, 
-    rgba(255, 255, 255, 0.9) 0%, 
-    rgba(100, 200, 255, 0.4) 20%, 
-    rgba(0, 100, 255, 0.1) 50%, 
-    transparent 80%
-  );
-  border-radius: 50%;
-  filter: blur(4px); 
-  mix-blend-mode: screen; 
-  z-index: 1;
-  pointer-events: none;
-}
-
-
-
-
-@keyframes pulse-glow {
-  from { transform: scale(1); opacity: 0.8; }
-  to { transform: scale(1.3); opacity: 1; }
-}
+  @keyframes pulse-glow {
+    from { transform: scale(1); opacity: 0.7; }
+    to { transform: scale(1.4); opacity: 1; }
+  }
 </style>
