@@ -19,7 +19,7 @@
 
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x000000, 0.005);
+  scene.fog = new THREE.FogExp2(0x000000, 0.004);
   const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 5;
 
@@ -31,7 +31,8 @@
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85));
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.2, 0.5, 0.8);
+  composer.addPass(bloomPass);
 
   const createStarTexture = () => {
     const canvas = document.createElement('canvas');
@@ -39,121 +40,134 @@
     const ctx = canvas.getContext('2d');
     const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.2, 'rgba(180, 220, 255, 0.6)'); 
+    gradient.addColorStop(0.15, 'rgba(210, 230, 255, 0.9)'); 
+    gradient.addColorStop(0.4, 'rgba(100, 150, 255, 0.2)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 128, 128);
     return new THREE.CanvasTexture(canvas);
   };
 
-  const starCount = 20000;
+  const starCount = 18000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(starCount * 3);
   const basePositions = new Float32Array(starCount * 3);
   const colors = new Float32Array(starCount * 3);
-  const starPalette = [new THREE.Color(0xffffff), new THREE.Color(0xd4eaff), new THREE.Color(0xffead4), new THREE.Color(0xf0d9ff)];
+  const phases = new Float32Array(starCount);
+  
+  const starPalette = [
+    new THREE.Color(0xffffff), 
+    new THREE.Color(0xcee7ff), 
+    new THREE.Color(0xfff4e0), 
+    new THREE.Color(0xe8d5ff)
+  ];
 
   for(let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 150;
-    const y = (Math.random() - 0.5) * 150;
+    const x = (Math.random() - 0.5) * 160;
+    const y = (Math.random() - 0.5) * 160;
     const z = Math.random() * -800;
     
-    positions[i * 3] = x;
-    positions[i * 3 + 1] = y;
-    positions[i * 3 + 2] = z;
-
-    basePositions[i * 3] = x;
-    basePositions[i * 3 + 1] = y;
-    basePositions[i * 3 + 2] = z;
+    positions[i*3] = basePositions[i*3] = x;
+    positions[i*3+1] = basePositions[i*3+1] = y;
+    positions[i*3+2] = basePositions[i*3+2] = z;
 
     const col = starPalette[Math.floor(Math.random() * starPalette.length)];
-    colors[i * 3] = col.r; colors[i * 3 + 1] = col.g; colors[i * 3 + 2] = col.b;
+    colors[i*3] = col.r; colors[i*3+1] = col.g; colors[i*3+2] = col.b;
+    phases[i] = Math.random() * Math.PI * 2;
   }
+
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ size: 0.5, map: createStarTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true, opacity: 0.8 }));
+  const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ 
+    size: 0.6, 
+    map: createStarTexture(), 
+    transparent: true, 
+    blending: THREE.AdditiveBlending, 
+    depthWrite: false, 
+    vertexColors: true 
+  }));
   scene.add(stars);
 
   let currentVelocity = 0.4, targetVelocity = 0.4;
-  ScrollTrigger.create({ trigger: "body", start: "top top", end: "bottom bottom", onUpdate: (self) => { targetVelocity = 0.4 + (self.getVelocity() / 300); }});
+  ScrollTrigger.create({
+    trigger: "body",
+    onUpdate: (self) => { targetVelocity = 0.4 + (self.getVelocity() / 250); }
+  });
 
   const cursor = document.getElementById('custom-cursor');
   const glow = cursor.querySelector('.cursor-glow');
-  const star = cursor.querySelector('.cursor-star');
+  const starElement = cursor.querySelector('.cursor-star');
   
-  let mX = 0, mY = 0, pX = 0, pY = 0;
+  let mX = 0, mY = 0, pX = 0, pY = 0, smoothAngle = 0;
   const mouse3D = new THREE.Vector3();
 
   window.addEventListener('mousemove', (e) => { 
-    mX = e.clientX; 
-    mY = e.clientY; 
-    mouse3D.set(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -(e.clientY / window.innerHeight) * 2 + 1,
-      0.5
-    ).unproject(camera);
+    mX = e.clientX; mY = e.clientY; 
+    mouse3D.set((mX / window.innerWidth) * 2 - 1, -(mY / window.innerHeight) * 2 + 1, 0.5).unproject(camera);
   });
 
   function animate() {
     requestAnimationFrame(animate);
     const time = Date.now() * 0.001;
-
     currentVelocity += (targetVelocity - currentVelocity) * 0.05;
+    
     const posArray = stars.geometry.attributes.position.array;
 
     for (let i = 0; i < starCount; i++) {
-      let x = posArray[i * 3];
-      let y = posArray[i * 3 + 1];
-      let z = posArray[i * 3 + 2];
-
+      let x = posArray[i*3], y = posArray[i*3+1], z = posArray[i*3+2];
       z += currentVelocity;
 
-      const dx = x - mouse3D.x;
-      const dy = y - mouse3D.y;
+      const dx = x - mouse3D.x, dy = y - mouse3D.y;
       const distSq = dx * dx + dy * dy;
-      const forceMax = 15.0; 
+      
+     
+      const zInfluence = Math.exp(-Math.abs(z - 0) * 0.1); 
+      const forceMax = 20.0 * zInfluence;
 
       if (distSq < forceMax) {
         const force = (forceMax - distSq) / forceMax;
-        x += dx * force * 0.1;
-        y += dy * force * 0.1;
+        posArray[i*3] += dx * force * 0.08;
+        posArray[i*3+1] += dy * force * 0.08;
       }
 
-      const bx = basePositions[i * 3];
-      const by = basePositions[i * 3 + 1];
-      x += (bx - x) * 0.02;
-      y += (by - y) * 0.02;
+      
+      posArray[i*3] += (basePositions[i*3] - posArray[i*3]) * 0.03;
+      posArray[i*3+1] += (basePositions[i*3+1] - posArray[i*3+1]) * 0.03;
 
-      if (currentVelocity > 0 && z > 15) z = -800;
-      else if (currentVelocity < 0 && z < -800) z = 15;
-
-      posArray[i * 3] = x;
-      posArray[i * 3 + 1] = y;
-      posArray[i * 3 + 2] = z;
+      if (z > 15) z = -800;
+      else if (z < -800) z = 15;
+      posArray[i*3+2] = z;
     }
     
     stars.geometry.attributes.position.needsUpdate = true;
-    stars.material.opacity = 0.8 + Math.sin(time) * 0.1;
-
-    camera.position.x += (mX / window.innerWidth - 0.5) * 1.5 - camera.position.x * 0.1;
-    camera.position.y += -(mY / window.innerHeight - 0.5) * 1.5 - camera.position.y * 0.1;
+    
+    camera.position.x += (mX / window.innerWidth - 0.5) * 1.8 - camera.position.x * 0.08;
+    camera.position.y += -(mY / window.innerHeight - 0.5) * 1.8 - camera.position.y * 0.08;
     camera.lookAt(0, 0, -20);
 
-    const cDx = mX - pX;
-    const cDy = mY - pY;
-    pX += cDx * 0.12; 
-    pY += cDy * 0.12;
+    const cDx = mX - pX, cDy = mY - pY;
+    pX += cDx * 0.15; pY += cDy * 0.15;
 
     const speed = Math.sqrt(cDx * cDx + cDy * cDy);
-    const angle = Math.atan2(cDy, cDx) * (180 / Math.PI);
+    const targetAngle = Math.atan2(cDy, cDx) * (180 / Math.PI);
+    
+  
+    const angleDiff = targetAngle - smoothAngle;
+    smoothAngle += ((angleDiff + 180) % 360 - 180) * 0.15;
 
     if (cursor) {
-      cursor.style.transform = `translate3d(${pX}px, ${pY}px, 0) rotate(${angle}deg)`;
-      star.style.transform = `scale(${1 + speed / 15}, ${Math.max(0.2, 1 / (1 + speed / 30))})`;
-      star.style.filter = `blur(${Math.min(speed / 8, 10)}px)`;
-      glow.style.transform = `scale(${1 + speed / 30})`;
-      glow.style.opacity = 0.2 + Math.min(speed / 50, 0.8);
+      cursor.style.transform = `translate3d(${pX}px, ${pY}px, 0) rotate(${smoothAngle}deg)`;
+      
+      const stretch = 1 + speed / 12;
+      starElement.style.transform = `scale(${stretch}, ${Math.max(0.3, 1 / (stretch * 0.6))})`;
+      
+   
+      const hueShift = Math.min(speed * 2, 50);
+      starElement.style.filter = `blur(${Math.min(speed / 7, 12)}px) hue-rotate(-${hueShift}deg)`;
+      
+      glow.style.transform = `scale(${1 + speed / 25})`;
+      glow.style.opacity = 0.3 + Math.min(speed / 40, 0.7);
     }
 
     targetVelocity += (0.4 - targetVelocity) * 0.02;
@@ -173,19 +187,19 @@
 <style is:global>
   #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: #000; }
   #custom-cursor {
-    position: fixed; top: 0; left: 0; width: 20px; height: 20px; margin-left: -10px; margin-top: -10px;
+    position: fixed; top: 0; left: 0; width: 24px; height: 24px; margin-left: -12px; margin-top: -12px;
     pointer-events: none !important; z-index: 100000; mix-blend-mode: screen; will-change: transform;
     display: flex; align-items: center; justify-content: center;
   }
   .cursor-star {
-    width: 10px; height: 10px; background: #fff; border-radius: 50%;
-    box-shadow: 0 0 15px #fff, 0 0 30px #008cff; z-index: 2; transition: transform 0.05s ease-out;
+    width: 12px; height: 12px; background: #fff; border-radius: 50%;
+    box-shadow: 0 0 20px #fff, 0 0 40px #00a2ff, 0 0 60px #5ec5ff; 
+    z-index: 2; transition: transform 0.1s cubic-bezier(0.23, 1, 0.32, 1);
   }
   .cursor-glow {
-    position: absolute; width: 100px; height: 100px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(0, 140, 255, 0.15) 45%, transparent 70%);
-    border-radius: 50%; filter: blur(12px); z-index: 1; will-change: transform, opacity;
+    position: absolute; width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(0, 162, 255, 0.12) 40%, transparent 70%);
+    border-radius: 50%; filter: blur(15px); z-index: 1; will-change: transform, opacity;
   }
   @media (pointer: fine) { body, a, button { cursor: none !important; } }
-  @media (pointer: coarse) { #custom-cursor { display: none; } }
 </style>
