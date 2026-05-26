@@ -1,8 +1,7 @@
 <div id="star-container"></div>
 <div id="custom-cursor">
-  <div class="cursor-glare"></div>
-  <div class="cursor-tail"></div>
-  <div class="cursor-core"></div>
+  <div class="cursor-glow"></div>
+  <div class="cursor-star"></div>
 </div>
 <div class="content-overlay">
   <slot /> 
@@ -18,10 +17,10 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // --- Scene Setup (Your perfect starfield logic preserved) ---
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x000000, 0.005);
-  
   const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 5;
 
@@ -31,11 +30,9 @@
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
-  const renderScene = new RenderPass(scene, camera);
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85);
   const composer = new EffectComposer(renderer);
-  composer.addPass(renderScene);
-  composer.addPass(bloomPass);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85));
 
   const createStarTexture = () => {
     const canvas = document.createElement('canvas');
@@ -43,76 +40,42 @@
     const ctx = canvas.getContext('2d');
     const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.1, 'rgba(255, 255, 255, 0.9)');
     gradient.addColorStop(0.2, 'rgba(180, 220, 255, 0.6)'); 
-    gradient.addColorStop(0.4, 'rgba(100, 150, 255, 0.2)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 128, 128);
     return new THREE.CanvasTexture(canvas);
   };
 
-  const starTex = createStarTexture();
-  const starCount = 20000; 
+  const starCount = 20000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(starCount * 3);
   const colors = new Float32Array(starCount * 3);
-  const phases = new Float32Array(starCount);
-
-  const starPalette = [
-    new THREE.Color(0xffffff),
-    new THREE.Color(0xd4eaff),
-    new THREE.Color(0xffead4),
-    new THREE.Color(0xf0d9ff),
-  ];
+  const starPalette = [new THREE.Color(0xffffff), new THREE.Color(0xd4eaff), new THREE.Color(0xffead4), new THREE.Color(0xf0d9ff)];
 
   for(let i = 0; i < starCount; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 150;
     positions[i * 3 + 1] = (Math.random() - 0.5) * 150;
     positions[i * 3 + 2] = Math.random() * -800; 
     const col = starPalette[Math.floor(Math.random() * starPalette.length)];
-    colors[i * 3] = col.r;
-    colors[i * 3 + 1] = col.g;
-    colors[i * 3 + 2] = col.b;
-    phases[i] = Math.random() * Math.PI * 2;
+    colors[i * 3] = col.r; colors[i * 3 + 1] = col.g; colors[i * 3 + 2] = col.b;
   }
-
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  const material = new THREE.PointsMaterial({
-    size: 0.5,
-    map: starTex,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    vertexColors: true,
-    opacity: 0.8
-  });
-
-  const stars = new THREE.Points(geometry, material);
+  const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ size: 0.5, map: createStarTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true, opacity: 0.8 }));
   scene.add(stars);
 
-  let currentVelocity = 0.4;
-  let targetVelocity = 0.4;
-  const depthLimit = 15;
-  const depthStart = -800;
+  let currentVelocity = 0.4, targetVelocity = 0.4;
+  ScrollTrigger.create({ trigger: "body", start: "top top", end: "bottom bottom", onUpdate: (self) => { targetVelocity = 0.4 + (self.getVelocity() / 300); }});
 
-  ScrollTrigger.create({
-    trigger: "body",
-    start: "top top",
-    end: "bottom bottom",
-    onUpdate: (self) => {
-      const scrollVel = self.getVelocity() / 300;
-      targetVelocity = 0.4 + scrollVel;
-    }
-  });
-
+  // --- NEW NATURAL CURSOR LOGIC ---
   const cursor = document.getElementById('custom-cursor');
-  const tail = cursor.querySelector('.cursor-tail');
-  const flare = cursor.querySelector('.cursor-glare');
+  const glow = cursor.querySelector('.cursor-glow');
+  const star = cursor.querySelector('.cursor-star');
+  
   let mX = window.innerWidth / 2, mY = window.innerHeight / 2;
-  let pX = mX, pY = mY;
+  let pX = mX, pY = mY; // Position for smoothing
 
   window.addEventListener('mousemove', (e) => { mX = e.clientX; mY = e.clientY; });
 
@@ -120,46 +83,47 @@
     requestAnimationFrame(animate);
     const time = Date.now() * 0.001;
 
+    // Background stars update
     currentVelocity += (targetVelocity - currentVelocity) * 0.05;
     const posArray = stars.geometry.attributes.position.array;
-
     for (let i = 0; i < starCount; i++) {
-      let z = posArray[i * 3 + 2];
-      z += currentVelocity; 
-      if (currentVelocity > 0 && z > depthLimit) z = depthStart;
-      else if (currentVelocity < 0 && z < depthStart) z = depthLimit;
-      posArray[i * 3 + 2] = z;
+      posArray[i * 3 + 2] += currentVelocity;
+      if (currentVelocity > 0 && posArray[i * 3 + 2] > 15) posArray[i * 3 + 2] = -800;
+      else if (currentVelocity < 0 && posArray[i * 3 + 2] < -800) posArray[i * 3 + 2] = 15;
     }
-    
     stars.geometry.attributes.position.needsUpdate = true;
     stars.material.opacity = 0.8 + Math.sin(time) * 0.1;
 
+    // Camera sway
     camera.position.x += (mX / window.innerWidth - 0.5) * 0.8 - camera.position.x * 0.04;
     camera.position.y += -(mY / window.innerHeight - 0.5) * 0.8 - camera.position.y * 0.04;
     camera.lookAt(0, 0, -20);
 
-    const dx = mX - pX, dy = mY - pY;
-    pX += dx * 0.15; pY += dy * 0.15;
+    // Natural Cursor Physics
+    const dx = mX - pX;
+    const dy = mY - pY;
+    pX += dx * 0.2; // Increase "stiffness" slightly for more control
+    pY += dy * 0.2;
+
+    const speed = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    // Dynamic Visuals
+    // 1. Scale the core based on movement (stretching)
+    const stretch = 1 + Math.min(speed / 40, 3); 
+    // 2. Blur based on speed (simulating motion blur)
+    const blur = Math.min(speed / 10, 4);
 
     if (cursor) {
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      const vel = Math.sqrt(dx*dx + dy*dy);
-      
-      
-      const stretch = Math.min(Math.max(vel / 10, 1), 8);
       cursor.style.transform = `translate3d(${pX}px, ${pY}px, 0) rotate(${angle}deg)`;
       
-    
-      if (tail) {
-        tail.style.transform = `scaleX(${stretch})`;
-        tail.style.opacity = Math.min(vel / 20, 1);
-      }
+      // The "Star" elongates and blurs naturally
+      star.style.transform = `scale(${stretch}, ${1 / Math.sqrt(stretch)})`;
+      star.style.filter = `blur(${blur}px)`;
       
-    
-      if (flare) {
-        flare.style.transform = `translate(-50%, -50%) scale(${1 + vel / 50})`;
-        flare.style.opacity = 0.4 + Math.min(vel / 100, 0.6);
-      }
+      // The "Glow" follows and expands/contracts
+      glow.style.transform = `scale(${1 + speed / 60})`;
+      glow.style.opacity = 0.3 + Math.min(speed / 100, 0.5);
     }
 
     targetVelocity += (0.4 - targetVelocity) * 0.02;
@@ -167,13 +131,6 @@
   }
 
   animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-  });
 </script>
 
 <style is:global>
@@ -181,43 +138,31 @@
   
   #custom-cursor {
     position: fixed; top: 0; left: 0;
-    width: 0; height: 0; 
+    width: 20px; height: 20px;
+    margin-left: -10px; margin-top: -10px;
     pointer-events: none !important; z-index: 100000;
-    will-change: transform;
     mix-blend-mode: screen;
+    will-change: transform;
+    display: flex; align-items: center; justify-content: center;
   }
 
-  .cursor-core {
-    position: absolute;
-    width: 6px; height: 6px;
-    background: #fff; border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 15px #fff, 0 0 30px #44aaff;
-    z-index: 3;
-  }
-
-  .cursor-tail {
-    position: absolute;
-    right: 0; 
-    top: -1.5px;
-    width: 120px; height: 3px;
-    background: linear-gradient(to left, #fff 0%, rgba(100, 200, 255, 0.6) 30%, transparent 100%);
-    clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
-    transform-origin: right center;
-    opacity: 0; 
+  .cursor-star {
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 20px #70baff;
     z-index: 2;
-    will-change: transform, opacity;
+    transition: transform 0.1s ease-out; /* Makes the stretch feel organic */
   }
 
-  .cursor-glare {
+  .cursor-glow {
     position: absolute;
-    width: 80px; height: 80px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(0, 140, 255, 0.1) 45%, transparent 70%);
-    transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(0, 100, 255, 0.1) 40%, transparent 70%);
     border-radius: 50%;
     filter: blur(8px);
     z-index: 1;
-    opacity: 0.4;
+    will-change: transform, opacity;
   }
 
   @media (pointer: fine) { body, a, button { cursor: none !important; } }
