@@ -42,26 +42,7 @@ section {
   }
 
 
-/* --- DATABASE SECTION --- */
-.database-section {
-    min-height: 80vh;
-}
 
-.database-title {
-    font-family: 'Inter', sans-serif ;
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    margin-bottom: 60px;
-    background-color: transparent !important;
-    background: transparent !important;
-}
-
-.model-pile-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    min-height: 400px;
-}
 
 /* --- FOOTER ELEMENTS --- */
 .ticker-wrap {
@@ -123,7 +104,7 @@ section {
 
    
 
-    .side-date { display: none; }
+   
     
 }
 /* --- HERO SECTION STYLES --- */
@@ -277,99 +258,7 @@ section {
 
 
 
-/* --- ABOUT SECTION STYLES --- */
-.about-section {
-    position: relative;
-    padding: 150px 5%;
-    background-color: transparent !important;
-    min-height: 100vh;
-    overflow: hidden; 
-    background: transparent !important;
-    
-}
 
-
-
-
-
-
-/* Asymmetrical Grid */
-.about-grid {
-    display: grid;
-    grid-template-columns: 100px 1fr;
-    gap: 60px;
-    position: relative;
-    z-index: 10;
-}
-
-.grid-label {
-    font-family: var(--fira);
-    font-size: 12px;
-    writing-mode: vertical-rl; 
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    display: flex;
-    align-items: center;
-    color: var(--accent);
-}
-
-.vertical-line {
-    width: 1px;
-    height: 100px;
-    background: var(--accent);
-    margin-top: 20px;
-}
-
-/* Content Area */
-.about-content {
-    max-width: 900px;
-}
-
-.intro-text {
-    font-size: clamp(1.5rem, 4vw, 2.8rem);
-    font-weight: 500;
-    line-height: 1.1;
-    margin-bottom: 60px;
-    letter-spacing: -1px;
-    font-family: 'GFS Didot', serif;
-}
-
-
-.story-columns {
-    column-count: 2; 
-    column-gap: 60px;
-    font-family: var(--inter);
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.8);
-    text-align: justify;
-}
-
-.story-columns p {
-    margin-bottom: 20px;
-}
-
-/* MOBILE  */
-@media (max-width: 1024px) {
-    .about-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .grid-label {
-        writing-mode: horizontal-tb;
-        flex-direction: row;
-        margin-bottom: 20px;
-    }
-    
-    .vertical-line {
-        width: 50px;
-        height: 1px;
-        margin: 0 0 0 20px;
-    }
-
-    .story-columns {
-        column-count: 1; 
-    }
     
     
 }
