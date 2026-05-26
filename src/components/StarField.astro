@@ -19,9 +19,9 @@
 
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x000205, 0.005);
+  scene.fog = new THREE.FogExp2(0x00050a, 0.0035);
   
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 5;
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
@@ -32,82 +32,78 @@
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.6, 0.6, 0.9);
   composer.addPass(bloomPass);
 
-  const createStarTexture = () => {
+  const createStarTexture = (size = 128, soft = false) => {
     const canvas = document.createElement('canvas');
-    canvas.width = 128; canvas.height = 128;
+    canvas.width = size; canvas.height = size;
     const ctx = canvas.getContext('2d');
-    const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.1, 'rgba(255, 255, 255, 0.8)'); 
-    gradient.addColorStop(0.4, 'rgba(120, 180, 255, 0.2)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    const center = size / 2;
+    const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
+    if (soft) {
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else {
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      gradient.addColorStop(0.1, 'rgba(200, 230, 255, 0.8)');
+      gradient.addColorStop(0.4, 'rgba(50, 100, 255, 0.1)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    }
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 128, 128);
+    ctx.fillRect(0, 0, size, size);
     return new THREE.CanvasTexture(canvas);
   };
 
   const starCount = 18000;
-  const geometry = new THREE.BufferGeometry();
-  const positions = new Float32Array(starCount * 3);
-  const basePositions = new Float32Array(starCount * 3);
-  const colors = new Float32Array(starCount * 3);
-  const sizes = new Float32Array(starCount);
-  const phases = new Float32Array(starCount);
+  const dustCount = 25000;
   
-  const starPalette = [
-    new THREE.Color(0xffffff), 
-    new THREE.Color(0xcee7ff), 
-    new THREE.Color(0xfff4e0), 
-    new THREE.Color(0xe8d5ff),
-    new THREE.Color(0x99ccff)
-  ];
+  const setupStars = (count, sizeRange, isDust) => {
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const base = new Float32Array(count * 3);
+    const cols = new Float32Array(count * 3);
+    const p = new Float32Array(count);
+    const palette = isDust ? [new THREE.Color(0x445566)] : [new THREE.Color(0xffffff), new THREE.Color(0xcee7ff), new THREE.Color(0xfff4e0), new THREE.Color(0xd5e8ff)];
 
-  for(let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 200;
-    const y = (Math.random() - 0.5) * 200;
-    const z = Math.random() * -1000;
-    
-    positions[i*3] = basePositions[i*3] = x;
-    positions[i*3+1] = basePositions[i*3+1] = y;
-    positions[i*3+2] = basePositions[i*3+2] = z;
+    for(let i = 0; i < count; i++) {
+      const x = (Math.random() - 0.5) * (isDust ? 300 : 200);
+      const y = (Math.random() - 0.5) * (isDust ? 300 : 200);
+      const z = Math.random() * -1000;
+      pos[i*3] = base[i*3] = x;
+      pos[i*3+1] = base[i*3+1] = y;
+      pos[i*3+2] = base[i*3+2] = z;
+      const col = palette[Math.floor(Math.random() * palette.length)];
+      cols[i*3] = col.r; cols[i*3+1] = col.g; cols[i*3+2] = col.b;
+      p[i] = Math.random() * Math.PI * 2;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    return { geo, base, p };
+  };
 
-    const col = starPalette[Math.floor(Math.random() * starPalette.length)];
-    colors[i*3] = col.r; colors[i*3+1] = col.g; colors[i*3+2] = col.b;
-    
-    sizes[i] = Math.random() < 0.05 ? 0.9 : 0.4;
-    phases[i] = Math.random() * Math.PI * 2;
-  }
-
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-  const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ 
-    size: 0.7, 
-    map: createStarTexture(), 
-    transparent: true, 
-    blending: THREE.AdditiveBlending, 
-    depthWrite: false, 
-    vertexColors: true,
-    sizeAttenuation: true
+  const mainData = setupStars(starCount, 0.7, false);
+  const mainStars = new THREE.Points(mainData.geo, new THREE.PointsMaterial({
+    size: 0.75, map: createStarTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true, sizeAttenuation: true
   }));
-  scene.add(stars);
+  
+  const dustData = setupStars(dustCount, 0.2, true);
+  const dustStars = new THREE.Points(dustData.geo, new THREE.PointsMaterial({
+    size: 0.3, map: createStarTexture(64, true), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true, opacity: 0.4
+  }));
 
-  let currentVelocity = 0.5, targetVelocity = 0.5;
+  scene.add(mainStars);
+  scene.add(dustStars);
+
+  let currentVelocity = 0.3, targetVelocity = 0.3;
   ScrollTrigger.create({
     trigger: "body",
-    onUpdate: (self) => { targetVelocity = 0.5 + (Math.abs(self.getVelocity()) / 200); }
+    onUpdate: (self) => { targetVelocity = 0.3 + (Math.abs(self.getVelocity()) / 300); }
   });
 
   const cursor = document.getElementById('custom-cursor');
-  const glow = cursor.querySelector('.cursor-glow');
-  const starElement = cursor.querySelector('.cursor-star');
-  
-  let mX = 0, mY = 0, pX = 0, pY = 0;
   const mouse3D = new THREE.Vector3();
+  let mX = 0, mY = 0, pX = 0, pY = 0;
 
   window.addEventListener('mousemove', (e) => { 
     mX = e.clientX; mY = e.clientY; 
@@ -119,50 +115,48 @@
     const time = Date.now() * 0.001;
     currentVelocity += (targetVelocity - currentVelocity) * 0.05;
     
-    const posArray = stars.geometry.attributes.position.array;
+    const updatePoints = (points, base, phases, speedMult) => {
+      const pos = points.geometry.attributes.position.array;
+      for (let i = 0; i < phases.length; i++) {
+        let z = pos[i*3+2];
+        z += currentVelocity * speedMult;
 
-    for (let i = 0; i < starCount; i++) {
-      let z = posArray[i*3+2];
-      z += currentVelocity;
+        const dx = pos[i*3] - mouse3D.x;
+        const dy = pos[i*3+1] - mouse3D.y;
+        const distSq = dx * dx + dy * dy;
+        const forceMax = 12.0 * Math.exp(-Math.abs(z) * 0.1);
 
-      const x = posArray[i*3];
-      const y = posArray[i*3+1];
-      const dx = x - mouse3D.x;
-      const dy = y - mouse3D.y;
-      const distSq = dx * dx + dy * dy;
-      const zInfluence = Math.exp(-Math.abs(z) * 0.1); 
-      const forceMax = 15.0 * zInfluence;
+        if (distSq < forceMax) {
+          const force = (forceMax - distSq) / forceMax;
+          pos[i*3] += dx * force * 0.03;
+          pos[i*3+1] += dy * force * 0.03;
+        }
 
-      if (distSq < forceMax) {
-        const force = (forceMax - distSq) / forceMax;
-        posArray[i*3] += dx * force * 0.04;
-        posArray[i*3+1] += dy * force * 0.04;
+        pos[i*3] += (base[i*3] - pos[i*3]) * 0.015;
+        pos[i*3+1] += (base[i*3+1] - pos[i*3+1]) * 0.015;
+
+        if (z > 10) z = -1000;
+        pos[i*3+2] = z;
       }
+      points.geometry.attributes.position.needsUpdate = true;
+      points.material.opacity = 0.6 + Math.sin(time + phases[0]) * 0.2; 
+    };
 
-      posArray[i*3] += (basePositions[i*3] - posArray[i*3]) * 0.02;
-      posArray[i*3+1] += (basePositions[i*3+1] - posArray[i*3+1]) * 0.02;
-
-      if (z > 20) z = -1000;
-      posArray[i*3+2] = z;
-    }
+    updatePoints(mainStars, mainData.base, mainData.p, 1);
+    updatePoints(dustStars, dustData.base, dustData.p, 0.4);
     
-    stars.geometry.attributes.position.needsUpdate = true;
-    
-    camera.position.x += (mX / window.innerWidth - 0.5) * 2 - camera.position.x * 0.05;
-    camera.position.y += -(mY / window.innerHeight - 0.5) * 2 - camera.position.y * 0.05;
-    camera.lookAt(0, 0, -50);
+    camera.position.x += (mX / window.innerWidth - 0.5) * 3 - camera.position.x * 0.04;
+    camera.position.y += -(mY / window.innerHeight - 0.5) * 3 - camera.position.y * 0.04;
+    camera.lookAt(0, 0, -100);
 
-    pX += (mX - pX) * 0.15;
-    pY += (mY - pY) * 0.15;
-
+    pX += (mX - pX) * 0.12; pY += (mY - pY) * 0.12;
     if (cursor) {
       cursor.style.transform = `translate3d(${pX}px, ${pY}px, 0)`;
       const speed = Math.sqrt(Math.pow(mX - pX, 2) + Math.pow(mY - pY, 2));
-      glow.style.opacity = 0.2 + Math.min(speed / 100, 0.4);
-      glow.style.transform = `scale(${1 + speed / 50})`;
+      cursor.querySelector('.cursor-glow').style.opacity = 0.1 + Math.min(speed / 80, 0.4);
     }
 
-    targetVelocity += (0.5 - targetVelocity) * 0.01;
+    targetVelocity += (0.3 - targetVelocity) * 0.01;
     composer.render();
   }
 
@@ -177,21 +171,20 @@
 </script>
 
 <style is:global>
-  #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: #000205; }
+  #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(circle at center, #000814 0%, #000205 100%); }
   #custom-cursor {
     position: fixed; top: 0; left: 0; width: 20px; height: 20px; margin-left: -10px; margin-top: -10px;
     pointer-events: none !important; z-index: 100000; mix-blend-mode: screen; will-change: transform;
     display: flex; align-items: center; justify-content: center;
   }
   .cursor-star {
-    width: 4px; height: 4px; background: #fff; border-radius: 50%;
-    box-shadow: 0 0 10px #fff, 0 0 20px #78b4ff; 
-    z-index: 2;
+    width: 3px; height: 3px; background: #fff; border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 20px #78b4ff; z-index: 2;
   }
   .cursor-glow {
-    position: absolute; width: 60px; height: 60px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(120, 180, 255, 0.05) 60%, transparent 80%);
-    border-radius: 50%; filter: blur(10px); z-index: 1; will-change: transform, opacity;
+    position: absolute; width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(120, 180, 255, 0.15) 0%, transparent 70%);
+    border-radius: 50%; filter: blur(8px); z-index: 1; will-change: transform, opacity;
   }
   @media (pointer: fine) { body, a, button { cursor: none !important; } }
 </style>
