@@ -20,126 +20,123 @@
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000103);
-  scene.fog = new THREE.FogExp2(0x000103, 0.002);
   
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
-  camera.position.z = 100;
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 4000);
+  camera.position.z = 200; // Start back a bit
 
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.5, 0.9);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
   composer.addPass(bloomPass);
 
-  const starTex = new THREE.TextureLoader().load('https://assets.codepen.io/127738/dot-texture.png');
+
+  const createInternalTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    grad.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+    grad.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 128, 128);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  };
+
+  const starTexture = createInternalTexture();
 
   const stages = [
-    { z: 0, color: 0x4488ff, name: "The Blue Lagoon" },
-    { z: -1200, color: 0xffaa44, name: "Golden Corridor" },
-    { z: -2400, color: 0xff44aa, name: "Nebula Core" },
-    { z: -3600, color: 0x44ffaa, name: "Emerald Deep" }
+    { z: 0, color: 0x4488ff },
+    { z: -1000, color: 0xffaa44 },
+    { z: -2000, color: 0xff44aa },
+    { z: -3000, color: 0x44ffaa }
   ];
 
-  const stageGroups = [];
-
-  stages.forEach((stage, idx) => {
-    const group = new THREE.Group();
-    const count = 12000;
-    const geometry = new THREE.BufferGeometry();
+  stages.forEach((stage) => {
+    const count = 8000;
+    const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const cols = new Float32Array(count * 3);
     const color = new THREE.Color(stage.color);
 
     for (let i = 0; i < count; i++) {
-      // Create a "Tunnel" shape using polar coordinates
-      const radius = 10 + Math.random() * 150;
+      // Tunnel math
+      const radius = 5 + Math.random() * 150;
       const angle = Math.random() * Math.PI * 2;
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      const z = stage.z + (Math.random() - 0.5) * 1200;
+      pos[i*3] = Math.cos(angle) * radius;
+      pos[i*3+1] = Math.sin(angle) * radius;
+      pos[i*3+2] = stage.z + (Math.random() - 0.5) * 1000;
 
-      pos[i * 3] = x;
-      pos[i * 3 + 1] = y;
-      pos[i * 3 + 2] = z;
-
-      cols[i * 3] = color.r + (Math.random() - 0.5) * 0.3;
-      cols[i * 3 + 1] = color.g + (Math.random() - 0.5) * 0.3;
-      cols[i * 3 + 2] = color.b + (Math.random() - 0.5) * 0.3;
+      cols[i*3] = color.r + (Math.random()-0.5)*0.2;
+      cols[i*3+1] = color.g + (Math.random()-0.5)*0.2;
+      cols[i*3+2] = color.b + (Math.random()-0.5)*0.2;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
 
-    const points = new THREE.Points(geometry, new THREE.PointsMaterial({
-      size: 1.2,
-      map: starTex,
+    const points = new THREE.Points(geo, new THREE.PointsMaterial({
+      size: 1.5,
+      map: starTexture,
       transparent: true,
       blending: THREE.AdditiveBlending,
       vertexColors: true,
       depthWrite: false,
       sizeAttenuation: true
     }));
-
-    group.add(points);
-    scene.add(group);
-    stageGroups.push({ group, baseZ: stage.z });
+    scene.add(points);
   });
 
-  let scrollVelocity = 0;
-  let targetScroll = 0;
+  let targetZ = 200;
+  let scrollVel = 0;
 
   ScrollTrigger.create({
     trigger: "body",
     start: "top top",
     end: "bottom bottom",
     onUpdate: (self) => {
-      scrollVelocity = self.getVelocity() / 100;
-      targetScroll = self.progress * -3600; // Total depth of stages
+      scrollVel = Math.abs(self.getVelocity());
+      targetZ = 200 + (self.progress * -3500);
     }
   });
 
-  let currentCameraZ = 100;
-  let mX = 0, mY = 0, pX = 0, pY = 0;
-
+  let mX = 0, mY = 0;
   window.addEventListener('mousemove', (e) => {
-    mX = (e.clientX / window.innerWidth - 0.5) * 20;
-    mY = (e.clientY / window.innerHeight - 0.5) * 20;
+    mX = (e.clientX / window.innerWidth - 0.5) * 10;
+    mY = (e.clientY / window.innerHeight - 0.5) * 10;
   });
 
   function animate() {
     requestAnimationFrame(animate);
+    
+    // Smoother diving
+    camera.position.z += (targetZ - camera.position.z) * 0.05;
+    
+    // Mouse Tilt
+    camera.position.x += (mX - camera.position.x) * 0.05;
+    camera.position.y += (-mY - camera.position.y) * 0.05;
+    camera.lookAt(0, 0, camera.position.z - 100);
 
-    // Smooth scroll following
-    currentCameraZ += (targetScroll - currentCameraZ) * 0.05;
-    camera.position.z = currentCameraZ + 100;
-
-    // Camera FOV Warp based on speed
-    const speed = Math.abs(scrollVelocity);
-    camera.fov += (60 + (speed * 2) - camera.fov) * 0.1;
+    // Warp FOV
+    camera.fov += (60 + (scrollVel / 150) - camera.fov) * 0.1;
     camera.updateProjectionMatrix();
 
-    // Mouse movement influence
-    camera.position.x += (-mX - camera.position.x) * 0.05;
-    camera.position.y += (mY - camera.position.y) * 0.05;
-    camera.lookAt(0, 0, camera.position.z - 200);
-
-    // Render
     composer.render();
+    scrollVel *= 0.95;
 
-    // Cursor smoothing
-    pX += (mX * 50 - pX) * 0.1; // mapping back to screen space roughly
-    pY += (mY * 50 - pY) * 0.1;
+    // Cursor
     const cursor = document.getElementById('custom-cursor');
     if (cursor) {
-      cursor.style.transform = `translate3d(${window.innerWidth/2 + pX}px, ${window.innerHeight/2 + pY}px, 0)`;
+      cursor.style.left = `${(mX / 10 + 0.5) * window.innerWidth}px`;
+      cursor.style.top = `${(mY / 10 + 0.5) * window.innerHeight}px`;
     }
-    
-    scrollVelocity *= 0.9; // Friction
   }
 
   animate();
@@ -155,18 +152,9 @@
 <style is:global>
   #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: #000; }
   #custom-cursor {
-    position: fixed; top: 0; left: 0; width: 24px; height: 24px; margin-left: -12px; margin-top: -12px;
-    pointer-events: none !important; z-index: 100000; mix-blend-mode: screen; will-change: transform;
+    position: fixed; pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
   }
-  .cursor-star {
-    width: 4px; height: 4px; background: #fff; border-radius: 50%;
-    box-shadow: 0 0 10px #fff, 0 0 20px #4488ff;
-  }
-  .cursor-glow {
-    position: absolute; top: 50%; left: 50%; width: 120px; height: 120px;
-    background: radial-gradient(circle, rgba(68, 136, 255, 0.15) 0%, transparent 70%);
-    transform: translate(-50%, -50%); filter: blur(15px);
-  }
-  body { height: 500vh; margin: 0; overflow-x: hidden; background: #000; }
-  @media (pointer: fine) { body, a, button { cursor: none !important; } }
+  .cursor-star { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff; }
+  body { height: 600vh; margin: 0; background: #000; }
 </style>
