@@ -7,7 +7,6 @@ const models = [
   { id: 4, name: "Name", image: "/api/placeholder/400/400", link: "#" }
 ];
 
-
 const total = models.length;
 ---
 
@@ -15,7 +14,7 @@ const total = models.length;
   <div class="database-section">
     <div class="database-intro">
       <h2 class="database-title">model database</h2>
-      <p class="press-alert">scroll me</p>
+      <p class="press-alert">press me</p>
     </div>
 
     <div class="model-pile-container" id="card-pile">
@@ -47,7 +46,6 @@ const total = models.length;
     const onScroll = () => {
       const rect = track.getBoundingClientRect();
       const progress = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
-   
       pile.style.setProperty('--scroll-p', progress.toString());
     };
 
@@ -75,9 +73,46 @@ const total = models.length;
     justify-content: center;
     align-items: center;
   }
-  .database-intro { position: absolute; left: 3vw; top: 50%; transform: translateY(-50%); z-index: 1; pointer-events: none; }
-  .database-title { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Inter', sans-serif; font-weight: 900; font-size: clamp(3rem, 8vw, 6rem); text-transform: uppercase; color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6); }
-  .press-alert { color: white; font-family: 'Inter', sans-serif; font-size: 20px; animation: blink 2s infinite ease-in-out; }
+
+ 
+  .database-intro {
+    position: absolute;
+    left: 3vw;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1; 
+    pointer-events: none;
+    max-height: 90vh;
+  }
+
+  .database-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 8vw, 6rem); 
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
+    margin: 0;
+    padding-bottom: 20px;
+  }
+
+  .press-alert {
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    margin-top: 20px; 
+    position: relative;
+    display: inline-block;
+    animation: blink 2s infinite ease-in-out;
+  }
 
   .model-pile-container {
     position: relative;
@@ -97,12 +132,12 @@ const total = models.length;
     left: 50%;
     top: 50%;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
     
    
     --start: calc(var(--reverse-index) * 0.15);
     --local-p: clamp(0, (var(--scroll-p) - var(--start)) / 0.3, 1);
-    
     
     transform: translate3d(
       calc(-50% + (150vw * var(--local-p))), 
@@ -112,30 +147,87 @@ const total = models.length;
     rotate(calc(var(--base-rotation) + (45deg * var(--local-p))))
     scale(calc(1 + var(--local-p)));
 
-    opacity: calc(1 - var(--local-p));
+   
+    opacity: 1;
 
    
-    transition: transform 0.6s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.4s ease-out;
+    transition: transform 0.6s cubic-bezier(0.1, 0.7, 0.3, 1);
     
-    will-change: transform, opacity;
+    will-change: transform;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
   }
 
-
+  
   .card-1 { --base-rotation: -5deg; z-index: 1; }
   .card-2 { --base-rotation: 3deg; z-index: 2; }
   .card-3 { --base-rotation: -2deg; z-index: 3; }
   .card-4 { --base-rotation: 6deg; z-index: 4; }
 
-  .model-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-  .polaroid-caption { position: absolute; bottom: 12px; left: 0; right: 0; display: flex; justify-content: center; font-family: "La Belle Aurore", cursive; font-size: 1.8rem; color: #222; }
-  .hollow-heart { width: 1.4em; height: 1.4em; stroke: #1a1a1a; margin-left: -14px; fill: none !important; }
+  .model-card img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+  }
 
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-  
+  .polaroid-caption {
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "La Belle Aurore", cursive;
+    font-size: 1.8rem;
+    transform: rotate(-2.5deg);
+    filter: blur(0.3px) contrast(1.2);
+    -webkit-font-smoothing: antialiased;
+    text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
+    color: #222;
+  }
+
+  .hollow-heart {
+    width: 1.4em; 
+    height: 1.4em;
+    stroke: #1a1a1a;
+    stroke-width: 1.3px; 
+    margin-left: -14px; 
+    margin-top: -8px; 
+    transform: rotate(8deg); 
+    fill: none !important;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+
   @media (min-width: 769px) {
-    .model-card { width: 400px; height: 485px; padding: 18px 18px 90px; }
-    .polaroid-caption { font-size: 3rem !important; bottom: 20px !important; }
+    .model-card {
+      width: 400px;
+      height: 485px;
+      padding: 18px 18px 90px;
+    }
+    .polaroid-caption {
+      font-size: 3rem !important; 
+      bottom: 20px !important;
+      filter: blur(0.9px) contrast(1.8);
+    }
+  }
+
+ 
+  @media (max-width: 768px) {
+    .database-intro {
+      left: 10px;
+      top: 20px;
+      transform: none;
+    }
+    .database-title {
+      font-size: 3.5rem;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+    }
   }
 </style>
