@@ -35,38 +35,41 @@ const models = [
 
   gsap.registerPlugin(ScrollTrigger);
 
-const runAnimation = () => {
-  const cards = gsap.utils.toArray(".model-card");
-  const section = document.querySelector(".database-section");
+  const runAnimation = () => {
   
-  if (!section || cards.length === 0) return;
+    const cards = gsap.utils.toArray(".model-card").reverse();
+    const section = document.querySelector(".database-section");
+    
+    if (!section || cards.length === 0) return;
 
-  
-  requestAnimationFrame(() => {
-    const scrollTriggerEndValue = cards.length * window.innerHeight;
+    requestAnimationFrame(() => {
+      const scrollTriggerEndValue = cards.length * window.innerHeight;
 
-    gsap.to(cards, {
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: `+=${scrollTriggerEndValue}`,
-        scrub: 1,
-        pin: true,
-        anticipatePin: 1,
-      
-        invalidateOnRefresh: true, 
-      },
-      x: () => (Math.random() > 0.5 ? window.innerWidth * 1.5 : -window.innerWidth * 1.5),
-      y: () => -window.innerHeight * (1.2 + Math.random()), 
-      rotation: () => Math.random() * 90 - 45,
-      scale: 2,
-      ease: "none",
-      stagger: {
-        each: 1, 
-        from: "end"
-      }
+      gsap.to(cards, {
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: `+=${scrollTriggerEndValue}`,
+          scrub: 1.2, 
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true, 
+        },
+       
+        x: () => (Math.random() > 0.5 ? window.innerWidth * 1.6 : -window.innerWidth * 1.6),
+        // Always flying upward
+        y: () => -window.innerHeight * (1.2 + Math.random()), 
+        rotation: () => Math.random() * 90 - 45,
+        scale: 2,
+        opacity: 1, 
+        force3D: true, 
+        ease: "power2.inOut",
+        stagger: {
+          each: 1, 
+          from: "start" 
+        }
+      });
     });
-  });
   };
 
   runAnimation();
@@ -87,57 +90,56 @@ const runAnimation = () => {
     touch-action: pan-y;
   }
 
- .database-intro {
-  position: absolute;
-  left: 3vw;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  z-index: 1; 
-  pointer-events: none;
-  max-height: 90vh;
-}
-
-.database-title {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-family: 'Inter', sans-serif;
-  font-weight: 900;
-  font-size: clamp(3rem, 8vw, 6rem); 
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.8;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
-  margin: 0;
-  padding-bottom: 20px;
-}
-
-.press-alert {
-  color: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 20px;
-  font-weight: 300;
-  margin-top: 20px; 
-  position: relative;
-  display: inline-block;
-  animation: blink 2s infinite ease-in-out;
-}
-
-@media (max-width: 768px) {
   .database-intro {
-    left: 10px;
-    top: 20px;
-    transform: none;
+    position: absolute;
+    left: 3vw;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1; 
+    pointer-events: none;
+    max-height: 90vh;
   }
-  
+
   .database-title {
-    font-size: 3.5rem;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 8vw, 6rem); 
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
+    margin: 0;
+    padding-bottom: 20px;
   }
-}
+
+  .press-alert {
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    margin-top: 20px; 
+    position: relative;
+    display: inline-block;
+    animation: blink 2s infinite ease-in-out;
+  }
+
+  @media (max-width: 768px) {
+    .database-intro {
+      left: 10px;
+      top: 20px;
+      transform: none;
+    }
+    .database-title {
+      font-size: 3.5rem;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+    }
+  }
 
   .model-pile-container {
     position: relative;
@@ -146,7 +148,6 @@ const runAnimation = () => {
     perspective: 2000px;
     z-index: 10;
   }
-
 
   .model-card {
     position: absolute;
@@ -161,14 +162,12 @@ const runAnimation = () => {
     text-decoration: none;
     cursor: pointer;
     transform: translate3d(-50%, -50%, 0);
-     will-change: transform, opacity;
+    will-change: transform;
     -webkit-backface-visibility: hidden; 
     backface-visibility: hidden;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
   }
-
-
 
   .model-card img {
     width: 100%;
@@ -176,10 +175,11 @@ const runAnimation = () => {
     object-fit: cover;
   }
 
-.card-1 { transform: translate3d(-55%, -50%, 0) rotate(-5deg); z-index: 1; }
-.card-2 { transform: translate3d(-48%, -52%, 0) rotate(3deg); z-index: 2; }
-.card-3 { transform: translate3d(-52%, -48%, 0) rotate(-2deg); z-index: 3; }
-.card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 4; }
+
+  .card-1 { transform: translate3d(-55%, -50%, 0) rotate(-5deg); z-index: 1; }
+  .card-2 { transform: translate3d(-48%, -52%, 0) rotate(3deg); z-index: 2; }
+  .card-3 { transform: translate3d(-52%, -48%, 0) rotate(-2deg); z-index: 3; }
+  .card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 4; }
 
   .polaroid-caption {
     position: absolute;
@@ -194,11 +194,10 @@ const runAnimation = () => {
     font-size: 1.8rem;
     transform: rotate(-2.5deg);
     filter: blur(0.3px) contrast(1.2);
-  -webkit-font-smoothing: antialiased;
-   text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
-  color: #222;
+    -webkit-font-smoothing: antialiased;
+    text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
+    color: #222;
   }
-
 
   .hollow-heart {
     width: 1.4em; 
@@ -214,34 +213,30 @@ const runAnimation = () => {
     opacity: 0.9;
     fill: none !important;
     filter: blur(0.3px) contrast(1.2);
-  -webkit-font-smoothing: antialiased;
-
+    -webkit-font-smoothing: antialiased;
   }
 
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
   }
-  /* DESKTOP STYLES (Larger Polaroid) */
+
   @media (min-width: 769px) {
     .model-card {
-      width: 400px; /* Increased for desktop */
-      height: 485px; /* Scaled proportionally */
+      width: 400px;
+      height: 485px;
       padding: 18px 18px 90px 18px;
     }
-    
     .polaroid-caption {
       font-size: 3rem !important; 
       bottom: 20px !important;
       filter: blur(0.9px) contrast(1.8);
       text-shadow: 0 0 1px rgba(0,0,0,0.3);
     }
-.hollow-heart {
-    filter: blur(0.4px) contrast(1.5);
-    margin-left: -22px;
-    margin-top: -12px;
+    .hollow-heart {
+      filter: blur(0.4px) contrast(1.5);
+      margin-left: -22px;
+      margin-top: -12px;
+    }
   }
-}
-  }
-
 </style>
