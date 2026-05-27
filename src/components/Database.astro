@@ -1,26 +1,29 @@
 ---
 // src/components/Database.astro
 const models = [
-  { id: 1, name: "Name", image: "/api/placeholder/400/400", link: "#", tx: -150, ty: -140, tr: -45 },
-  { id: 2, name: "Name", image: "/api/placeholder/400/400", link: "#", tx: 160, ty: -160, tr: 30 },
-  { id: 3, name: "Name", image: "/api/placeholder/400/400", link: "#", tx: -120, ty: -180, tr: 15 },
-  { id: 4, name: "Name", image: "/api/placeholder/400/400", link: "#", tx: 140, ty: -130, tr: -20 }
+  { id: 1, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 2, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 3, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 4, name: "Name", image: "/api/placeholder/400/400", link: "#" }
 ];
+
+
+const total = models.length;
 ---
 
 <section class="scroll-track">
-  <div class="database-section" id="sticky-section">
+  <div class="database-section">
     <div class="database-intro">
       <h2 class="database-title">model database</h2>
       <p class="press-alert">scroll me</p>
     </div>
 
     <div class="model-pile-container" id="card-pile">
-      {models.map((model, index) => (
+      {models.map((model, i) => (
         <a 
           href={model.link} 
           class={`model-card card-${model.id}`}
-          style={`--tx: ${model.tx}vw; --ty: ${model.ty}vh; --tr: ${model.tr}deg; --index: ${index};`}
+          style={`--reverse-index: ${total - 1 - i};`}
         >
           <img src={model.image} alt={model.name} />
           <div class="polaroid-caption">
@@ -39,18 +42,16 @@ const models = [
   const setupScroll = () => {
     const track = document.querySelector('.scroll-track');
     const pile = document.getElementById('card-pile');
-    
     if (!track || !pile) return;
 
     const onScroll = () => {
       const rect = track.getBoundingClientRect();
-      // Calculate 0 to 1 progress based on the track height
       const progress = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
+   
       pile.style.setProperty('--scroll-p', progress.toString());
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    // Initial check
     onScroll();
   };
 
@@ -59,11 +60,9 @@ const models = [
 </script>
 
 <style>
-  
   .scroll-track {
     height: 400vh;
     background: #000;
-    position: relative;
   }
 
   .database-section {
@@ -75,46 +74,10 @@ const models = [
     display: flex;
     justify-content: center;
     align-items: center;
-    touch-action: pan-y;
   }
-
- 
-  .database-intro {
-    position: absolute;
-    left: 3vw;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    z-index: 1; 
-    pointer-events: none;
-    max-height: 90vh;
-  }
-
-  .database-title {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-family: 'Inter', sans-serif;
-    font-weight: 900;
-    font-size: clamp(3rem, 8vw, 6rem); 
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.8;
-    color: transparent;
-    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
-    margin: 0;
-    padding-bottom: 20px;
-  }
-
-  .press-alert {
-    color: white;
-    font-family: 'Inter', sans-serif;
-    font-size: 20px;
-    font-weight: 300;
-    margin-top: 20px; 
-    animation: blink 2s infinite ease-in-out;
-  }
+  .database-intro { position: absolute; left: 3vw; top: 50%; transform: translateY(-50%); z-index: 1; pointer-events: none; }
+  .database-title { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Inter', sans-serif; font-weight: 900; font-size: clamp(3rem, 8vw, 6rem); text-transform: uppercase; color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6); }
+  .press-alert { color: white; font-family: 'Inter', sans-serif; font-size: 20px; animation: blink 2s infinite ease-in-out; }
 
   .model-pile-container {
     position: relative;
@@ -122,7 +85,6 @@ const models = [
     height: 400px;
     perspective: 2000px;
     z-index: 10;
-    
     --scroll-p: 0;
   }
 
@@ -131,97 +93,49 @@ const models = [
     width: 260px;
     height: 315px;
     background: #fdfdfd;
-    padding: 12px 12px 65px 12px;
+    padding: 12px 12px 65px;
     left: 50%;
     top: 50%;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
-    cursor: pointer;
     
+   
+    --start: calc(var(--reverse-index) * 0.15);
+    --local-p: clamp(0, (var(--scroll-p) - var(--start)) / 0.3, 1);
     
-    --start: calc(var(--index) * 0.15);
-    --local-p: clamp(0, (var(--scroll-p) - var(--start)) / 0.4, 1);
     
     transform: translate3d(
-      calc(-50% + (var(--tx) * var(--local-p))), 
-      calc(-50% + (var(--ty) * var(--local-p))), 
+      calc(-50% + (150vw * var(--local-p))), 
+      calc(-50% + (-100vh * var(--local-p))), 
       0
     ) 
-    rotate(calc(var(--base-rotation) + (var(--tr) * var(--local-p))))
-    scale(calc(1 + (var(--local-p) * 1)));
+    rotate(calc(var(--base-rotation) + (45deg * var(--local-p))))
+    scale(calc(1 + var(--local-p)));
 
-    opacity: calc(1 - (var(--local-p) * 0.8));
+    opacity: calc(1 - var(--local-p));
+
+   
+    transition: transform 0.6s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.4s ease-out;
     
     will-change: transform, opacity;
-    -webkit-backface-visibility: hidden; 
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    transform-style: preserve-3d;
   }
+
 
   .card-1 { --base-rotation: -5deg; z-index: 1; }
   .card-2 { --base-rotation: 3deg; z-index: 2; }
   .card-3 { --base-rotation: -2deg; z-index: 3; }
   .card-4 { --base-rotation: 6deg; z-index: 4; }
 
-  .model-card img {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-  }
+  .model-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+  .polaroid-caption { position: absolute; bottom: 12px; left: 0; right: 0; display: flex; justify-content: center; font-family: "La Belle Aurore", cursive; font-size: 1.8rem; color: #222; }
+  .hollow-heart { width: 1.4em; height: 1.4em; stroke: #1a1a1a; margin-left: -14px; fill: none !important; }
 
-  .polaroid-caption {
-    position: absolute;
-    bottom: 12px;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "La Belle Aurore", cursive;
-    font-size: 1.8rem;
-    transform: rotate(-2.5deg);
-    filter: blur(0.3px) contrast(1.2);
-    color: #222;
-  }
-
-  .hollow-heart {
-    width: 1.4em; 
-    height: 1.4em;
-    stroke: #1a1a1a;
-    stroke-width: 1.3px; 
-    margin-left: -14px; 
-    margin-top: -8px; 
-    transform: rotate(8deg); 
-    fill: none !important;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  /* DESKTOP SCALING */
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  
   @media (min-width: 769px) {
-    .model-card {
-      width: 400px;
-      height: 485px;
-      padding: 18px 18px 90px 18px;
-    }
-    .polaroid-caption {
-      font-size: 3rem !important; 
-      bottom: 20px !important;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .database-intro {
-      left: 10px;
-      top: 20px;
-      transform: none;
-    }
-    .database-title {
-      font-size: 3.5rem;
-    }
+    .model-card { width: 400px; height: 485px; padding: 18px 18px 90px; }
+    .polaroid-caption { font-size: 3rem !important; bottom: 20px !important; }
   }
 </style>
