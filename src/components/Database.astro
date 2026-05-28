@@ -1,17 +1,17 @@
 ---
 // src/components/Database.astro
 const models = [
-  { id: 1, name: "Name", image: "/api/placeholder/400/400", link: "#" },
-  { id: 2, name: "Name", image: "/api/placeholder/400/400", link: "#" },
-  { id: 3, name: "Name", image: "/api/placeholder/400/400", link: "#" },
-  { id: 4, name: "Name", image: "/api/placeholder/400/400", link: "#" }
+  { id: 1, name: "Name 1", image: "/api/placeholder/400/400", link: "#" },
+  { id: 2, name: "Name 2", image: "/api/placeholder/400/400", link: "#" },
+  { id: 3, name: "Name 3", image: "/api/placeholder/400/400", link: "#" },
+  { id: 4, name: "Name 4", image: "/api/placeholder/400/400", link: "#" }
 ];
 ---
 
 <section class="database-section">
   <div class="database-intro">
     <h2 class="database-title">model database</h2>
-    <p class="press-alert">drag to toss</p>
+    <p class="press-alert">Hello!</p>
   </div>
 
   <div class="swiper model-swiper">
@@ -35,36 +35,36 @@ const models = [
 
 <script>
   import Swiper from 'swiper';
-  import { EffectCreative } from 'swiper/modules';
+  import { EffectCreative, Mousewheel } from 'swiper/modules';
   import 'swiper/css';
   import 'swiper/css/effect-creative';
 
   const initSwiper = () => {
     new Swiper('.model-swiper', {
-      modules: [EffectCreative],
+      modules: [EffectCreative, Mousewheel],
       effect: 'creative',
-      grabCursor: true, 
-      loop: true,
-      speed: 500,
-      resistanceRatio: 0,
-      simulateTouch: true, 
-      
+      speed: 800,
+      grabCursor: true,
+  
+      mousewheel: {
+        thresholdDelta: 20, 
+        releaseOnEdges: true, 
+      },
       creativeEffect: {
         prev: {
-          
-          translate: [0, '-120%', 500], 
-          rotate: [0, 0, -45],
+        
+          translate: ['-120%', '-150%', 500], 
+          rotate: [0, 0, -60],
           scale: 1.5,
           opacity: 0,
         },
         next: {
           
-          translate: ['2%', '2%', -20],
+          translate: ['2%', '2%', -50],
           rotate: [0, 0, 5],
           opacity: 1,
         },
-        limitProgress: 4, 
-        shadowPerProgress: false,
+        limitProgress: 5, 
       },
     });
   };
@@ -85,22 +85,22 @@ const models = [
     justify-content: center;
   }
 
- 
   .model-swiper {
     width: 100%;
-    height: 600px;
-    overflow: visible !important; 
+    height: 100vh;
+    overflow: visible !important;
+    display: flex;
+    align-items: center;
   }
 
   .swiper-slide {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* This ensures the stack is centered */
-    background: transparent; 
+    background: transparent;
   }
 
-  
+
   .model-card {
     position: relative;
     width: 260px;
@@ -110,22 +110,20 @@ const models = [
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
-    /* Hardware Acceleration */
     will-change: transform;
     transform-style: preserve-3d;
-    backface-visibility: hidden;
   }
 
 
-  .swiper-slide:nth-child(odd) .model-card { transform: rotate(-3deg) translate(-5px, 5px); }
-  .swiper-slide:nth-child(even) .model-card { transform: rotate(4deg) translate(8px, -5px); }
+  .swiper-slide:nth-child(odd) .model-card { transform: rotate(-4deg); }
+  .swiper-slide:nth-child(even) .model-card { transform: rotate(3deg); }
 
   .model-card img {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
-    pointer-events: none; 
   }
+
 
   .polaroid-caption {
     position: absolute;
@@ -152,11 +150,13 @@ const models = [
     transform: rotate(8deg);
   }
 
-  
+
   .database-intro {
     position: absolute;
     left: 3vw;
-    z-index: 50;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
     pointer-events: none;
   }
 
@@ -174,10 +174,11 @@ const models = [
   .press-alert {
     color: white;
     font-family: 'Inter', sans-serif;
-    animation: blink 2s infinite ease-in-out;
+    margin-top: 20px;
+    animation: blink 2s infinite;
   }
 
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes blink { 50% { opacity: 0.3; } }
 
   @media (min-width: 769px) {
     .model-card {
