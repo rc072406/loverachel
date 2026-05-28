@@ -50,7 +50,7 @@ const models = [
           trigger: section,
           start: "top top",
           end: `+=${scrollTriggerEndValue}`,
-          scrub: 1.2, 
+          scrub: true, 
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true, 
@@ -162,7 +162,7 @@ const models = [
     text-decoration: none;
     cursor: pointer;
     transform: translate3d(-50%, -50%, 0);
-    will-change: transform;
+    will-change: transform, opacity;
     -webkit-backface-visibility: hidden; 
     backface-visibility: hidden;
     -webkit-transform-style: preserve-3d;
