@@ -45,32 +45,32 @@ const models = [
     requestAnimationFrame(() => {
       const scrollTriggerEndValue = cards.length * window.innerHeight;
 
-      gsap.to(cards, {
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: `+=${scrollTriggerEndValue}`,
-          scrub: 1.2, 
-          pin: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true, 
-          overwrite: "auto",
-          lazy: true
-        },
+     gsap.to(cards, {
+  scrollTrigger: {
+    trigger: section,
+    start: "top top",
+    end: `+=${scrollTriggerEndValue}`,
+    scrub: 1.2, 
+    pin: true,
+    anticipatePin: 1,
+    invalidateOnRefresh: true, 
+  },
+
+  x: () => window.innerWidth * 1.5,
+  y: () => (Math.random() - 0.5) * window.innerHeight * 0.5, 
+  rotation: () => Math.random() * 20 - 10,
+  scale: 1.1, 
+  yoyo: true,
+  opacity: 0, 
+  force3D: true, 
+  ease: "power1.inOut",
+  stagger: {
+    each: 1, 
+    from: "start" 
+  }
+});
        
-        x: () => (Math.random() > 0.5 ? window.innerWidth * 1.6 : -window.innerWidth * 1.6),
-        // Always flying upward
-        y: () => -window.innerHeight * (1.2 + Math.random()), 
-        rotation: () => Math.random() * 90 - 45,
-        scale: 2,
-        opacity: 1, 
-        force3D: true, 
-        ease: "power2.inOut",
-        stagger: {
-          each: 1, 
-          from: "start" 
-        }
-      });
+      
     });
   };
 
