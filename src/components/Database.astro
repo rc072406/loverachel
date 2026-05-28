@@ -11,7 +11,7 @@ const models = [
 <section class="database-section">
   <div class="database-intro">
     <h2 class="database-title">model database</h2>
-    <p class="press-alert">hello!</p>
+    <p class="press-alert">press me</p>
   </div>
 
   <div class="swiper model-swiper">
@@ -35,33 +35,36 @@ const models = [
 
 <script>
   import Swiper from 'swiper';
-  import { EffectCreative, Mousewheel } from 'swiper/modules';
+  import { EffectCreative, Mousewheel, Keyboard } from 'swiper/modules';
   import 'swiper/css';
   import 'swiper/css/effect-creative';
 
   const initSwiper = () => {
     new Swiper('.model-swiper', {
-      modules: [EffectCreative, Mousewheel],
+      modules: [EffectCreative, Mousewheel, Keyboard],
       effect: 'creative',
-    
-      mousewheel: {
-        invert: false,
-        sensitivity: 1,
-      },
+      speed: 800,
       grabCursor: true,
-      speed: 700,
-      loop: false, 
+      simulateTouch: true,
+      mousewheel: {
+        sensitivity: 1,
+        thresholdDelta: 20,
+        releaseOnEdges: true,
+      },
+      keyboard: {
+        enabled: true,
+      },
       creativeEffect: {
         prev: {
-          
-          translate: ['-120%', '-150%', 500],
-          rotate: [0, 0, -40],
+          translate: ['-150%', '-120%', 600],
+          rotate: [0, 0, -50],
+          scale: 1.8,
           opacity: 0,
         },
         next: {
-         
           translate: [0, 0, 0],
           rotate: [0, 0, 0],
+          scale: 1,
           opacity: 1,
         },
       },
@@ -73,7 +76,6 @@ const models = [
 </script>
 
 <style>
-
   .database-section {
     position: relative;
     height: 100vh;
@@ -84,13 +86,13 @@ const models = [
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    touch-action: pan-y;
+    touch-action: none;
   }
 
   .model-swiper {
     width: 100%;
     height: 100%;
-    overflow: visible !important; 
+    overflow: hidden !important;
   }
 
   .swiper-slide {
@@ -98,8 +100,8 @@ const models = [
     justify-content: center;
     align-items: center;
     background: transparent;
+    overflow: hidden;
   }
-
 
   .model-card {
     position: absolute;
@@ -112,7 +114,9 @@ const models = [
     text-decoration: none;
     cursor: pointer;
     will-change: transform;
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    -webkit-transform-style: preserve-3d;
     transform-style: preserve-3d;
   }
 
@@ -120,14 +124,13 @@ const models = [
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
+    pointer-events: none;
   }
 
-  
   .card-1 { transform: rotate(-5deg); z-index: 4; }
   .card-2 { transform: rotate(3deg); z-index: 3; }
   .card-3 { transform: rotate(-2deg); z-index: 2; }
   .card-4 { transform: rotate(6deg); z-index: 1; }
-
 
   .polaroid-caption {
     position: absolute;
@@ -152,20 +155,29 @@ const models = [
     height: 1.4em;
     stroke: #1a1a1a;
     stroke-width: 1.3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    position: relative;
     margin-left: -14px;
     margin-top: -8px;
     transform: rotate(8deg);
+    opacity: 0.9;
     fill: none !important;
+    filter: blur(0.3px) contrast(1.2);
+    -webkit-font-smoothing: antialiased;
   }
-
 
   .database-intro {
     position: absolute;
     left: 3vw;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 100;
     pointer-events: none;
+    max-height: 90vh;
   }
 
   .database-title {
@@ -175,20 +187,58 @@ const models = [
     font-weight: 900;
     font-size: clamp(3rem, 8vw, 6rem);
     text-transform: uppercase;
-    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
+    letter-spacing: -0.02em;
+    line-height: 0.8;
     color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
+    margin: 0;
+    padding-bottom: 20px;
   }
 
   .press-alert {
     color: white;
     font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    margin-top: 20px;
+    position: relative;
+    display: inline-block;
     animation: blink 2s infinite ease-in-out;
   }
 
-  @keyframes blink { 50% { opacity: 0.3; } }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @media (max-width: 768px) {
+    .database-intro {
+      left: 10px;
+      top: 20px;
+      transform: none;
+    }
+    .database-title {
+      font-size: 3.5rem;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+    }
+  }
 
   @media (min-width: 769px) {
-    .model-card { width: 400px; height: 485px; padding: 18px 18px 90px 18px; }
-    .polaroid-caption { font-size: 3rem !important; bottom: 20px !important; }
+    .model-card {
+      width: 400px;
+      height: 485px;
+      padding: 18px 18px 90px 18px;
+    }
+    .polaroid-caption {
+      font-size: 3rem !important;
+      bottom: 20px !important;
+      filter: blur(0.9px) contrast(1.8);
+      text-shadow: 0 0 1px rgba(0,0,0,0.3);
+    }
+    .hollow-heart {
+      filter: blur(0.4px) contrast(1.5);
+      margin-left: -22px;
+      margin-top: -12px;
+    }
   }
 </style>
