@@ -1,24 +1,24 @@
 ---
 // src/components/Database.astro
 const models = [
-  { id: 1, name: "Name 1", image: "/api/placeholder/400/400", link: "#" },
-  { id: 2, name: "Name 2", image: "/api/placeholder/400/400", link: "#" },
-  { id: 3, name: "Name 3", image: "/api/placeholder/400/400", link: "#" },
-  { id: 4, name: "Name 4", image: "/api/placeholder/400/400", link: "#" }
+  { id: 1, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 2, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 3, name: "Name", image: "/api/placeholder/400/400", link: "#" },
+  { id: 4, name: "Name", image: "/api/placeholder/400/400", link: "#" }
 ];
 ---
 
 <section class="database-section">
   <div class="database-intro">
     <h2 class="database-title">model database</h2>
-    <p class="press-alert">Hello!</p>
+    <p class="press-alert">hello!</p>
   </div>
 
   <div class="swiper model-swiper">
     <div class="swiper-wrapper">
       {models.map((model) => (
         <div class="swiper-slide">
-          <a href={model.link} class="model-card">
+          <a href={model.link} class={`model-card card-${model.id}`}>
             <img src={model.image} alt={model.name} />
             <div class="polaroid-caption">
               <span>{model.name}</span>
@@ -43,28 +43,27 @@ const models = [
     new Swiper('.model-swiper', {
       modules: [EffectCreative, Mousewheel],
       effect: 'creative',
-      speed: 800,
-      grabCursor: true,
-  
+    
       mousewheel: {
-        thresholdDelta: 20, 
-        releaseOnEdges: true, 
+        invert: false,
+        sensitivity: 1,
       },
+      grabCursor: true,
+      speed: 700,
+      loop: false, 
       creativeEffect: {
         prev: {
-        
-          translate: ['-120%', '-150%', 500], 
-          rotate: [0, 0, -60],
-          scale: 1.5,
+          
+          translate: ['-120%', '-150%', 500],
+          rotate: [0, 0, -40],
           opacity: 0,
         },
         next: {
-          
-          translate: ['2%', '2%', -50],
-          rotate: [0, 0, 5],
+         
+          translate: [0, 0, 0],
+          rotate: [0, 0, 0],
           opacity: 1,
         },
-        limitProgress: 5, 
       },
     });
   };
@@ -74,6 +73,7 @@ const models = [
 </script>
 
 <style>
+
   .database-section {
     position: relative;
     height: 100vh;
@@ -81,28 +81,28 @@ const models = [
     background: #000;
     overflow: hidden;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    touch-action: pan-y;
   }
 
   .model-swiper {
     width: 100%;
-    height: 100vh;
-    overflow: visible !important;
-    display: flex;
-    align-items: center;
+    height: 100%;
+    overflow: visible !important; 
   }
 
   .swiper-slide {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     background: transparent;
   }
 
 
   .model-card {
-    position: relative;
+    position: absolute;
     width: 260px;
     height: 315px;
     background: #fdfdfd;
@@ -110,19 +110,23 @@ const models = [
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
+    cursor: pointer;
     will-change: transform;
+    backface-visibility: hidden;
     transform-style: preserve-3d;
   }
-
-
-  .swiper-slide:nth-child(odd) .model-card { transform: rotate(-4deg); }
-  .swiper-slide:nth-child(even) .model-card { transform: rotate(3deg); }
 
   .model-card img {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
   }
+
+  
+  .card-1 { transform: rotate(-5deg); z-index: 4; }
+  .card-2 { transform: rotate(3deg); z-index: 3; }
+  .card-3 { transform: rotate(-2deg); z-index: 2; }
+  .card-4 { transform: rotate(6deg); z-index: 1; }
 
 
   .polaroid-caption {
@@ -133,9 +137,13 @@ const models = [
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: -2px;
     font-family: "La Belle Aurore", cursive;
     font-size: 1.8rem;
     transform: rotate(-2.5deg);
+    filter: blur(0.3px) contrast(1.2);
+    -webkit-font-smoothing: antialiased;
+    text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
     color: #222;
   }
 
@@ -144,10 +152,10 @@ const models = [
     height: 1.4em;
     stroke: #1a1a1a;
     stroke-width: 1.3px;
-    fill: none !important;
     margin-left: -14px;
     margin-top: -8px;
     transform: rotate(8deg);
+    fill: none !important;
   }
 
 
@@ -156,7 +164,7 @@ const models = [
     left: 3vw;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 100;
+    z-index: 50;
     pointer-events: none;
   }
 
@@ -167,25 +175,20 @@ const models = [
     font-weight: 900;
     font-size: clamp(3rem, 8vw, 6rem);
     text-transform: uppercase;
-    color: transparent;
     -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
+    color: transparent;
   }
 
   .press-alert {
     color: white;
     font-family: 'Inter', sans-serif;
-    margin-top: 20px;
-    animation: blink 2s infinite;
+    animation: blink 2s infinite ease-in-out;
   }
 
   @keyframes blink { 50% { opacity: 0.3; } }
 
   @media (min-width: 769px) {
-    .model-card {
-      width: 400px;
-      height: 485px;
-      padding: 18px 18px 90px 18px;
-    }
+    .model-card { width: 400px; height: 485px; padding: 18px 18px 90px 18px; }
     .polaroid-caption { font-size: 3rem !important; bottom: 20px !important; }
   }
 </style>
