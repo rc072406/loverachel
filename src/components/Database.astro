@@ -8,60 +8,54 @@ const models = [
 ];
 ---
 
-<div class="scroll-wrapper">
-  <section class="database-section">
-    <div class="database-intro">
-      <h2 class="database-title">model database</h2>
-      <p class="press-alert">hello!</p>
-    </div>
+<section class="database-section">
+  <div class="database-intro">
+    <h2 class="database-title">model database</h2>
+    <p class="press-alert">press me</p>
+  </div>
 
-    <div class="swiper model-swiper">
-      <div class="swiper-wrapper">
-        {models.map((model) => (
-          <div class="swiper-slide">
-            <a href={model.link} class={`model-card card-${model.id}`}>
-              <img src={model.image} alt={model.name} />
-              <div class="polaroid-caption">
-                <span>{model.name}</span>
-                <svg class="hollow-heart" viewBox="0 0 24 24">
-                  <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
-                </svg>
-              </div>
-            </a>
-          </div>
-        ))}
-      </div>
+  <div class="swiper model-swiper">
+    <div class="swiper-wrapper">
+      {models.map((model) => (
+        <div class="swiper-slide">
+          <a href={model.link} class={`model-card card-${model.id}`}>
+            <img src={model.image} alt={model.name} />
+            <div class="polaroid-caption">
+              <span>{model.name}</span>
+              <svg class="hollow-heart" viewBox="0 0 24 24">
+                <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
+              </svg>
+            </div>
+          </a>
+        </div>
+      ))}
     </div>
-  </section>
-</div>
+  </div>
+</section>
 
 <script>
   import Swiper from 'swiper';
-  import { EffectCreative, Mousewheel, Keyboard } from 'swiper/modules';
+  import { EffectCreative, Mousewheel } from 'swiper/modules';
   import 'swiper/css';
   import 'swiper/css/effect-creative';
 
   const initSwiper = () => {
     new Swiper('.model-swiper', {
-      modules: [EffectCreative, Mousewheel, Keyboard],
+      modules: [EffectCreative, Mousewheel],
       effect: 'creative',
-      speed: 600,
+      speed: 800,
       resistanceRatio: 0,
-      grabCursor: false,
-      simulateTouch: false, 
+      grabCursor: true,
       mousewheel: {
-        eventsTarget: '.scroll-wrapper',
-        sticky: true,
+       
+        thresholdDelta: 10,
         releaseOnEdges: true,
-      },
-      keyboard: {
-        enabled: true,
       },
       creativeEffect: {
         prev: {
-          translate: ['-160%', '-120%', 500],
-          rotate: [0, 0, -60],
-          scale: 2,
+          translate: ['-150%', '-120%', 500],
+          rotate: [0, 0, -50],
+          scale: 1.5,
           opacity: 0,
         },
         next: {
@@ -79,15 +73,8 @@ const models = [
 </script>
 
 <style>
-  .scroll-wrapper {
-    position: relative;
-    height: 300vh; 
-    background: #000;
-  }
-
   .database-section {
-    position: sticky;
-    top: 0;
+    position: relative;
     height: 100vh;
     width: 100%;
     overflow: hidden;
@@ -119,10 +106,9 @@ const models = [
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
+    cursor: pointer;
     will-change: transform;
-    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    -webkit-transform-style: preserve-3d;
     transform-style: preserve-3d;
   }
 
@@ -130,6 +116,7 @@ const models = [
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
+    pointer-events: none;
   }
 
   .card-1 { transform: rotate(-5deg); z-index: 4; }
@@ -149,9 +136,6 @@ const models = [
     font-family: "La Belle Aurore", cursive;
     font-size: 1.8rem;
     transform: rotate(-2.5deg);
-    filter: blur(0.3px) contrast(1.2);
-    -webkit-font-smoothing: antialiased;
-    text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
     color: #222;
   }
 
@@ -160,15 +144,10 @@ const models = [
     height: 1.4em;
     stroke: #1a1a1a;
     stroke-width: 1.3px;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    position: relative;
     margin-left: -14px;
     margin-top: -8px;
     transform: rotate(8deg);
-    opacity: 0.9;
     fill: none !important;
-    filter: blur(0.3px) contrast(1.2);
   }
 
   .database-intro {
@@ -189,14 +168,11 @@ const models = [
     text-transform: uppercase;
     color: transparent;
     -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
-    margin: 0;
-    padding-bottom: 20px;
   }
 
   .press-alert {
     color: white;
     font-family: 'Inter', sans-serif;
-    font-size: 20px;
     animation: blink 2s infinite ease-in-out;
   }
 
@@ -211,10 +187,6 @@ const models = [
     .polaroid-caption {
       font-size: 3rem !important;
       bottom: 20px !important;
-    }
-    .hollow-heart {
-      margin-left: -22px;
-      margin-top: -12px;
     }
   }
 </style>
