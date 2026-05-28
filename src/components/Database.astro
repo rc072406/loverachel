@@ -50,22 +50,23 @@ const models = [
     trigger: section,
     start: "top top",
     end: `+=${scrollTriggerEndValue}`,
-    scrub: 1.2, 
+    scrub: 1.2,
     pin: true,
     anticipatePin: 1,
-    invalidateOnRefresh: true, 
+    invalidateOnRefresh: true,
   },
 
   x: () => window.innerWidth * 1.5,
-  y: () => (Math.random() - 0.5) * window.innerHeight * 0.5, 
-  rotation: () => Math.random() * 20 - 10,
-  scale: 1.1, 
-  opacity: 0, 
-  force3D: true, 
-  ease: "power1.inOut",
+  y: () => -window.innerHeight * (1 + Math.random()), 
+  
+  rotation: () => Math.random() * 45, 
+  scale: 1.2,
+  opacity: 0,
+  force3D: true,
+  ease: "power1.in", 
   stagger: {
-    each: 1, 
-    from: "start" 
+    each: 0.8,
+    from: "start"
   }
 });
        
