@@ -11,59 +11,69 @@ const models = [
 <section class="database-section">
   <div class="database-intro">
     <h2 class="database-title">model database</h2>
-    <p class="press-alert">hello!</p>
+    <p class="press-alert">press me</p>
   </div>
 
-  <div class="swiper model-swiper">
-    <div class="swiper-wrapper">
-      {models.map((model) => (
-        <div class="swiper-slide">
-          <a href={model.link} class="model-card">
-            <img src={model.image} alt={model.name} />
-            <div class="polaroid-caption">
-              <span>{model.name}</span>
-              <svg class="hollow-heart" viewBox="0 0 24 24">
-                <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
-              </svg>
-            </div>
-          </a>
+  <div class="model-pile-container">
+    {models.map((model) => (
+      <a href={model.link} class={`model-card card-${model.id}`}>
+        <img src={model.image} alt={model.name} />
+        <div class="polaroid-caption">
+          <span>{model.name}</span>
+          <svg class="hollow-heart" viewBox="0 0 24 24">
+            <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
+          </svg>
         </div>
-      ))}
-    </div>
+      </a>
+    ))}
   </div>
 </section>
 
-
-
 <script>
-  import Swiper from 'swiper';
-  import { EffectCreative } from 'swiper/modules';
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-  const initSwiper = () => {
-    new Swiper('.model-swiper', {
-      modules: [EffectCreative],
-      direction: 'vertical',
-      grabCursor: true,
-      effect: 'creative',
-      
-      creativeEffect: {
-        prev: {
-          
-          translate: [0, '-150%', 0],
-          rotate: [0, 0, -20],
-          scale: 1.2,
-          opacity: 0,
+  gsap.registerPlugin(ScrollTrigger);
+
+  const runAnimation = () => {
+  
+    const cards = gsap.utils.toArray(".model-card").reverse();
+    const section = document.querySelector(".database-section");
+    
+    if (!section || cards.length === 0) return;
+
+    requestAnimationFrame(() => {
+      const scrollTriggerEndValue = cards.length * window.innerHeight;
+
+      gsap.to(cards, {
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: `+=${scrollTriggerEndValue}`,
+          scrub: 1.2, 
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true, 
         },
-        next: {
-         
-          translate: [0, 0, -1],
-        },
-      },
+       
+        x: () => (Math.random() > 0.5 ? window.innerWidth * 1.6 : -window.innerWidth * 1.6),
+        // Always flying upward
+        y: () => -window.innerHeight * (1.2 + Math.random()), 
+        rotation: () => Math.random() * 90 - 45,
+        scale: 2,
+        opacity: 1, 
+        force3D: true, 
+        ease: "power2.inOut",
+        stagger: {
+          each: 1, 
+          from: "start" 
+        }
+      });
     });
   };
 
-  initSwiper();
-  document.addEventListener("astro:after-swap", initSwiper);
+  runAnimation();
+  document.addEventListener("astro:after-swap", runAnimation);
 </script>
 
 <style>
@@ -74,8 +84,10 @@ const models = [
     background: #000;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    touch-action: pan-y;
   }
 
   .database-intro {
@@ -86,8 +98,9 @@ const models = [
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    z-index: 100; 
+    z-index: 1; 
     pointer-events: none;
+    max-height: 90vh;
   }
 
   .database-title {
@@ -110,98 +123,11 @@ const models = [
     font-family: 'Inter', sans-serif;
     font-size: 20px;
     font-weight: 300;
-    margin-top: 20px;
+    margin-top: 20px; 
+    position: relative;
+    display: inline-block;
     animation: blink 2s infinite ease-in-out;
   }
-
-
-  .model-swiper {
-    width: 100%;
-    height: 100%;
-    overflow: visible; 
-  }
-
-  .swiper-slide {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    overflow: visible;
-  }
-
-  .model-card {
-    position: relative;
-    width: 260px;
-    height: 315px;
-    background: #fdfdfd;
-    padding: 12px 12px 65px 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    border: 1px solid rgba(0,0,0,0.05);
-    text-decoration: none;
-    cursor: grab;
-    will-change: transform;
-    backface-visibility: hidden;
-  }
-
-  .model-card img {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-  }
-
-
-  .swiper-slide:nth-child(1) .model-card { transform: rotate(-5deg); }
-  .swiper-slide:nth-child(2) .model-card { transform: rotate(3deg); }
-  .swiper-slide:nth-child(3) .model-card { transform: rotate(-2deg); }
-  .swiper-slide:nth-child(4) .model-card { transform: rotate(6deg); }
-
-  .polaroid-caption {
-    position: absolute;
-    bottom: 12px;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "La Belle Aurore", cursive;
-    font-size: 1.8rem;
-    transform: rotate(-2.5deg);
-    color: #222;
-  }
-
-  .hollow-heart {
-    width: 1.4em;
-    height: 1.4em;
-    stroke: #1a1a1a;
-    stroke-width: 1.3px;
-    fill: none;
-    margin-left: -14px;
-    margin-top: -8px;
-    transform: rotate(8deg);
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-
-  @media (min-width: 769px) {
-    .model-card {
-      width: 400px;
-      height: 485px;
-      padding: 18px 18px 90px 18px;
-    }
-    .polaroid-caption {
-      font-size: 3rem;
-      bottom: 20px;
-    }
-    .hollow-heart {
-      margin-left: -22px;
-      margin-top: -12px;
-    }
-  }
-
 
   @media (max-width: 768px) {
     .database-intro {
@@ -211,6 +137,106 @@ const models = [
     }
     .database-title {
       font-size: 3.5rem;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .model-pile-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    perspective: 2000px;
+    z-index: 10;
+  }
+
+  .model-card {
+    position: absolute;
+    width: 260px;
+    height: 315px;
+    background: #fdfdfd;
+    padding: 12px 12px 65px 12px;
+    left: 50%;
+    top: 50%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,0,0,0.05);
+    text-decoration: none;
+    cursor: pointer;
+    transform: translate3d(-50%, -50%, 0);
+    will-change: transform;
+    -webkit-backface-visibility: hidden; 
+    backface-visibility: hidden;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+
+  .model-card img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+  }
+
+
+  .card-1 { transform: translate3d(-55%, -50%, 0) rotate(-5deg); z-index: 1; }
+  .card-2 { transform: translate3d(-48%, -52%, 0) rotate(3deg); z-index: 2; }
+  .card-3 { transform: translate3d(-52%, -48%, 0) rotate(-2deg); z-index: 3; }
+  .card-4 { transform: translate3d(-45%, -50%, 0) rotate(6deg); z-index: 4; }
+
+  .polaroid-caption {
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: -2px;
+    font-family: "La Belle Aurore", cursive;
+    font-size: 1.8rem;
+    transform: rotate(-2.5deg);
+    filter: blur(0.3px) contrast(1.2);
+    -webkit-font-smoothing: antialiased;
+    text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
+    color: #222;
+  }
+
+  .hollow-heart {
+    width: 1.4em; 
+    height: 1.4em;
+    stroke: #1a1a1a;
+    stroke-width: 1.3px; 
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    position: relative;
+    margin-left: -14px; 
+    margin-top: -8px; 
+    transform: rotate(8deg); 
+    opacity: 0.9;
+    fill: none !important;
+    filter: blur(0.3px) contrast(1.2);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @media (min-width: 769px) {
+    .model-card {
+      width: 400px;
+      height: 485px;
+      padding: 18px 18px 90px 18px;
+    }
+    .polaroid-caption {
+      font-size: 3rem !important; 
+      bottom: 20px !important;
+      filter: blur(0.9px) contrast(1.8);
+      text-shadow: 0 0 1px rgba(0,0,0,0.3);
+    }
+    .hollow-heart {
+      filter: blur(0.4px) contrast(1.5);
+      margin-left: -22px;
+      margin-top: -12px;
     }
   }
 </style>
