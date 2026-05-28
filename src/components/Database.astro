@@ -8,30 +8,32 @@ const models = [
 ];
 ---
 
-<section class="database-section">
-  <div class="database-intro">
-    <h2 class="database-title">model database</h2>
-    <p class="press-alert">press me</p>
-  </div>
-
-  <div class="swiper model-swiper">
-    <div class="swiper-wrapper">
-      {models.map((model) => (
-        <div class="swiper-slide">
-          <a href={model.link} class={`model-card card-${model.id}`}>
-            <img src={model.image} alt={model.name} />
-            <div class="polaroid-caption">
-              <span>{model.name}</span>
-              <svg class="hollow-heart" viewBox="0 0 24 24">
-                <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
-              </svg>
-            </div>
-          </a>
-        </div>
-      ))}
+<div class="scroll-wrapper">
+  <section class="database-section">
+    <div class="database-intro">
+      <h2 class="database-title">model database</h2>
+      <p class="press-alert">hello!</p>
     </div>
-  </div>
-</section>
+
+    <div class="swiper model-swiper">
+      <div class="swiper-wrapper">
+        {models.map((model) => (
+          <div class="swiper-slide">
+            <a href={model.link} class={`model-card card-${model.id}`}>
+              <img src={model.image} alt={model.name} />
+              <div class="polaroid-caption">
+                <span>{model.name}</span>
+                <svg class="hollow-heart" viewBox="0 0 24 24">
+                  <path d="M12 20s-1-4.5-5-7.5c-3-2.2-4.5-4.5-3.5-7 1.2-3 5-2.5 7 1.5 1.5-3.5 6.5-4 8-1.5 1.5 2.5 0 5-3.5 7.5-4 3-6 7-6 7z" />
+                </svg>
+              </div>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</div>
 
 <script>
   import Swiper from 'swiper';
@@ -43,12 +45,13 @@ const models = [
     new Swiper('.model-swiper', {
       modules: [EffectCreative, Mousewheel, Keyboard],
       effect: 'creative',
-      speed: 800,
-      grabCursor: true,
-      simulateTouch: true,
+      speed: 600,
+      resistanceRatio: 0,
+      grabCursor: false,
+      simulateTouch: false, 
       mousewheel: {
-        sensitivity: 1,
-        thresholdDelta: 20,
+        eventsTarget: '.scroll-wrapper',
+        sticky: true,
         releaseOnEdges: true,
       },
       keyboard: {
@@ -56,9 +59,9 @@ const models = [
       },
       creativeEffect: {
         prev: {
-          translate: ['-150%', '-120%', 600],
-          rotate: [0, 0, -50],
-          scale: 1.8,
+          translate: ['-160%', '-120%', 500],
+          rotate: [0, 0, -60],
+          scale: 2,
           opacity: 0,
         },
         next: {
@@ -76,23 +79,28 @@ const models = [
 </script>
 
 <style>
-  .database-section {
+  .scroll-wrapper {
     position: relative;
+    height: 300vh; 
+    background: #000;
+  }
+
+  .database-section {
+    position: sticky;
+    top: 0;
     height: 100vh;
     width: 100%;
-    background: #000;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    touch-action: none;
   }
 
   .model-swiper {
     width: 100%;
     height: 100%;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .swiper-slide {
@@ -100,7 +108,6 @@ const models = [
     justify-content: center;
     align-items: center;
     background: transparent;
-    overflow: hidden;
   }
 
   .model-card {
@@ -112,7 +119,6 @@ const models = [
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     border: 1px solid rgba(0,0,0,0.05);
     text-decoration: none;
-    cursor: pointer;
     will-change: transform;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -124,7 +130,6 @@ const models = [
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
-    pointer-events: none;
   }
 
   .card-1 { transform: rotate(-5deg); z-index: 4; }
@@ -164,7 +169,6 @@ const models = [
     opacity: 0.9;
     fill: none !important;
     filter: blur(0.3px) contrast(1.2);
-    -webkit-font-smoothing: antialiased;
   }
 
   .database-intro {
@@ -172,12 +176,8 @@ const models = [
     left: 3vw;
     top: 50%;
     transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
     z-index: 100;
     pointer-events: none;
-    max-height: 90vh;
   }
 
   .database-title {
@@ -187,8 +187,6 @@ const models = [
     font-weight: 900;
     font-size: clamp(3rem, 8vw, 6rem);
     text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.8;
     color: transparent;
     -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.6);
     margin: 0;
@@ -199,29 +197,10 @@ const models = [
     color: white;
     font-family: 'Inter', sans-serif;
     font-size: 20px;
-    font-weight: 300;
-    margin-top: 20px;
-    position: relative;
-    display: inline-block;
     animation: blink 2s infinite ease-in-out;
   }
 
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  @media (max-width: 768px) {
-    .database-intro {
-      left: 10px;
-      top: 20px;
-      transform: none;
-    }
-    .database-title {
-      font-size: 3.5rem;
-      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
-    }
-  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   @media (min-width: 769px) {
     .model-card {
@@ -232,11 +211,8 @@ const models = [
     .polaroid-caption {
       font-size: 3rem !important;
       bottom: 20px !important;
-      filter: blur(0.9px) contrast(1.8);
-      text-shadow: 0 0 1px rgba(0,0,0,0.3);
     }
     .hollow-heart {
-      filter: blur(0.4px) contrast(1.5);
       margin-left: -22px;
       margin-top: -12px;
     }
