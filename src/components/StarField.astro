@@ -8,6 +8,7 @@
   <slot /> 
 </div>
 
+
 <script>
   import * as THREE from 'three';
   import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -18,60 +19,38 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  let frameCount = 0;
-
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x000000, 0.005);
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 25;
 
-  const renderer = new THREE.WebGLRenderer({ 
-    alpha: true, 
-    antialias: !isMobile, 
-    powerPreference: "high-performance" 
-  });
-  
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "high-performance" });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); 
   container.appendChild(renderer.domElement);
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-
-
-  const bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight), 
-    1.8, 
-    0.5, 
-    0.1
-  );
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.3, 0.9, 0.15);
   composer.addPass(bloomPass);
 
- 
   const createTex = (isStar) => {
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
     const ctx = canvas.getContext('2d');
     const grad = ctx.createRadialGradient(64,64,0,64,64,64);
-    
     if(isStar) {
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)'); // Hot Core
-      grad.addColorStop(isMobile ? 0.25 : 0.15, 'rgba(255, 255, 255, 1)'); 
-      grad.addColorStop(0.4, 'rgba(120, 190, 255, 0.6)'); 
+      grad.addColorStop(0, 'white'); grad.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+      grad.addColorStop(0.5, 'rgba(100,180,255,0.2)');
     } else {
-      grad.addColorStop(0, 'rgba(140, 180, 255, 0.8)'); 
-      grad.addColorStop(0.6, 'rgba(200, 180, 255, 0.2)');
+      grad.addColorStop(0, 'rgba(100,150,255,0.6)'); grad.addColorStop(0.5, 'rgba(200,180,255,0.2)');
     }
     grad.addColorStop(1, 'transparent');
     ctx.fillStyle = grad; ctx.fillRect(0,0,128,128);
     return new THREE.CanvasTexture(canvas);
   };
 
- 
   const starCount = 40000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(starCount * 3);
@@ -90,23 +69,8 @@
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ 
-    size: 0.35, // Slightly larger for better glow
-    map: createTex(true), 
-    transparent: true, 
-    blending: THREE.AdditiveBlending, 
-    depthWrite: false, 
-    vertexColors: true 
-  }));
-
-  const nebula = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ 
-    size: 60, 
-    map: createTex(false), 
-    transparent: true, 
-    blending: THREE.AdditiveBlending, 
-    depthWrite: false, 
-    opacity: 0.12 
-  }));
+  const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ size: 0.25, map: createTex(true), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true }));
+  const nebula = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ size: 50, map: createTex(false), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.08 }));
   
   const nPos = new Float32Array(50 * 3);
   for(let i=0; i<150; i++) nPos[i] = (Math.random()-0.5)*150;
@@ -118,7 +82,6 @@
 
   gsap.to(spaceGroup.rotation, { x: 0.3, y: 0.5, scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 3 }});
 
- 
   const cursor = document.getElementById('custom-cursor');
   const flare = cursor?.querySelector('.cursor-glare');
   let mX = 0, mY = 0, pX = 0, pY = 0;
@@ -129,61 +92,53 @@
     mouseV.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1, 0.5);
   });
 
- 
+
   const tempV = new THREE.Vector3();
   const starEuler = new THREE.Euler();
 
   function animate() {
     requestAnimationFrame(animate);
-    frameCount++;
     const time = Date.now() * 0.001;
-    
     camera.lookAt(0,0,0);
     stars.rotation.y += 0.0002; stars.rotation.x += 0.0001;
     nebula.rotation.y += 0.0001;
 
- 
-    if (!isMobile || frameCount % 2 === 0) {
-      tempV.copy(mouseV).unproject(camera);
-      const dir = tempV.sub(camera.position).normalize();
-      const mPos = camera.position.clone().add(dir.multiplyScalar(-camera.position.z / dir.z));
-      starEuler.set(-stars.rotation.x, -stars.rotation.y, -stars.rotation.z);
-      mPos.applyEuler(starEuler);
 
-      const posAttr = stars.geometry.attributes.position;
-      const pa = posAttr.array;
-      const ip = initialPositions;
+    tempV.copy(mouseV).unproject(camera);
+    const dir = tempV.sub(camera.position).normalize();
+    const mPos = camera.position.clone().add(dir.multiplyScalar(-camera.position.z / dir.z));
+    starEuler.set(-stars.rotation.x, -stars.rotation.y, -stars.rotation.z);
+    mPos.applyEuler(starEuler);
 
-      for (let i = 0; i < starCount; i++) {
-        const ix = i * 3, iy = i * 3 + 1;
-        const dx = pa[ix] - mPos.x, dy = pa[iy] - mPos.y;
-        const distSq = dx * dx + dy * dy;
-        
-        if (distSq < 36) { 
-          const dist = Math.sqrt(distSq);
-          const force = (6 - dist) / 6;
-          pa[ix] += dx * force * 0.12; pa[iy] += dy * force * 0.12;
-        } else {
-          pa[ix] += (ip[ix] - pa[ix]) * 0.05; pa[iy] += (ip[iy] - pa[iy]) * 0.05;
-        }
+    const posAttr = stars.geometry.attributes.position;
+    const pa = posAttr.array;
+    const ip = initialPositions;
+
+    for (let i = 0; i < starCount; i++) {
+      const ix = i * 3, iy = i * 3 + 1;
+      const dx = pa[ix] - mPos.x, dy = pa[iy] - mPos.y;
+      
+     
+      const distSq = dx * dx + dy * dy;
+      if (distSq < 36) { 
+        const dist = Math.sqrt(distSq);
+        const force = (6 - dist) / 6;
+        pa[ix] += dx * force * 0.12; pa[iy] += dy * force * 0.12;
+      } else {
+        pa[ix] += (ip[ix] - pa[ix]) * 0.05; pa[iy] += (ip[iy] - pa[iy]) * 0.05;
       }
-      posAttr.needsUpdate = true;
     }
+    posAttr.needsUpdate = true;
 
     stars.material.opacity = 0.7 + Math.sin(time) * 0.3;
-    nebula.material.opacity = 0.08 + Math.cos(time * 0.5) * 0.04;
+    nebula.material.opacity = 0.05 + Math.cos(time * 0.5) * 0.03;
 
-    
-    const dx = mX - pX; const dy = mY - pY;
-    pX += dx * 0.15; pY += dy * 0.15;
+
+    pX += (mX - pX) * 0.15; pY += (mY - pY) * 0.15;
     if (cursor) {
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      const velocity = Math.sqrt(dx * dx + dy * dy);
-      cursor.style.transform = `translate3d(${pX - 100}px, ${pY - 10}px, 0) rotate(${angle}deg) scaleX(${1 + (velocity / 120)})`;
-      if(flare) {
-        flare.style.opacity = Math.min(1, 0.4 + (velocity / 200));
-        flare.style.transform = `scale(${1 + velocity / 150})`;
-      }
+      const velocity = Math.sqrt(Math.pow(mX-pX, 2) + Math.pow(mY-pY, 2));
+      cursor.style.transform = `translate3d(${pX - 100}px, ${pY - 10}px, 0) rotate(${Math.atan2(mY-pY, mX-pX) * 57.29}deg) scaleX(${1 + velocity / 120})`;
+      if(flare) flare.style.opacity = Math.min(1, 0.4 + (velocity / 200));
     }
     composer.render();
   }
@@ -196,6 +151,7 @@
     composer.setSize(window.innerWidth, window.innerHeight);
   });
 </script>
+
 
 <style is:global>
   #star-container { 
