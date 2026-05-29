@@ -11,7 +11,7 @@ const models = [
 <section class="database-section">
   <div class="database-intro">
     <h2 class="database-title">model database</h2>
-    <p class="press-alert">hello!</p>
+    <p class="press-alert">Where are you?</p>
   </div>
 
   <div class="model-pile-container">
@@ -45,28 +45,30 @@ const models = [
     requestAnimationFrame(() => {
       const scrollTriggerEndValue = cards.length * window.innerHeight;
 
-     gsap.to(cards, {
-  scrollTrigger: {
-    trigger: section,
-    start: "top top",
-    end: `+=${cards.length * 100}%`, 
-    scrub: 1,
-    pin: true,
-    invalidateOnRefresh: true,
-  },
-  x: () => window.innerWidth * 1.5, 
-  y: () => -window.innerHeight * (1 + Math.random()), 
-  rotation: () => Math.random() * 30,
-  scale: 1.2,
-  opacity: 0,
-  force3D: true,
-  stagger: {
-    each: 0.8,
-    from: "start"
-  }
-});
+      gsap.to(cards, {
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: `+=${scrollTriggerEndValue}`,
+          scrub: 1.2, 
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true, 
+        },
        
-      
+        x: () => (Math.random() > 0.5 ? window.innerWidth * 1.6 : -window.innerWidth * 1.6),
+        // Always flying upward
+        y: () => -window.innerHeight * (1.2 + Math.random()), 
+        rotation: () => Math.random() * 90 - 45,
+        scale: 2,
+        opacity: 1, 
+        force3D: true, 
+        ease: "power2.inOut",
+        stagger: {
+          each: 1, 
+          from: "start" 
+        }
+      });
     });
   };
 
@@ -79,6 +81,7 @@ const models = [
     position: relative;
     height: 100vh;
     width: 100%;
+    background: #000;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -116,8 +119,7 @@ const models = [
   }
 
   .press-alert {
-    color: white;
-    font-family: 'Inter', sans-serif;
+    color: var(---accent);
     font-size: 20px;
     font-weight: 300;
     margin-top: 20px; 
@@ -159,7 +161,7 @@ const models = [
     text-decoration: none;
     cursor: pointer;
     transform: translate3d(-50%, -50%, 0);
-    will-change: transform, opacity;
+    will-change: transform;
     -webkit-backface-visibility: hidden; 
     backface-visibility: hidden;
     -webkit-transform-style: preserve-3d;
@@ -193,13 +195,13 @@ const models = [
     filter: blur(0.3px) contrast(1.2);
     -webkit-font-smoothing: antialiased;
     text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.15);
-    color: #14171A;
+    color: #222;
   }
 
   .hollow-heart {
     width: 1.4em; 
     height: 1.4em;
-    stroke: #14171A;
+    stroke: #1a1a1a;
     stroke-width: 1.3px; 
     stroke-linecap: round;
     stroke-linejoin: round;
