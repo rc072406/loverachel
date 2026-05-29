@@ -18,7 +18,6 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   let frameCount = 0;
 
@@ -35,13 +34,11 @@
   });
   
   renderer.setSize(window.innerWidth, window.innerHeight);
-  
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
   container.appendChild(renderer.domElement);
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-
 
   const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight), 
@@ -51,7 +48,6 @@
   );
   composer.addPass(bloomPass);
 
- 
   const createTex = (isStar) => {
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
@@ -59,7 +55,7 @@
     const grad = ctx.createRadialGradient(64,64,0,64,64,64);
     
     if(isStar) {
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)'); // Hot Core
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
       grad.addColorStop(isMobile ? 0.25 : 0.15, 'rgba(255, 255, 255, 1)'); 
       grad.addColorStop(0.4, 'rgba(120, 190, 255, 0.6)'); 
     } else {
@@ -71,7 +67,6 @@
     return new THREE.CanvasTexture(canvas);
   };
 
- 
   const starCount = 40000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(starCount * 3);
@@ -91,7 +86,7 @@
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
   const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ 
-    size: 0.35, // Slightly larger for better glow
+    size: 0.35,
     map: createTex(true), 
     transparent: true, 
     blending: THREE.AdditiveBlending, 
@@ -118,7 +113,6 @@
 
   gsap.to(spaceGroup.rotation, { x: 0.3, y: 0.5, scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 3 }});
 
- 
   const cursor = document.getElementById('custom-cursor');
   const flare = cursor?.querySelector('.cursor-glare');
   let mX = 0, mY = 0, pX = 0, pY = 0;
@@ -129,7 +123,6 @@
     mouseV.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1, 0.5);
   });
 
- 
   const tempV = new THREE.Vector3();
   const starEuler = new THREE.Euler();
 
@@ -142,7 +135,6 @@
     stars.rotation.y += 0.0002; stars.rotation.x += 0.0001;
     nebula.rotation.y += 0.0001;
 
- 
     if (!isMobile || frameCount % 2 === 0) {
       tempV.copy(mouseV).unproject(camera);
       const dir = tempV.sub(camera.position).normalize();
@@ -173,7 +165,6 @@
     stars.material.opacity = 0.7 + Math.sin(time) * 0.3;
     nebula.material.opacity = 0.08 + Math.cos(time * 0.5) * 0.04;
 
-    
     const dx = mX - pX; const dy = mY - pY;
     pX += dx * 0.15; pY += dy * 0.15;
     if (cursor) {
@@ -190,26 +181,37 @@
   animate();
 
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    const w = window.innerWidth;
+    const h = container.offsetHeight;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(w, h);
+    composer.setSize(w, h);
   });
+  window.dispatchEvent(new Event('resize'));
 </script>
 
 <style is:global>
+  html, body {
+    background-color: #000;
+    overscroll-behavior-y: none;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
   #star-container { 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100vw; 
-  height: 100svh; 
-  z-index: -1; 
-  background: #000;
-  will-change: transform;
-  transform: translateZ(0); 
-  backface-visibility: hidden;
-}
+    position: fixed; 
+    inset: 0;
+    width: 100vw; 
+    height: 110dvh; 
+    top: -5dvh;
+    z-index: -1; 
+    background: #000;
+    will-change: transform;
+    transform: translate3d(0,0,0); 
+    backface-visibility: hidden;
+    overflow: hidden;
+  }
   #custom-cursor {
     position: fixed; top: 0; left: 0; width: 100px; height: 20px;
     pointer-events: none !important; z-index: 100000;
