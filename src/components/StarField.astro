@@ -181,34 +181,37 @@
   animate();
 
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    const w = window.innerWidth;
+    const h = container.offsetHeight;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(w, h);
+    composer.setSize(w, h);
   });
+  window.dispatchEvent(new Event('resize'));
 </script>
 
 <style is:global>
   html, body {
-    background: #000;
+    background-color: #000;
+    overscroll-behavior-y: none;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    min-height: 100%;
   }
-
   #star-container { 
     position: fixed; 
-    top: -5vh; 
-    left: 0; 
+    inset: 0;
     width: 100vw; 
-    height: 110vh; 
+    height: 110dvh; 
+    top: -5dvh;
     z-index: -1; 
     background: #000;
     will-change: transform;
     transform: translate3d(0,0,0); 
     backface-visibility: hidden;
+    overflow: hidden;
   }
-
   #custom-cursor {
     position: fixed; top: 0; left: 0; width: 100px; height: 20px;
     pointer-events: none !important; z-index: 100000;
@@ -216,30 +219,24 @@
     will-change: transform; transform-origin: right center;
     mix-blend-mode: screen; transition: opacity 0.3s ease;
   }
-
   .cursor-core {
     width: 2px; height: 2px; background: #fff; border-radius: 50%;
     box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(0, 140, 255, 0.3);
     animation: pulse-glow 1.5s infinite alternate;
   }
-
   .cursor-tail {
     position: absolute; right: 0; width: 80px; height: 4px;
     background: linear-gradient(to left, #fff 0%, rgba(255, 255, 255, 0.4) 30%, transparent 100%);
     clip-path: polygon(0% 50%, 100% 20%, 100% 80%); filter: blur(0.5px); opacity: 0.8;
   }
-
   .cursor-glare {
     position: absolute; right: -20px; width: 60px; height: 60px;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(100, 200, 255, 0.4) 20%, transparent 80%);
     border-radius: 50%; filter: blur(4px); mix-blend-mode: screen;
   }
-
   @media (pointer: fine) { body, a, button { cursor: none !important; } }
   @media (pointer: coarse) { #custom-cursor { display: none; } }
-
   .content-overlay { pointer-events: none; }
   .content-overlay > * { pointer-events: auto; }
-
   @keyframes pulse-glow { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.3); opacity: 1; } }
 </style>
