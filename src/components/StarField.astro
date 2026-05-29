@@ -91,7 +91,7 @@
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
   const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ 
-    size: 0.35, // Slightly larger for better glow
+    size: 0.15, 
     map: createTex(true), 
     transparent: true, 
     blending: THREE.AdditiveBlending, 
