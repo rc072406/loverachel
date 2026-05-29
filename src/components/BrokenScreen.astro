@@ -46,30 +46,35 @@
 <script>
   import { gsap } from 'gsap';
 
-  const shards = document.querySelectorAll('.shard');
-  const flash = document.querySelector('.flash-overlay');
-  const mainText = document.querySelector('.main-text');
-  const cameraUI = document.querySelector('.camera-ui');
+  
+  const initShatter = () => {
+    const shards = document.querySelectorAll('.shard');
+    const flash = document.querySelector('.flash-overlay');
+    const mainText = document.querySelector('.main-text');
+    const cameraUI = document.querySelector('.camera-ui');
 
-  function shatterSequence() {
     const tl = gsap.timeline({ 
       repeat: -1, 
       repeatDelay: 2.5,
-      defaults: { ease: "expo.out" } 
+      defaults: { 
+        ease: "expo.out",
+        force3D: true 
+      } 
     });
 
-    tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0, filter: 'blur(0px)' });
-    tl.set(mainText, { opacity: 1, filter: 'blur(0px)', scale: 1 });
-    tl.set('.main-text span', { letterSpacing: "-0.05em" });
+   
+    tl.set(shards, { opacity: 0, scale: 1, x: 0, y: 0, rotationX: 0, rotationY: 0, filter: 'blur(0px)' })
+      .set(mainText, { opacity: 1, filter: 'blur(0px)', scale: 1 })
+      .set('.main-text span', { letterSpacing: "-0.05em" });
 
-    // 1. Tension Build: Animate letter spacing on the spans
+   
     tl.to('.main-text span', { 
       letterSpacing: "1vw", 
       duration: 2, 
       ease: "power2.inOut" 
     });
 
-    // 2. The Impact
+
     tl.to(flash, { 
       opacity: 1, 
       duration: 0.05, 
@@ -83,26 +88,20 @@
     })
     .to(flash, { opacity: 0, duration: 0.15 });
 
-    // 3. Shard Explosion
-    shards.forEach((shard) => {
-      const randomX = (Math.random() - 0.5) * 600;
-      const randomY = (Math.random() - 0.5) * 600;
-      const randomZ = 500 + Math.random() * 500; 
-      const rotX = (Math.random() - 0.5) * 450;
-      const rotY = (Math.random() - 0.5) * 450;
+ 
+    tl.to(shards, {
+      opacity: 1,
+      x: () => (Math.random() - 0.5) * 600,
+      y: () => (Math.random() - 0.5) * 600,
+      z: () => 500 + Math.random() * 500, 
+      rotationX: () => (Math.random() - 0.5) * 450,
+      rotationY: () => (Math.random() - 0.5) * 450,
+      scale: 1.2,
+      duration: 1.8,
+      stagger: 0 // Keep 0 to ensure they all pop at the exact same frame
+    }, 2.05); 
 
-      tl.to(shard, {
-        opacity: 1,
-        x: randomX,
-        y: randomY,
-        z: randomZ,
-        rotationX: rotX,
-        rotationY: rotY,
-        scale: 1.2,
-        duration: 1.8,
-      }, 2.05); 
-    });
-
+    // 4. Outro
     tl.to(shards, { 
       opacity: 0, 
       filter: 'blur(20px)', 
@@ -111,7 +110,8 @@
     }, "+=0.8");
   }
 
-  window.addEventListener('load', shatterSequence);
+
+  document.addEventListener('DOMContentLoaded', initShatter);
 </script>
 
 <style>
@@ -126,6 +126,13 @@
     overflow: hidden;
     perspective: 1200px;
     font-family: 'Inter', sans-serif;
+  }
+
+
+  .shard, .main-text, .flash-overlay {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
   }
 
   .camera-overlay {
@@ -157,7 +164,6 @@
   .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; }
   .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; }
 
-  
   .camera-meta {
     position: absolute;
     color: #fff;
@@ -183,7 +189,6 @@
   .center-cross::before { top: 50%; left: 0; width: 100%; height: 1px; }
   .center-cross::after { left: 50%; top: 0; width: 1px; height: 100%; }
 
-  /* --- STACKED TYPOGRAPHY --- */
   .text-layer, .shard-content {
     display: flex;
     flex-direction: column;
@@ -213,18 +218,16 @@
     z-index: 10;
   }
 
-  .shard { position: absolute; opacity: 0; will-change: transform; }
+  .shard { position: absolute; opacity: 0; }
 
   .shard-content {
     text-shadow: -3px -1px 0px rgba(255, 0, 80, 0.8), 3px 1px 0px rgba(0, 255, 255, 0.8);
   }
 
-  
   .shard-0 { clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%); }
   .shard-1 { clip-path: polygon(0 30%, 100% 30%, 100% 60%, 0 60%); }
   .shard-2 { clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%); }
   .shard-3 { clip-path: polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%); }
-  /* More varied shards for the stack */
   .shard-4 { clip-path: polygon(0 15%, 50% 0, 50% 50%, 0 40%); }
   .shard-5 { clip-path: polygon(50% 0, 100% 15%, 100% 40%, 50% 50%); }
   .shard-6 { clip-path: polygon(0 40%, 50% 50%, 50% 100%, 0 85%); }
@@ -234,22 +237,10 @@
   .flash-overlay {
     position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 200; pointer-events: none;
   }
-@media (max-width: 600px) {
-  .camera-overlay {
-    padding: 20px; 
-  }
 
-  .bottom-meta {
-    flex-direction: column; 
-    align-items: flex-start;
-    gap: 4px;
-    bottom: 10px;
-    left: 10px;
+  @media (max-width: 600px) {
+    .camera-overlay { padding: 20px; }
+    .bottom-meta { flex-direction: column; align-items: flex-start; gap: 4px; bottom: 10px; left: 10px; }
+    .top-meta { top: 10px; left: 10px; }
   }
-
-  .top-meta {
-    top: 10px;
-    left: 10px;
-  }
-}
 </style>
