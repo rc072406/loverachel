@@ -203,12 +203,13 @@
   top: 0; 
   left: 0; 
   width: 100vw; 
-  height: 100svh; 
+  height: 100%; 
   z-index: -1; 
   background: #000;
   will-change: transform;
   transform: translateZ(0); 
   backface-visibility: hidden;
+  min-height: -webkit-fill-available;
 }
   #custom-cursor {
     position: fixed; top: 0; left: 0; width: 100px; height: 20px;
