@@ -18,48 +18,7 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-  const vertexShader = `
-    uniform float uTime;
-    uniform vec3 uMouse;
-    uniform float uRadius;
-    attribute float aSize;
-    attribute vec3 aInitialPos;
-    varying vec3 vColor;
-    varying float vOpacity;
-
-    void main() {
-      vColor = color;
-      vec3 pos = position;
-      
-      vec3 worldPos = (modelMatrix * vec4(pos, 1.0)).xyz;
-      float dist = distance(worldPos, uMouse);
-      
-      if (dist < uRadius) {
-        float force = (uRadius - dist) / uRadius;
-        pos += normalize(worldPos - uMouse) * force * 4.0;
-      } else {
-        pos = mix(pos, aInitialPos, 0.05);
-      }
-
-      vOpacity = 0.5 + 0.5 * sin(uTime + position.x * 0.1);
-      
-      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-      gl_PointSize = aSize * (300.0 / -mvPosition.z);
-      gl_Position = projectionMatrix * mvPosition;
-    }
-  `;
-
-  const fragmentShader = `
-    varying vec3 vColor;
-    varying float vOpacity;
-    void main() {
-      float d = distance(gl_PointCoord, vec2(0.5));
-      if (d > 0.5) discard;
-      float strength = pow(1.0 - d * 2.0, 2.0);
-      gl_FragColor = vec4(vColor, strength * vOpacity);
-    }
-  `;
-
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const container = document.getElementById('star-container');
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -67,7 +26,7 @@
 
   const renderer = new THREE.WebGLRenderer({ 
     alpha: true, 
-    antialias: false, 
+    antialias: !isMobile, 
     powerPreference: "high-performance" 
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -79,92 +38,144 @@
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
   composer.addPass(bloomPass);
 
-  const starCount = 60000;
-  const geometry = new THREE.BufferGeometry();
-  const positions = new Float32Array(starCount * 3);
-  const colors = new Float32Array(starCount * 3);
-  const sizes = new Float32Array(starCount);
-  const palette = [new THREE.Color(0xd4eaff), new THREE.Color(0xffffff), new THREE.Color(0xf0d9ff), new THREE.Color(0x99ccff)];
-
-  for (let i = 0; i < starCount; i++) {
-    positions[i*3] = (Math.random() - 0.5) * 200;
-    positions[i*3+1] = (Math.random() - 0.5) * 200;
-    positions[i*3+2] = (Math.random() - 0.5) * 150;
-    const col = palette[Math.floor(Math.random() * palette.length)];
-    colors[i*3] = col.r; colors[i*3+1] = col.g; colors[i*3+2] = col.b;
-    sizes[i] = Math.random() * 1.5 + 0.5;
-  }
-
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('aInitialPos', new THREE.BufferAttribute(new Float32Array(positions), 3));
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
-
-  const starMaterial = new THREE.ShaderMaterial({
+  const starShader = {
     uniforms: {
       uTime: { value: 0 },
-      uMouse: { value: new THREE.Vector3(1000, 1000, 1000) },
-      uRadius: { value: 12.0 }
+      uMouse: { value: new THREE.Vector3() },
+      uSize: { value: isMobile ? 0.15 : 0.25 }
     },
-    vertexShader,
-    fragmentShader,
+    vertexShader: `
+      uniform float uTime;
+      uniform vec3 uMouse;
+      uniform float uSize;
+      attribute float aSize;
+      attribute vec3 aColor;
+      varying vec3 vColor;
+      varying float vOpacity;
+      void main() {
+        vColor = aColor;
+        vec3 pos = position;
+        float dist = distance(pos, uMouse);
+        if(dist < 8.0) {
+          vec3 dir = normalize(pos - uMouse);
+          pos += dir * (8.0 - dist) * 0.5;
+        }
+        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+        gl_PointSize = uSize * aSize * (300.0 / -mvPosition.z);
+        gl_Position = projectionMatrix * mvPosition;
+        vOpacity = 0.6 + 0.4 * sin(uTime + position.x);
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vColor;
+      varying float vOpacity;
+      void main() {
+        float d = distance(gl_PointCoord, vec2(0.5));
+        if(d > 0.5) discard;
+        float strength = pow(1.0 - d * 2.0, 2.0);
+        gl_FragColor = vec4(vColor, strength * vOpacity);
+      }
+    `
+  };
+
+  const starCount = isMobile ? 25000 : 60000;
+  const starGeo = new THREE.BufferGeometry();
+  const posArray = new Float32Array(starCount * 3);
+  const colorArray = new Float32Array(starCount * 3);
+  const sizeArray = new Float32Array(starCount);
+
+  const palette = [
+    new THREE.Color(0x9bb2ff), 
+    new THREE.Color(0xbbccff), 
+    new THREE.Color(0xfff4ea), 
+    new THREE.Color(0xffcc6f)
+  ];
+
+  for(let i=0; i<starCount; i++) {
+    const r = Math.random() * 80;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = (Math.random() - 0.5) * 0.5;
+    posArray[i*3] = r * Math.cos(theta);
+    posArray[i*3+1] = r * Math.sin(theta) * phi;
+    posArray[i*3+2] = (Math.random() - 0.5) * 100;
+    
+    const col = palette[Math.floor(Math.random() * palette.length)];
+    colorArray[i*3] = col.r; colorArray[i*3+1] = col.g; colorArray[i*3+2] = col.b;
+    sizeArray[i] = Math.random() * 2.0 + 0.5;
+  }
+
+  starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  starGeo.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+  starGeo.setAttribute('aSize', new THREE.BufferAttribute(sizeArray, 1));
+
+  const starMaterial = new THREE.ShaderMaterial({
+    uniforms: starShader.uniforms,
+    vertexShader: starShader.vertexShader,
+    fragmentShader: starShader.fragmentShader,
     transparent: true,
     blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    vertexColors: true
+    depthWrite: false
   });
 
-  const stars = new THREE.Points(geometry, starMaterial);
+  const stars = new THREE.Points(starGeo, starMaterial);
   scene.add(stars);
 
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2(-10, -10);
-  const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-
-  window.addEventListener('mousemove', (e) => {
-    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  const nebulaGeo = new THREE.SphereGeometry(60, 32, 32);
+  const nebulaMat = new THREE.MeshBasicMaterial({
+    map: (() => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      const g = ctx.createRadialGradient(256, 256, 10, 256, 256, 256);
+      g.addColorStop(0, 'rgba(60, 20, 120, 0.2)');
+      g.addColorStop(0.5, 'rgba(20, 40, 100, 0.1)');
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+      return new THREE.CanvasTexture(canvas);
+    })(),
+    side: THREE.BackSide,
+    transparent: true,
+    opacity: 0.4,
+    blending: THREE.AdditiveBlending
   });
+  const nebula = new THREE.Mesh(nebulaGeo, nebulaMat);
+  scene.add(nebula);
 
-  gsap.to(stars.rotation, {
-    y: Math.PI * 0.2,
-    scrollTrigger: {
-      trigger: "body",
-      start: "top top",
-      end: "bottom bottom",
-      scrub: 1.5
-    }
+  gsap.to(stars.rotation, { 
+    z: Math.PI * 0.5, 
+    scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 2 }
   });
 
   const cursor = document.getElementById('custom-cursor');
-  let curX = 0, curY = 0, tarX = 0, tarY = 0;
+  let mX = 0, mY = 0, pX = 0, pY = 0;
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  const mouseWorld = new THREE.Vector3();
+
+  window.addEventListener('mousemove', (e) => {
+    mX = e.clientX; mY = e.clientY;
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    raycaster.ray.intersectPlane(plane, mouseWorld);
+    starMaterial.uniforms.uMouse.value.copy(mouseWorld);
+  });
 
   function animate() {
     requestAnimationFrame(animate);
     const time = performance.now() * 0.001;
     starMaterial.uniforms.uTime.value = time;
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersectPoint = new THREE.Vector3();
-    raycaster.ray.intersectPlane(plane, intersectPoint);
-    starMaterial.uniforms.uMouse.value.lerp(intersectPoint, 0.1);
-
     stars.rotation.y += 0.0003;
-    stars.rotation.z += 0.0001;
+    nebula.rotation.y -= 0.0001;
 
-    tarX = (mouse.x + 1) * 0.5 * window.innerWidth;
-    tarY = (-mouse.y + 1) * 0.5 * window.innerHeight;
-    curX += (tarX - curX) * 0.15;
-    curY += (tarY - curY) * 0.15;
-
+    const dx = mX - pX; const dy = mY - pY;
+    pX += dx * 0.12; pY += dy * 0.12;
     if (cursor) {
-      const dx = tarX - curX;
-      const dy = tarY - curY;
-      const vel = Math.sqrt(dx * dx + dy * dy);
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      cursor.style.transform = `translate3d(${curX - 100}px, ${curY - 10}px, 0) rotate(${angle}deg) scaleX(${1 + vel / 100})`;
+      const vel = Math.sqrt(dx * dx + dy * dy);
+      cursor.style.transform = `translate3d(${pX - 100}px, ${pY - 10}px, 0) rotate(${angle}deg) scaleX(${1 + (vel / 150)})`;
     }
-
     composer.render();
   }
   animate();
@@ -178,29 +189,13 @@
 </script>
 
 <style is:global>
-  body { margin: 0; overflow-x: hidden; background: #000; }
-  #star-container { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-  #custom-cursor {
-    position: fixed; top: 0; left: 0; width: 100px; height: 20px;
-    pointer-events: none; z-index: 9999;
-    display: flex; align-items: center; justify-content: flex-end;
-    mix-blend-mode: screen; will-change: transform;
-  }
-  .cursor-core {
-    width: 3px; height: 3px; background: #fff; border-radius: 50%;
-    box-shadow: 0 0 15px #fff, 0 0 30px #4af;
-  }
-  .cursor-tail {
-    position: absolute; right: 0; width: 60px; height: 2px;
-    background: linear-gradient(to left, #fff, transparent);
-    clip-path: polygon(0 50%, 100% 0, 100% 100%);
-  }
-  .cursor-glare {
-    position: absolute; right: -15px; width: 40px; height: 40px;
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
-    filter: blur(4px);
-  }
-  @media (pointer: fine) { * { cursor: none !important; } }
+  #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; z-index: -1; background: radial-gradient(circle at center, #050510 0%, #000 100%); }
+  #custom-cursor { position: fixed; top: 0; left: 0; width: 100px; height: 20px; pointer-events: none; z-index: 10000; display: flex; align-items: center; justify-content: flex-end; transform-origin: right center; mix-blend-mode: screen; }
+  .cursor-core { width: 3px; height: 3px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff, 0 0 30px #4af; }
+  .cursor-tail { position: absolute; right: 0; width: 90px; height: 6px; background: linear-gradient(to left, #fff 0%, #4af 40%, transparent 100%); clip-path: polygon(0% 50%, 100% 0%, 100% 100%); opacity: 0.6; filter: blur(1px); }
+  .cursor-glare { position: absolute; right: -25px; width: 70px; height: 70px; background: radial-gradient(circle, rgba(74, 170, 255, 0.5) 0%, transparent 70%); filter: blur(8px); }
+  @media (pointer: fine) { body, a, button { cursor: none !important; } }
+  @media (pointer: coarse) { #custom-cursor { display: none; } }
   .content-overlay { pointer-events: none; position: relative; z-index: 1; }
   .content-overlay > * { pointer-events: auto; }
 </style>
