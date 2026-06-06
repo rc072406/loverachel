@@ -155,14 +155,14 @@ const models = [
     font-weight: 500;
     color: #444444;
     letter-spacing: 0.05em;
-   filter: blur(0.2px) drop-shadow(0.5px 0.5px 0px rgba(0,0,0,0.05));
-  -webkit-font-smoothing: antialiased;
+    filter: blur(0.2px) drop-shadow(0.5px 0.5px 0px rgba(0,0,0,0.05));
+    -webkit-font-smoothing: antialiased;
   }
 
-  .card-1 { transform: rotate(-2.5deg) translateY(10px); }
-  .card-2 { transform: rotate(1.8deg) translateX(-5px); }
-  .card-3 { transform: rotate(-1.2deg) translateY(-15px) translateX(10px); }
-  .card-4 { transform: rotate(3deg) translateY(5px); }
+  .card-1 { transform: rotate(0deg); }
+  .card-2 { transform: rotate(0deg); }
+  .card-3 { transform: rotate(0deg); }
+  .card-4 { transform: rotate(0deg); }
 
   @media (hover: hover) {
     .polaroid-card:hover {
@@ -222,7 +222,7 @@ const models = [
       font-size: 1.05rem;
     }
     .card-1, .card-2, .card-3, .card-4 { 
-      transform: rotate(0.8deg); 
+      transform: rotate(0deg); 
     }
     .polaroid-card:active {
       transform: scale(0.98);
