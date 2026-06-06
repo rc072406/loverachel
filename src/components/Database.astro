@@ -164,15 +164,15 @@ const models = [
   .card-3 { transform: rotate(0deg); }
   .card-4 { transform: rotate(0deg); }
 
-  @media (hover: hover) {
-    .polaroid-card:hover {
-      z-index: 10;
-      transform: scale(1.04) rotate(0deg) translateY(-5px);
-      box-shadow: 
-        10px 20px 30px rgba(0, 0, 0, 0.3),
-        0px 4px 8px rgba(0, 0, 0, 0.15);
-    }
+@media (hover: hover) {
+  .polaroid-card:hover {
+    z-index: 10;
+    transform: scale(1.04) rotate(2deg) translateY(-5px); 
+    box-shadow: 
+      10px 20px 30px rgba(0, 0, 0, 0.3),
+      0px 4px 8px rgba(0, 0, 0, 0.15);
   }
+}
 
   @keyframes blink {
     0%, 100% { opacity: 1; }
