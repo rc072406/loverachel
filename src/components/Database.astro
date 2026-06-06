@@ -120,7 +120,6 @@ const models = [
     height: 100%;
     object-fit: cover;
     display: block;
-    filter: contrast(1.03) brightness(0.98); 
   }
 
   .polaroid-sidebar {
@@ -156,6 +155,8 @@ const models = [
     font-weight: 500;
     color: #444444;
     letter-spacing: 0.05em;
+   filter: blur(0.2px) drop-shadow(0.5px 0.5px 0px rgba(0,0,0,0.05));
+  -webkit-font-smoothing: antialiased;
   }
 
   .card-1 { transform: rotate(-2.5deg) translateY(10px); }
